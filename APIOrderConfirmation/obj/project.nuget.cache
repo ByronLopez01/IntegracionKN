@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "kwOFed0rjXQ=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIOrderConfirmation\\APIOrderConfirmation.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Byron\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.20.1\\microsoft.visualstudio.azure.containers.tools.targets.1.20.1.nupkg.sha512",
+    "C:\\Users\\Byron\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,44 @@
+services:
+  apiwaverelease:
+    build:
+      context: ..
+      dockerfile: APIWaveRelease/Dockerfile
+    image: apiwaverelease:latest
+    ports:
+      - "5000:8080"
+    networks:
+      - microservices-net
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    restart: unless-stopped
+
+  apilpnpicking:
+    build:
+      context: ..
+      dockerfile: APILPNPicking/Dockerfile
+    image: apilpnpicking:latest
+    ports:
+      - "5001:8080"
+    networks:
+      - microservices-net
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    restart: unless-stopped
+
+  apifamilymaster:
+    build:
+      context: ..
+      dockerfile: APIFamilyMaster/Dockerfile
+    image: apifamilymaster:latest
+    ports:
+      - "5002:8080" # Puerto externo 5002 mapeado al puerto interno 8080
+    networks:
+      - microservices-net
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    restart: unless-stopped
+
+
+networks:
+  microservices-net:
+    driver: bridge
