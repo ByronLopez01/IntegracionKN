@@ -14,7 +14,7 @@ namespace APIFamilyMaster.data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<FamilyMaster>()
-                        .ToTable("FamilyMaster"); // Cambia el nombre de la tabla si es necesario
+                        .ToTable("FamilyMaster"); 
 
             modelBuilder.Entity<FamilyMaster>(entity =>
             {

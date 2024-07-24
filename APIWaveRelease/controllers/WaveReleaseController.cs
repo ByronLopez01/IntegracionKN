@@ -1,5 +1,6 @@
 ﻿using APIWaveRelease.data;
 using APIWaveRelease.models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,7 @@ namespace APIWaveRelease.controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class WaveReleaseController : ControllerBase
     {
         private readonly WaveReleaseContext _context;
@@ -62,17 +64,16 @@ namespace APIWaveRelease.controllers
         [HttpGet("{idOrdenTrabajo}")]
         public async Task<IActionResult> GetWaveByIdOrdenTrabajo(string idOrdenTrabajo)
         {
-            var waveRelease = await _context.WaveRelease
+            var waveReleases = await _context.WaveRelease
                 .Where(w => w.NumOrden == idOrdenTrabajo)
-                .Select(w => w.Wave)
-                .FirstOrDefaultAsync();
+                .ToListAsync();
 
-            if (waveRelease == null)
+            if (waveReleases == null || waveReleases.Count == 0)
             {
                 return NotFound($"No Wave found for Order ID {idOrdenTrabajo}");
             }
 
-            return Ok(new { Wave = waveRelease });
+            return Ok(waveReleases);
         }
 
         // PUT api/<WaveReleaseController>/5

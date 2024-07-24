@@ -1,5 +1,6 @@
 ﻿using APILPNPicking.data;
 using APILPNPicking.models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net;
@@ -8,12 +9,13 @@ namespace APILPNPicking.controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class LpnPickingController :ControllerBase
     {
         private readonly LPNPickingContext _context;
         private readonly HttpClient _httpClient;
 
-        private string url = "http://100.100.244.80:5000";
+        
 
         public LpnPickingController(LPNPickingContext context, HttpClient httpClient)
         {

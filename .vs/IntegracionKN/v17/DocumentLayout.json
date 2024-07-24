@@ -1,133 +1,157 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\",
+  "WorkspaceRootPath": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apifamilymaster\\data\\familymastercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\data\\familymastercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apifamilymaster\\controllers\\familymastercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\controllers\\familymastercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apifamilymaster\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|dockercompose{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|C:\\Users\\Byron\\source\\repos\\IntegracionKN\\dockercompose\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|dockercompose{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|solutionrelative:dockercompose\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apilpnpicking\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apifamilymaster\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apilpnpicking\\controllers\\lpnpickingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\controllers\\lpnpickingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apilpnpicking\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apifamilymaster\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{BEA65DF5-8C52-42DF-9A3F-DE98F16D004F}|AuthServices\\AuthServices.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\authservices\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BEA65DF5-8C52-42DF-9A3F-DE98F16D004F}|AuthServices\\AuthServices.csproj|solutionrelative:authservices\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apifamilymaster\\data\\familymaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\data\\familymaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apilpnpicking\\data\\lpnpickingcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\data\\lpnpickingcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apilpnpicking\\data\\lpnsorting.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\data\\lpnsorting.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apilpnpicking\\models\\waverelease.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\waverelease.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apiwaverelease\\controllers\\wavereleasecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\controllers\\wavereleasecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apilpnpicking\\models\\subnumseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\subnumseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apilpnpicking\\models\\loaddtlseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\loaddtlseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apilpnpicking\\models\\loadhdrseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\loadhdrseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apilpnpicking\\models\\lpnpickingkn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\lpnpickingkn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apilpnpicking\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apiwaverelease\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apiwaverelease\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B1A4D77A-C851-4619-8FC6-25305C4F10C2}|APIOrderConfirmation\\APIOrderConfirmation.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apiorderconfirmation\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{B1A4D77A-C851-4619-8FC6-25305C4F10C2}|APIOrderConfirmation\\APIOrderConfirmation.csproj|solutionrelative:apiorderconfirmation\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\controllers\\wavereleasecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\controllers\\wavereleasecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apiwaverelease\\data\\wavereleasecontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\data\\wavereleasecontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apiwaverelease\\data\\waverelease.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\data\\waverelease.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apiwaverelease\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apiwaverelease\\models\\wavereleasekn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\controllers\\lpnpickingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\controllers\\lpnpickingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1A4D77A-C851-4619-8FC6-25305C4F10C2}|APIOrderConfirmation\\APIOrderConfirmation.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiorderconfirmation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1A4D77A-C851-4619-8FC6-25305C4F10C2}|APIOrderConfirmation\\APIOrderConfirmation.csproj|solutionrelative:apiorderconfirmation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEA65DF5-8C52-42DF-9A3F-DE98F16D004F}|AuthServices\\AuthServices.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\authservices\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{BEA65DF5-8C52-42DF-9A3F-DE98F16D004F}|AuthServices\\AuthServices.csproj|solutionrelative:authservices\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEA65DF5-8C52-42DF-9A3F-DE98F16D004F}|AuthServices\\AuthServices.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\authservices\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BEA65DF5-8C52-42DF-9A3F-DE98F16D004F}|AuthServices\\AuthServices.csproj|solutionrelative:authservices\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|dockercompose{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\dockercompose\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|dockercompose{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|solutionrelative:dockercompose\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEA65DF5-8C52-42DF-9A3F-DE98F16D004F}|AuthServices\\AuthServices.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\authservices\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{BEA65DF5-8C52-42DF-9A3F-DE98F16D004F}|AuthServices\\AuthServices.csproj|solutionrelative:authservices\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\models\\waverelease.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\waverelease.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\data\\familymaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\data\\familymaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\data\\familymastercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\data\\familymastercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\controllers\\familymastercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\controllers\\familymastercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\data\\waverelease.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\data\\waverelease.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\data\\wavereleasecontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\data\\wavereleasecontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\data\\lpnpickingcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\data\\lpnpickingcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\data\\lpnsorting.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\data\\lpnsorting.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\models\\subnumseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\subnumseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\models\\loaddtlseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\loaddtlseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\models\\loadhdrseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\loadhdrseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\models\\lpnpickingkn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\lpnpickingkn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1A4D77A-C851-4619-8FC6-25305C4F10C2}|APIOrderConfirmation\\APIOrderConfirmation.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiorderconfirmation\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{B1A4D77A-C851-4619-8FC6-25305C4F10C2}|APIOrderConfirmation\\APIOrderConfirmation.csproj|solutionrelative:apiorderconfirmation\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\models\\wavereleasekn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\models\\wavereleasekn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apiwaverelease\\models\\shipseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\models\\shipseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\models\\shipseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apiwaverelease\\models\\pickdtlseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\models\\pickdtlseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\models\\pickdtlseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apiwaverelease\\models\\ordertransseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\models\\ordertransseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\models\\ordertransseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apiwaverelease\\models\\orderseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\models\\orderseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\models\\orderseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apiwaverelease\\models\\addressseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\models\\addressseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\models\\addressseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\apiwaverelease\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
   ],
@@ -138,7 +162,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Bookmark",
@@ -146,104 +170,104 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Dockerfile",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIFamilyMaster\\Dockerfile",
-              "RelativeDocumentMoniker": "APIFamilyMaster\\Dockerfile",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIFamilyMaster\\Dockerfile",
-              "RelativeToolTip": "APIFamilyMaster\\Dockerfile",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABUAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-07-22T15:49:59.685Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 5,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIFamilyMaster\\Program.cs",
-              "RelativeDocumentMoniker": "APIFamilyMaster\\Program.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIFamilyMaster\\Program.cs",
-              "RelativeToolTip": "APIFamilyMaster\\Program.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-22T15:43:31.25Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "FamilyMasterController.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIFamilyMaster\\controllers\\FamilyMasterController.cs",
-              "RelativeDocumentMoniker": "APIFamilyMaster\\controllers\\FamilyMasterController.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIFamilyMaster\\controllers\\FamilyMasterController.cs",
-              "RelativeToolTip": "APIFamilyMaster\\controllers\\FamilyMasterController.cs",
-              "ViewState": "AQIAABcAAAAAAAAAAAAUwBYAAAAyAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-22T15:32:22.927Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "LpnPickingController.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\controllers\\LpnPickingController.cs",
-              "RelativeDocumentMoniker": "APILPNPicking\\controllers\\LpnPickingController.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\controllers\\LpnPickingController.cs",
-              "RelativeToolTip": "APILPNPicking\\controllers\\LpnPickingController.cs",
-              "ViewState": "AQIAAAkAAAAAAAAAAAAAAAwAAAA0AAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-19T14:00:40.177Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "docker-compose.yml",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\dockercompose\\docker-compose.yml",
-              "RelativeDocumentMoniker": "dockercompose\\docker-compose.yml",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\dockercompose\\docker-compose.yml",
-              "RelativeToolTip": "dockercompose\\docker-compose.yml",
-              "ViewState": "AQIAAA8AAAAAAAAAAAAUwB0AAAARAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
-              "WhenOpened": "2024-07-19T21:38:48.618Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Dockerfile",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\Dockerfile",
-              "RelativeDocumentMoniker": "APILPNPicking\\Dockerfile",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\Dockerfile",
-              "RelativeToolTip": "APILPNPicking\\Dockerfile",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-07-11T19:39:03.758Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "FamilyMasterContext.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMasterContext.cs",
-              "RelativeDocumentMoniker": "APIFamilyMaster\\data\\FamilyMasterContext.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMasterContext.cs",
-              "RelativeToolTip": "APIFamilyMaster\\data\\FamilyMasterContext.cs",
-              "ViewState": "AQIAAAMAAAAAAAAAAAAUwA8AAAAsAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-22T15:25:27.553Z",
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\appsettings.json",
+              "RelativeDocumentMoniker": "APILPNPicking\\appsettings.json",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\appsettings.json",
+              "RelativeToolTip": "APILPNPicking\\appsettings.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-07-24T00:14:45.405Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 7,
               "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\Program.cs",
-              "RelativeDocumentMoniker": "APILPNPicking\\Program.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\Program.cs",
-              "RelativeToolTip": "APILPNPicking\\Program.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIOrderConfirmation\\Program.cs",
+              "RelativeDocumentMoniker": "APIOrderConfirmation\\Program.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIOrderConfirmation\\Program.cs",
+              "RelativeToolTip": "APIOrderConfirmation\\Program.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-24T00:10:32.625Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\AuthServices\\controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "AuthServices\\controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\AuthServices\\controllers\\AuthController.cs",
+              "RelativeToolTip": "AuthServices\\controllers\\AuthController.cs",
+              "ViewState": "AQIAABsAAAAAAAAAAAAgwCMAAAAiAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-23T21:42:36.584Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\appsettings.json",
+              "RelativeDocumentMoniker": "APIWaveRelease\\appsettings.json",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\appsettings.json",
+              "RelativeToolTip": "APIWaveRelease\\appsettings.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-07-11T18:36:22.123Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\Program.cs",
+              "RelativeDocumentMoniker": "APIWaveRelease\\Program.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\Program.cs",
+              "RelativeToolTip": "APIWaveRelease\\Program.cs",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAAAFEAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-11T21:52:42.59Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "WaveReleaseController.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\controllers\\WaveReleaseController.cs",
+              "RelativeDocumentMoniker": "APIWaveRelease\\controllers\\WaveReleaseController.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\controllers\\WaveReleaseController.cs",
+              "RelativeToolTip": "APIWaveRelease\\controllers\\WaveReleaseController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAkAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-19T23:35:54.248Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "LpnPickingController.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\controllers\\LpnPickingController.cs",
+              "RelativeDocumentMoniker": "APILPNPicking\\controllers\\LpnPickingController.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\controllers\\LpnPickingController.cs",
+              "RelativeToolTip": "APILPNPicking\\controllers\\LpnPickingController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAOAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-19T14:00:40.177Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\Program.cs",
+              "RelativeDocumentMoniker": "APILPNPicking\\Program.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\Program.cs",
+              "RelativeToolTip": "APILPNPicking\\Program.cs",
+              "ViewState": "AQIAAEsAAAAAAAAAAAAAAEsAAAAVAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-07-19T20:07:03.779Z",
               "EditorCaption": ""
@@ -252,22 +276,74 @@
               "$type": "Document",
               "DocumentIndex": 8,
               "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIFamilyMaster\\appsettings.json",
-              "RelativeDocumentMoniker": "APIFamilyMaster\\appsettings.json",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIFamilyMaster\\appsettings.json",
-              "RelativeToolTip": "APIFamilyMaster\\appsettings.json",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\AuthServices\\appsettings.json",
+              "RelativeDocumentMoniker": "AuthServices\\appsettings.json",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\AuthServices\\appsettings.json",
+              "RelativeToolTip": "AuthServices\\appsettings.json",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-07-22T15:43:40.814Z",
+              "WhenOpened": "2024-07-23T21:44:33.685Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 9,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\AuthServices\\Program.cs",
+              "RelativeDocumentMoniker": "AuthServices\\Program.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\AuthServices\\Program.cs",
+              "RelativeToolTip": "AuthServices\\Program.cs",
+              "ViewState": "AQIAADoAAAAAAAAAAAAgwE8AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-23T21:41:21.129Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "docker-compose.yml",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\dockercompose\\docker-compose.yml",
+              "RelativeDocumentMoniker": "dockercompose\\docker-compose.yml",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\dockercompose\\docker-compose.yml",
+              "RelativeToolTip": "dockercompose\\docker-compose.yml",
+              "ViewState": "AQIAACAAAAAAAAAAAAAgwDIAAAAbAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
+              "WhenOpened": "2024-07-19T21:38:48.618Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\AuthServices\\Dockerfile",
+              "RelativeDocumentMoniker": "AuthServices\\Dockerfile",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\AuthServices\\Dockerfile",
+              "RelativeToolTip": "AuthServices\\Dockerfile",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAAAA4AAAAXAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-07-23T21:52:01.283Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\Dockerfile",
+              "RelativeDocumentMoniker": "APIWaveRelease\\Dockerfile",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\Dockerfile",
+              "RelativeToolTip": "APIWaveRelease\\Dockerfile",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-07-11T19:38:54.633Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
               "Title": "FamilyMaster.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMaster.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMaster.cs",
               "RelativeDocumentMoniker": "APIFamilyMaster\\data\\FamilyMaster.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMaster.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMaster.cs",
               "RelativeToolTip": "APIFamilyMaster\\data\\FamilyMaster.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -276,180 +352,50 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "LPNPickingContext.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\data\\LPNPickingContext.cs",
-              "RelativeDocumentMoniker": "APILPNPicking\\data\\LPNPickingContext.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\data\\LPNPickingContext.cs",
-              "RelativeToolTip": "APILPNPicking\\data\\LPNPickingContext.cs",
-              "ViewState": "AQIAAAkAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "DocumentIndex": 15,
+              "Title": "FamilyMasterContext.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMasterContext.cs",
+              "RelativeDocumentMoniker": "APIFamilyMaster\\data\\FamilyMasterContext.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMasterContext.cs",
+              "RelativeToolTip": "APIFamilyMaster\\data\\FamilyMasterContext.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-20T00:04:49.976Z",
+              "WhenOpened": "2024-07-22T15:25:27.553Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 16,
+              "Title": "FamilyMasterController.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\controllers\\FamilyMasterController.cs",
+              "RelativeDocumentMoniker": "APIFamilyMaster\\controllers\\FamilyMasterController.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\controllers\\FamilyMasterController.cs",
+              "RelativeToolTip": "APIFamilyMaster\\controllers\\FamilyMasterController.cs",
+              "ViewState": "AQIAACUAAAAAAAAAAAAAAC4AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-22T15:32:22.927Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
               "Title": "WaveRelease.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\models\\WaveRelease.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\WaveRelease.cs",
               "RelativeDocumentMoniker": "APILPNPicking\\models\\WaveRelease.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\models\\WaveRelease.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\WaveRelease.cs",
               "RelativeToolTip": "APILPNPicking\\models\\WaveRelease.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAAAAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAApAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-07-20T00:53:39.308Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "LoadDtlSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\models\\LoadDtlSeg.cs",
-              "RelativeDocumentMoniker": "APILPNPicking\\models\\LoadDtlSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\models\\LoadDtlSeg.cs",
-              "RelativeToolTip": "APILPNPicking\\models\\LoadDtlSeg.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAqAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-19T13:57:56.563Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
-              "Title": "LoadHdrSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\models\\LoadHdrSeg.cs",
-              "RelativeDocumentMoniker": "APILPNPicking\\models\\LoadHdrSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\models\\LoadHdrSeg.cs",
-              "RelativeToolTip": "APILPNPicking\\models\\LoadHdrSeg.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAA4AAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-19T13:57:24.779Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 17,
-              "Title": "LPNPickingKN.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\models\\LPNPickingKN.cs",
-              "RelativeDocumentMoniker": "APILPNPicking\\models\\LPNPickingKN.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\models\\LPNPickingKN.cs",
-              "RelativeToolTip": "APILPNPicking\\models\\LPNPickingKN.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAsAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-19T13:57:01.69Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
-              "Title": "SubnumSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\models\\SubnumSeg.cs",
-              "RelativeDocumentMoniker": "APILPNPicking\\models\\SubnumSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\models\\SubnumSeg.cs",
-              "RelativeToolTip": "APILPNPicking\\models\\SubnumSeg.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAAqAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-19T13:58:44.651Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "LPNSorting.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\data\\LPNSorting.cs",
-              "RelativeDocumentMoniker": "APILPNPicking\\data\\LPNSorting.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\data\\LPNSorting.cs",
-              "RelativeToolTip": "APILPNPicking\\data\\LPNSorting.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAtAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-19T19:15:27.326Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "WaveReleaseController.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\controllers\\WaveReleaseController.cs",
-              "RelativeDocumentMoniker": "APIWaveRelease\\controllers\\WaveReleaseController.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\controllers\\WaveReleaseController.cs",
-              "RelativeToolTip": "APIWaveRelease\\controllers\\WaveReleaseController.cs",
-              "ViewState": "AQIAADwAAAAAAAAAAAAAAEsAAAAJAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-19T23:35:54.248Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 18,
-              "Title": "launchSettings.json",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\Properties\\launchSettings.json",
-              "RelativeDocumentMoniker": "APILPNPicking\\Properties\\launchSettings.json",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APILPNPicking\\Properties\\launchSettings.json",
-              "RelativeToolTip": "APILPNPicking\\Properties\\launchSettings.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-07-19T23:28:36.242Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 21,
-              "Title": "Dockerfile",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIOrderConfirmation\\Dockerfile",
-              "RelativeDocumentMoniker": "APIOrderConfirmation\\Dockerfile",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIOrderConfirmation\\Dockerfile",
-              "RelativeToolTip": "APIOrderConfirmation\\Dockerfile",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAIAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-07-19T21:50:58.071Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 19,
-              "Title": "Dockerfile",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\Dockerfile",
-              "RelativeDocumentMoniker": "APIWaveRelease\\Dockerfile",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\Dockerfile",
-              "RelativeToolTip": "APIWaveRelease\\Dockerfile",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAAwAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-07-11T19:38:54.633Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 20,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\Program.cs",
-              "RelativeDocumentMoniker": "APIWaveRelease\\Program.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\Program.cs",
-              "RelativeToolTip": "APIWaveRelease\\Program.cs",
-              "ViewState": "AQIAAAkAAAAAAAAAAAAAADwAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-11T21:52:42.59Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 22,
-              "Title": "WaveReleaseContext.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\data\\WaveReleaseContext.cs",
-              "RelativeDocumentMoniker": "APIWaveRelease\\data\\WaveReleaseContext.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\data\\WaveReleaseContext.cs",
-              "RelativeToolTip": "APIWaveRelease\\data\\WaveReleaseContext.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-11T18:41:33.96Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 23,
               "Title": "WaveRelease.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\data\\WaveRelease.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\data\\WaveRelease.cs",
               "RelativeDocumentMoniker": "APIWaveRelease\\data\\WaveRelease.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\data\\WaveRelease.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\data\\WaveRelease.cs",
               "RelativeToolTip": "APIWaveRelease\\data\\WaveRelease.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -458,11 +404,180 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "WaveReleaseContext.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\data\\WaveReleaseContext.cs",
+              "RelativeDocumentMoniker": "APIWaveRelease\\data\\WaveReleaseContext.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\data\\WaveReleaseContext.cs",
+              "RelativeToolTip": "APIWaveRelease\\data\\WaveReleaseContext.cs",
+              "ViewState": "AQIAAAkAAAAAAAAAAAAAAB8AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-11T18:41:33.96Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\Dockerfile",
+              "RelativeDocumentMoniker": "APILPNPicking\\Dockerfile",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\Dockerfile",
+              "RelativeToolTip": "APILPNPicking\\Dockerfile",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-07-11T19:39:03.758Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\Program.cs",
+              "RelativeDocumentMoniker": "APIFamilyMaster\\Program.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\Program.cs",
+              "RelativeToolTip": "APIFamilyMaster\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-22T15:43:31.25Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\Dockerfile",
+              "RelativeDocumentMoniker": "APIFamilyMaster\\Dockerfile",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\Dockerfile",
+              "RelativeToolTip": "APIFamilyMaster\\Dockerfile",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABUAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-07-22T15:49:59.685Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\appsettings.json",
+              "RelativeDocumentMoniker": "APIFamilyMaster\\appsettings.json",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\appsettings.json",
+              "RelativeToolTip": "APIFamilyMaster\\appsettings.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-07-22T15:43:40.814Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "LPNPickingContext.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\data\\LPNPickingContext.cs",
+              "RelativeDocumentMoniker": "APILPNPicking\\data\\LPNPickingContext.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\data\\LPNPickingContext.cs",
+              "RelativeToolTip": "APILPNPicking\\data\\LPNPickingContext.cs",
+              "ViewState": "AQIAAAcAAAAAAAAAAABBwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-20T00:04:49.976Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "LoadDtlSeg.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\LoadDtlSeg.cs",
+              "RelativeDocumentMoniker": "APILPNPicking\\models\\LoadDtlSeg.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\LoadDtlSeg.cs",
+              "RelativeToolTip": "APILPNPicking\\models\\LoadDtlSeg.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAqAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-19T13:57:56.563Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 27,
+              "Title": "LoadHdrSeg.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\LoadHdrSeg.cs",
+              "RelativeDocumentMoniker": "APILPNPicking\\models\\LoadHdrSeg.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\LoadHdrSeg.cs",
+              "RelativeToolTip": "APILPNPicking\\models\\LoadHdrSeg.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAA4AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-19T13:57:24.779Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "LPNPickingKN.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\LPNPickingKN.cs",
+              "RelativeDocumentMoniker": "APILPNPicking\\models\\LPNPickingKN.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\LPNPickingKN.cs",
+              "RelativeToolTip": "APILPNPicking\\models\\LPNPickingKN.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAsAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-19T13:57:01.69Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "SubnumSeg.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\SubnumSeg.cs",
+              "RelativeDocumentMoniker": "APILPNPicking\\models\\SubnumSeg.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\SubnumSeg.cs",
+              "RelativeToolTip": "APILPNPicking\\models\\SubnumSeg.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAAqAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-19T13:58:44.651Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "LPNSorting.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\data\\LPNSorting.cs",
+              "RelativeDocumentMoniker": "APILPNPicking\\data\\LPNSorting.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\data\\LPNSorting.cs",
+              "RelativeToolTip": "APILPNPicking\\data\\LPNSorting.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAtAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-19T19:15:27.326Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "APILPNPicking\\Properties\\launchSettings.json",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\Properties\\launchSettings.json",
+              "RelativeToolTip": "APILPNPicking\\Properties\\launchSettings.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-07-19T23:28:36.242Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIOrderConfirmation\\Dockerfile",
+              "RelativeDocumentMoniker": "APIOrderConfirmation\\Dockerfile",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIOrderConfirmation\\Dockerfile",
+              "RelativeToolTip": "APIOrderConfirmation\\Dockerfile",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAIAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-07-19T21:50:58.071Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
               "Title": "PickDtlSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\models\\PickDtlSeg.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\PickDtlSeg.cs",
               "RelativeDocumentMoniker": "APIWaveRelease\\models\\PickDtlSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\models\\PickDtlSeg.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\PickDtlSeg.cs",
               "RelativeToolTip": "APIWaveRelease\\models\\PickDtlSeg.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -471,11 +586,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 34,
               "Title": "OrderTransSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\models\\OrderTransSeg.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\OrderTransSeg.cs",
               "RelativeDocumentMoniker": "APIWaveRelease\\models\\OrderTransSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\models\\OrderTransSeg.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\OrderTransSeg.cs",
               "RelativeToolTip": "APIWaveRelease\\models\\OrderTransSeg.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -484,24 +599,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\appsettings.json",
-              "RelativeDocumentMoniker": "APIWaveRelease\\appsettings.json",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\appsettings.json",
-              "RelativeToolTip": "APIWaveRelease\\appsettings.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAMAAAAEAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-07-11T18:36:22.123Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 35,
               "Title": "OrderSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\models\\OrderSeg.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\OrderSeg.cs",
               "RelativeDocumentMoniker": "APIWaveRelease\\models\\OrderSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\models\\OrderSeg.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\OrderSeg.cs",
               "RelativeToolTip": "APIWaveRelease\\models\\OrderSeg.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -510,11 +612,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 36,
               "Title": "AddressSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\models\\AddressSeg.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\AddressSeg.cs",
               "RelativeDocumentMoniker": "APIWaveRelease\\models\\AddressSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\models\\AddressSeg.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\AddressSeg.cs",
               "RelativeToolTip": "APIWaveRelease\\models\\AddressSeg.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -523,11 +625,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 32,
               "Title": "ShipSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\models\\ShipSeg.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\ShipSeg.cs",
               "RelativeDocumentMoniker": "APIWaveRelease\\models\\ShipSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\models\\ShipSeg.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\ShipSeg.cs",
               "RelativeToolTip": "APIWaveRelease\\models\\ShipSeg.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -536,11 +638,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 31,
               "Title": "WaveReleaseKN.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\models\\WaveReleaseKN.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\WaveReleaseKN.cs",
               "RelativeDocumentMoniker": "APIWaveRelease\\models\\WaveReleaseKN.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\models\\WaveReleaseKN.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\WaveReleaseKN.cs",
               "RelativeToolTip": "APIWaveRelease\\models\\WaveReleaseKN.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -549,11 +651,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 37,
               "Title": "launchSettings.json",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\Properties\\launchSettings.json",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "APIWaveRelease\\Properties\\launchSettings.json",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\APIWaveRelease\\Properties\\launchSettings.json",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\Properties\\launchSettings.json",
               "RelativeToolTip": "APIWaveRelease\\Properties\\launchSettings.json",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
