@@ -34,7 +34,7 @@ namespace APIWaveRelease.controllers
             {
                 if (orderSeg?.ShipSeg?.PickDtlSeg == null)
                 {
-                    continue;  // Skip orders without picking details
+                    continue; 
                 }
 
                 foreach (var pickDtlSeg in orderSeg.ShipSeg.PickDtlSeg)
@@ -70,7 +70,7 @@ namespace APIWaveRelease.controllers
 
             if (waveReleases == null || waveReleases.Count == 0)
             {
-                return NotFound($"No Wave found for Order ID {idOrdenTrabajo}");
+                return NotFound($"Orden no registrada en la wave {idOrdenTrabajo}");
             }
 
             return Ok(waveReleases);
