@@ -4,7 +4,7 @@
     {
         public string ShipId { get; set; }
         public string Carcod { get; set; }
-        public string SrvLvl { get; set; }
+        public string Srvlvl { get; set; }
         public List<PickDtlSeg> PickDtlSeg { get; set; }
     }
 }

@@ -29,6 +29,57 @@ namespace APIFamilyMaster.data
 
                 entity.Property(e => e.NumTanda)
                     .IsRequired();
+                entity.Property(e => e.Tienda1)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.Tienda2)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.Tienda3)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.Tienda4)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.Tienda5)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.Tienda6)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.Tienda7)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.Tienda8)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.Tienda9)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.Tienda10)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                //entity.Property(e => e.Tienda11)
+                 //   .HasMaxLength(255);
+
+                //entity.Property(e => e.Tienda12)
+                  //  .HasMaxLength(255);
+
+                //entity.Property(e => e.Tienda13)
+                  //  .HasMaxLength(255);
+
+              //  entity.Property(e => e.Tienda14)
+                //    .HasMaxLength(255);
 
                 entity.Property(e => e.IdFamilyMaster)
                     .ValueGeneratedOnAdd();

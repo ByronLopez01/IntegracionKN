@@ -30,30 +30,28 @@ namespace APIWaveRelease.controllers
 
             var waveReleases = new List<data.WaveRelease>();
 
-            foreach (var orderSeg in waveKn.OrderTransSeg.OrderSeg)
+            var orderSeg = waveKn.OrderTransSeg.OrderSeg;
+            if (orderSeg?.ShipSeg?.PickDtlSeg == null)
             {
-                if (orderSeg?.ShipSeg?.PickDtlSeg == null)
-                {
-                    continue; 
-                }
+                return BadRequest("Missing PickDtlSeg data.");
+            }
 
-                foreach (var pickDtlSeg in orderSeg.ShipSeg.PickDtlSeg)
+            foreach (var pickDtlSeg in orderSeg.ShipSeg.PickDtlSeg)
+            {
+                var waveRelease = new data.WaveRelease
                 {
-                    var waveRelease = new data.WaveRelease
-                    {
-                        CodMastr = pickDtlSeg.MscsEan,
-                        CodInr = pickDtlSeg.IncsEan,
-                        CantMastr = pickDtlSeg.QtyMscs,
-                        CantInr = pickDtlSeg.QtyIncs,
-                        Cantidad = pickDtlSeg.Qty,
-                        Familia = pickDtlSeg.Prtfam,
-                        NumOrden = orderSeg.Ordnum,
-                        CodProducto = pickDtlSeg.Prtnum,
-                        Wave = waveKn.OrderTransSeg.Schbat
-                    };
+                    CodMastr = pickDtlSeg.MscsEan,
+                    CodInr = pickDtlSeg.IncsEan,
+                    CantMastr = pickDtlSeg.QtyMscs,
+                    CantInr = pickDtlSeg.QtyIncs,
+                    Cantidad = pickDtlSeg.Qty,
+                    Familia = pickDtlSeg.Prtfam,
+                    NumOrden = orderSeg.Ordnum,
+                    CodProducto = pickDtlSeg.Prtnum,
+                    Wave = waveKn.OrderTransSeg.Schbat
+                };
 
-                    waveReleases.Add(waveRelease);
-                }
+                waveReleases.Add(waveRelease);
             }
 
             _context.WaveRelease.AddRange(waveReleases);

@@ -31,7 +31,18 @@ namespace APIFamilyMaster.controllers
                 {
                     Familia = dto.Familia,
                     NumSalida = dto.NumSalida,
-                    NumTanda = dto.NumTanda
+                    NumTanda = dto.NumTanda,
+                    Tienda1 = dto.Tienda1,
+                    Tienda2 = dto.Tienda2,
+                    Tienda3 = dto.Tienda3,
+                    Tienda4 = dto.Tienda4,
+                    Tienda5 = dto.Tienda5,
+                    Tienda6 = dto.Tienda6,
+                    Tienda7 = dto.Tienda7,
+                    Tienda8 = dto.Tienda8,
+                    Tienda9 = dto.Tienda9,
+                    Tienda10 = dto.Tienda10
+                    
                 };
 
                 familyMasterEntities.Add(familyMaster);
