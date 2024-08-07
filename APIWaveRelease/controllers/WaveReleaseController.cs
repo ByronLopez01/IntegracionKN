@@ -23,32 +23,32 @@ namespace APIWaveRelease.controllers
         [HttpPost]
         public IActionResult PostOrderTransmission([FromBody] WaveReleaseKN waveKn)
         {
-            if (waveKn?.OrderTransSeg?.OrderSeg == null || string.IsNullOrEmpty(waveKn.WcsId))
+            if (waveKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null || string.IsNullOrEmpty(waveKn.ORDER_TRANSMISSION.wcs_id))
             {
-                return BadRequest("Invalid data format.");
+                return BadRequest("Data en formato no valido.");
             }
 
-            var waveReleases = new List<data.WaveRelease>();
+            var waveReleases = new List<WaveRelease>();
 
-            var orderSeg = waveKn.OrderTransSeg.OrderSeg;
-            if (orderSeg?.ShipSeg?.PickDtlSeg == null)
+            var orderSeg = waveKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG;
+            if (orderSeg?.SHIP_SEG?.PICK_DTL_SEG == null)
             {
-                return BadRequest("Missing PickDtlSeg data.");
+                return BadRequest("El PICK_DTL_SEG viene null");
             }
 
-            foreach (var pickDtlSeg in orderSeg.ShipSeg.PickDtlSeg)
+            foreach (var pickDtlSeg in orderSeg.SHIP_SEG.PICK_DTL_SEG)
             {
-                var waveRelease = new data.WaveRelease
+                var waveRelease = new WaveRelease
                 {
-                    CodMastr = pickDtlSeg.MscsEan,
-                    CodInr = pickDtlSeg.IncsEan,
-                    CantMastr = pickDtlSeg.QtyMscs,
-                    CantInr = pickDtlSeg.QtyIncs,
-                    Cantidad = pickDtlSeg.Qty,
-                    Familia = pickDtlSeg.Prtfam,
-                    NumOrden = orderSeg.Ordnum,
-                    CodProducto = pickDtlSeg.Prtnum,
-                    Wave = waveKn.OrderTransSeg.Schbat
+                    CodMastr = pickDtlSeg.mscs_ean,
+                    CodInr = pickDtlSeg.incs_ean,
+                    CantMastr = pickDtlSeg.qty_mscs,
+                    CantInr = pickDtlSeg.qty_incs,
+                    Cantidad = pickDtlSeg.qty,
+                    Familia = pickDtlSeg.prtfam,
+                    NumOrden = orderSeg.ordnum,
+                    CodProducto = pickDtlSeg.prtnum,
+                    Wave = waveKn.ORDER_TRANSMISSION.wcs_id
                 };
 
                 waveReleases.Add(waveRelease);

@@ -1,11 +1,10 @@
-﻿namespace APIWaveRelease.models
+﻿using Newtonsoft.Json;
+
+namespace APIWaveRelease.models
 {
     public class WaveReleaseKN
     {
-        public string WcsId { get; set; }
-        public string WhId { get; set; }
-        public string MsgId { get; set; }
-        public string Trandt { get; set; }
-        public OrderTransSeg OrderTransSeg { get; set; }
+       // [JsonProperty("ORDER_TRANSMISSION")]
+        public OrderTransmission ORDER_TRANSMISSION { get; set; }
     }
 }

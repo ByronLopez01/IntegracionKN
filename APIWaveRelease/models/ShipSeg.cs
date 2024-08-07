@@ -1,10 +1,19 @@
-﻿namespace APIWaveRelease.models
+﻿using Newtonsoft.Json;
+
+namespace APIWaveRelease.models
 {
     public class ShipSeg
     {
-        public string ShipId { get; set; }
-        public string Carcod { get; set; }
-        public string Srvlvl { get; set; }
-        public List<PickDtlSeg> PickDtlSeg { get; set; }
+        //[JsonProperty("ship_id")]
+        public string ship_id { get; set; }
+
+        //[JsonProperty("carcod")]
+        public string carcod { get; set; }
+
+        //[JsonProperty("srvlvl")]
+        public string srvlvl { get; set; }
+
+        //[JsonProperty("PICK_DTL_SEG")]
+        public List<PickDtlSeg> PICK_DTL_SEG { get; set; }
     }
 }

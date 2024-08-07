@@ -28,24 +28,25 @@ namespace APILPNPicking.controllers
         [HttpPost]
         public async Task<IActionResult> PostLpnPicking([FromBody] LPNPickingKN request)
         {
-            if (request == null)
+            if (request?.SORT_INDUCTION?.LOAD_HDR_SEG?.LOAD_DTL_SEG == null || string.IsNullOrEmpty(request.SORT_INDUCTION.wcs_id))
             {
-                return BadRequest("Invalid request.");
+                return BadRequest("Datos en formato incorrecto.");
             }
 
             var lpnSortings = new List<LPNSorting>();
 
-            foreach (var loadDtlSeg in request.LoadHdrSeg.LoadDtlSeg)
+            var loadHdrSeg = request.SORT_INDUCTION.LOAD_HDR_SEG;
+            foreach (var loadDtlSeg in loadHdrSeg.LOAD_DTL_SEG)
             {
-                foreach (var subnumSeg in loadDtlSeg.SubnumSeg)
+                foreach (var subnumSeg in loadDtlSeg.SUBNUM_SEG)
                 {
                     var lpnSorting = new LPNSorting
                     {
-                        Wave = request.WcsId,
-                        IdOrdenTrabajo = loadDtlSeg.Ordnum,
-                        CodProducto = loadDtlSeg.Prtnum,
-                        CantidadUnidades = loadDtlSeg.LodCasCnt,
-                        DtlNumber = subnumSeg.Dtlnum
+                        Wave = request.SORT_INDUCTION.wcs_id,
+                        IdOrdenTrabajo = loadDtlSeg.ordnum,
+                        CodProducto = loadDtlSeg.prtnum,
+                        CantidadUnidades = loadDtlSeg.lod_cas_cnt,
+                        DtlNumber = subnumSeg.dtlnum
                     };
 
                     lpnSortings.Add(lpnSorting);

@@ -1,8 +1,13 @@
-﻿namespace APIWaveRelease.models
+﻿using Newtonsoft.Json;
+
+namespace APIWaveRelease.models
 {
     public class AddressSeg
     {
-        public string Adrpsz { get; set; }
-        public string State { get; set; }
+        //[JsonProperty("adrpsz")]
+        public string adrpsz { get; set; }
+
+        //[JsonProperty("state")]
+        public string state { get; set; }
     }
 }

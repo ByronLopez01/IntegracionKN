@@ -1,8 +1,11 @@
-﻿namespace APILPNPicking.models
+﻿using Newtonsoft.Json;
+
+namespace APILPNPicking.models
 {
     public class LoadHdrSeg
-    {
-        public string Lodnum { get; set; }
-        public List<LoadDtlSeg> LoadDtlSeg { get; set; }
+    { 
+        public string lodnum { get; set; }
+
+        public List<LoadDtlSeg> LOAD_DTL_SEG { get; set; }
     }
 }
