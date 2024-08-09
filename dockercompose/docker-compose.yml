@@ -50,6 +50,19 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
 
+  orderupdate:
+    build:
+      context: ..
+      dockerfile: APIOrderUpdate/Dockerfile
+    image: orderupdate:latest
+    ports:
+      - "5004:8080"
+    networks:
+      - microservices-net
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    restart: unless-stopped
+
 networks:
   microservices-net:
     driver: bridge

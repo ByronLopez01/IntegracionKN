@@ -1,32 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\controllers\\lpnpickingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\controllers\\lpnpickingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\models\\loaddtlseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\loaddtlseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\models\\subnumseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\subnumseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\models\\loadhdrseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\loadhdrseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\models\\sortinduction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\sortinduction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apilpnpicking\\models\\lpnpickingkn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2F8E9009-5172-4111-B5F8-B70542EB7AFA}|APILPNPicking\\APILPNPicking.csproj|solutionrelative:apilpnpicking\\models\\lpnpickingkn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -34,89 +9,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": -1,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "LpnPickingController.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\controllers\\LpnPickingController.cs",
-              "RelativeDocumentMoniker": "APILPNPicking\\controllers\\LpnPickingController.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\controllers\\LpnPickingController.cs",
-              "RelativeToolTip": "APILPNPicking\\controllers\\LpnPickingController.cs",
-              "ViewState": "AQIAABUAAAAAAAAAAAAAADAAAAA0AAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-06T20:09:59.332Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "SubnumSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\SubnumSeg.cs",
-              "RelativeDocumentMoniker": "APILPNPicking\\models\\SubnumSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\SubnumSeg.cs",
-              "RelativeToolTip": "APILPNPicking\\models\\SubnumSeg.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-06T20:09:35.143Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "LoadDtlSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\LoadDtlSeg.cs",
-              "RelativeDocumentMoniker": "APILPNPicking\\models\\LoadDtlSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\LoadDtlSeg.cs",
-              "RelativeToolTip": "APILPNPicking\\models\\LoadDtlSeg.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAdAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-06T20:08:49.906Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "LoadHdrSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\LoadHdrSeg.cs",
-              "RelativeDocumentMoniker": "APILPNPicking\\models\\LoadHdrSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\LoadHdrSeg.cs",
-              "RelativeToolTip": "APILPNPicking\\models\\LoadHdrSeg.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAeAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-06T20:08:22.86Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "SortInduction.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\SortInduction.cs",
-              "RelativeDocumentMoniker": "APILPNPicking\\models\\SortInduction.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\SortInduction.cs",
-              "RelativeToolTip": "APILPNPicking\\models\\SortInduction.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAZAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-06T20:07:28.169Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "LPNPickingKN.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\LPNPickingKN.cs",
-              "RelativeDocumentMoniker": "APILPNPicking\\models\\LPNPickingKN.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\models\\LPNPickingKN.cs",
-              "RelativeToolTip": "APILPNPicking\\models\\LPNPickingKN.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAcAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-06T20:07:19.208Z",
-              "EditorCaption": ""
             }
           ]
         }
