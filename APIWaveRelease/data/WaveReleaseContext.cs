@@ -54,6 +54,9 @@ namespace APIWaveRelease.data
                 entity.Property(e => e.Wave)
                    .IsRequired()
                    .HasMaxLength(50);
+
+                entity.Property(e => e.tienda) 
+                  .HasMaxLength(50);
             });
         }
     }

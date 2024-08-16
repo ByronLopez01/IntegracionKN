@@ -9,6 +9,6 @@ namespace APIWaveRelease.models
         public string schbat { get; set; }
 
         //[JsonProperty("ORDER_SEG")]
-        public OrderSeg ORDER_SEG { get; set; }
+        public List<OrderSeg> ORDER_SEG { get; set; }
     }
 }

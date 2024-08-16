@@ -13,7 +13,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient("apiWaveRelease", client =>
+{
+    client.BaseAddress = new Uri("http://apiwaverelease:8080");
+});
+
+builder.Services.AddHttpClient("apiFamilyMaster", client =>
+{
+    client.BaseAddress = new Uri("http://apifamilymaster:8080");
+});
 
 
 // Configuración de JWT
@@ -83,7 +91,7 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Error");
-    app.UseHsts();
+   // app.UseHsts();
 }
 
 // Configuración del middleware

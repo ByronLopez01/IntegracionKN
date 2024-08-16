@@ -63,6 +63,19 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
 
+  apiorderconfirmation:
+    build:
+      context: ..
+      dockerfile: APIOrderConfirmation/Dockerfile
+    image: apiorderconfirmation:latest
+    ports:
+      - "5005:8080"
+    networks:
+      - microservices-net
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    restart: unless-stopped
+
 networks:
   microservices-net:
     driver: bridge
