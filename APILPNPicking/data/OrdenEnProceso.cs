@@ -14,6 +14,7 @@
         public string codProducto { get; set; }
         public string wave { get; set; }
         public int cantidadProcesada { get; set; }
+        public int cantidadLPN { get; set; }
         public int numSalida { get; set; }
         public int numTanda { get; set; }
         public string dtlNumber {  get; set; }

@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("APIWaveRelease")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b33ce5cc4b8be209e682f9d5744f2217dda21741")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+25c3f59dc4000a598664817be399cc6126ab1598")]
 [assembly: System.Reflection.AssemblyProductAttribute("APIWaveRelease")]
 [assembly: System.Reflection.AssemblyTitleAttribute("APIWaveRelease")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -18,7 +18,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APIFamilyMaster", "APIFamil
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServices", "AuthServices\AuthServices.csproj", "{BEA65DF5-8C52-42DF-9A3F-DE98F16D004F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIOrderUpdate", "APIOrderUpdate\APIOrderUpdate.csproj", "{62C135B3-A5DE-4C95-9D4A-6AFF79421FE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APIOrderUpdate", "APIOrderUpdate\APIOrderUpdate.csproj", "{62C135B3-A5DE-4C95-9D4A-6AFF79421FE1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APISenad", "APISenad\APISenad.csproj", "{94A5EDBD-0115-431B-935F-8A42C186C48C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +52,10 @@ Global
 		{62C135B3-A5DE-4C95-9D4A-6AFF79421FE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62C135B3-A5DE-4C95-9D4A-6AFF79421FE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62C135B3-A5DE-4C95-9D4A-6AFF79421FE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94A5EDBD-0115-431B-935F-8A42C186C48C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94A5EDBD-0115-431B-935F-8A42C186C48C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94A5EDBD-0115-431B-935F-8A42C186C48C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94A5EDBD-0115-431B-935F-8A42C186C48C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

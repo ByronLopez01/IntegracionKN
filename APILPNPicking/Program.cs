@@ -6,12 +6,15 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using System.IO;
+using APILPNPicking.services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
+builder.Services.AddScoped<ISenadServices, SenadServices>();
+builder.Services.AddHttpClient<ISenadServices, SenadServices>();
 
 builder.Services.AddHttpClient("apiWaveRelease", client =>
 {

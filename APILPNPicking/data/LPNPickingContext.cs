@@ -95,6 +95,9 @@ namespace APILPNPicking.data
                 entity.Property(e => e.cantidadProcesada)
                     .HasColumnName("cantidadProcesada");
 
+                entity.Property(e => e.cantidadLPN)
+                    .HasColumnName("cantidadLPN");
+
                 entity.Property(e => e.numSalida)
                     .HasColumnName("numSalida");
 
@@ -110,7 +113,7 @@ namespace APILPNPicking.data
 
                 entity.Property(e => e.tienda)
                     .HasMaxLength(50)
-                    .HasColumnName("tienda1");
+                    .HasColumnName("tienda");
 
                 
             });
