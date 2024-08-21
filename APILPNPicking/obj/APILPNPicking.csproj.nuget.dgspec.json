@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\APILPNPicking.csproj": {}
+    "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APILPNPicking\\APILPNPicking.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\APILPNPicking.csproj": {
+    "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APILPNPicking\\APILPNPicking.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\APILPNPicking.csproj",
+        "projectUniqueName": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APILPNPicking\\APILPNPicking.csproj",
         "projectName": "APILPNPicking",
-        "projectPath": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\APILPNPicking.csproj",
-        "packagesPath": "C:\\Users\\Byron\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APILPNPicking\\obj\\",
+        "projectPath": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APILPNPicking\\APILPNPicking.csproj",
+        "packagesPath": "C:\\Users\\Qclass\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APILPNPicking\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Byron\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Qclass\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -100,7 +100,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

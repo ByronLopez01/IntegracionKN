@@ -16,7 +16,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APIOrderConfirmation", "API
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APIFamilyMaster", "APIFamilyMaster\APIFamilyMaster.csproj", "{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthServices", "AuthServices\AuthServices.csproj", "{BEA65DF5-8C52-42DF-9A3F-DE98F16D004F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServices", "AuthServices\AuthServices.csproj", "{BEA65DF5-8C52-42DF-9A3F-DE98F16D004F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIDepartureFeedback", "APIDepartureFeedback\APIDepartureFeedback.csproj", "{529FAFFD-BAEF-4DC7-8E01-3B2EB0DDE505}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +46,10 @@ Global
 		{BEA65DF5-8C52-42DF-9A3F-DE98F16D004F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEA65DF5-8C52-42DF-9A3F-DE98F16D004F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BEA65DF5-8C52-42DF-9A3F-DE98F16D004F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{529FAFFD-BAEF-4DC7-8E01-3B2EB0DDE505}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{529FAFFD-BAEF-4DC7-8E01-3B2EB0DDE505}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{529FAFFD-BAEF-4DC7-8E01-3B2EB0DDE505}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{529FAFFD-BAEF-4DC7-8E01-3B2EB0DDE505}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,45 +1,61 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\",
+  "WorkspaceRootPath": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\controllers\\wavereleasecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{529FAFFD-BAEF-4DC7-8E01-3B2EB0DDE505}|APIDepartureFeedback\\APIDepartureFeedback.csproj|c:\\users\\qclass\\documents\\github\\integracionkn\\apideparturefeedback\\data\\parcel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{529FAFFD-BAEF-4DC7-8E01-3B2EB0DDE505}|APIDepartureFeedback\\APIDepartureFeedback.csproj|solutionrelative:apideparturefeedback\\data\\parcel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{529FAFFD-BAEF-4DC7-8E01-3B2EB0DDE505}|APIDepartureFeedback\\APIDepartureFeedback.csproj|c:\\users\\qclass\\documents\\github\\integracionkn\\apideparturefeedback\\apideparturefeedback.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{529FAFFD-BAEF-4DC7-8E01-3B2EB0DDE505}|APIDepartureFeedback\\APIDepartureFeedback.csproj|solutionrelative:apideparturefeedback\\apideparturefeedback.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{529FAFFD-BAEF-4DC7-8E01-3B2EB0DDE505}|APIDepartureFeedback\\APIDepartureFeedback.csproj|c:\\users\\qclass\\documents\\github\\integracionkn\\apideparturefeedback\\controllers\\departurefeedbackcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{529FAFFD-BAEF-4DC7-8E01-3B2EB0DDE505}|APIDepartureFeedback\\APIDepartureFeedback.csproj|solutionrelative:apideparturefeedback\\controllers\\departurefeedbackcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\qclass\\documents\\github\\integracionkn\\apifamilymaster\\apifamilymaster.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\apifamilymaster.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\qclass\\documents\\github\\integracionkn\\apiwaverelease\\controllers\\wavereleasecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\controllers\\wavereleasecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\models\\wavereleasekn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\qclass\\documents\\github\\integracionkn\\apiwaverelease\\models\\wavereleasekn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\models\\wavereleasekn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\models\\pickdtlseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\qclass\\documents\\github\\integracionkn\\apiwaverelease\\models\\pickdtlseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\models\\pickdtlseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\models\\shipseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\qclass\\documents\\github\\integracionkn\\apiwaverelease\\models\\shipseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\models\\shipseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\models\\addressseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\qclass\\documents\\github\\integracionkn\\apiwaverelease\\models\\addressseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\models\\addressseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\models\\orderseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\qclass\\documents\\github\\integracionkn\\apiwaverelease\\models\\orderseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\models\\orderseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\models\\ordertransseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\qclass\\documents\\github\\integracionkn\\apiwaverelease\\models\\ordertransseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\models\\ordertransseg.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\controllers\\familymastercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\qclass\\documents\\github\\integracionkn\\apifamilymaster\\controllers\\familymastercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\controllers\\familymastercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\data\\familymaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\qclass\\documents\\github\\integracionkn\\apifamilymaster\\data\\familymaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\data\\familymaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\data\\familymastercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\qclass\\documents\\github\\integracionkn\\apifamilymaster\\data\\familymastercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\data\\familymastercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -50,141 +66,179 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 0,
           "Children": [
             {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
-            },
-            {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "PickDtlSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\PickDtlSeg.cs",
-              "RelativeDocumentMoniker": "APIWaveRelease\\models\\PickDtlSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\PickDtlSeg.cs",
-              "RelativeToolTip": "APIWaveRelease\\models\\PickDtlSeg.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABIAAAAtAAAA",
+              "DocumentIndex": 0,
+              "Title": "Parcel.cs",
+              "DocumentMoniker": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIDepartureFeedback\\data\\Parcel.cs",
+              "RelativeDocumentMoniker": "APIDepartureFeedback\\data\\Parcel.cs",
+              "ToolTip": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIDepartureFeedback\\data\\Parcel.cs",
+              "RelativeToolTip": "APIDepartureFeedback\\data\\Parcel.cs",
+              "ViewState": "AQIAAEwAAAAAAAAAAADwvw0AAAATAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-02T16:22:23.668Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ShipSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\ShipSeg.cs",
-              "RelativeDocumentMoniker": "APIWaveRelease\\models\\ShipSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\ShipSeg.cs",
-              "RelativeToolTip": "APIWaveRelease\\models\\ShipSeg.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAA4AAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-02T16:22:09.203Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "AddressSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\AddressSeg.cs",
-              "RelativeDocumentMoniker": "APIWaveRelease\\models\\AddressSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\AddressSeg.cs",
-              "RelativeToolTip": "APIWaveRelease\\models\\AddressSeg.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAApAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-02T16:21:54.063Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "OrderSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\OrderSeg.cs",
-              "RelativeDocumentMoniker": "APIWaveRelease\\models\\OrderSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\OrderSeg.cs",
-              "RelativeToolTip": "APIWaveRelease\\models\\OrderSeg.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAsAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-02T16:21:41.744Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "OrderTransSeg.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\OrderTransSeg.cs",
-              "RelativeDocumentMoniker": "APIWaveRelease\\models\\OrderTransSeg.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\OrderTransSeg.cs",
-              "RelativeToolTip": "APIWaveRelease\\models\\OrderTransSeg.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAAuAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-02T16:21:29.574Z",
+              "WhenOpened": "2024-08-21T20:40:11.918Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "WaveReleaseKN.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\WaveReleaseKN.cs",
-              "RelativeDocumentMoniker": "APIWaveRelease\\models\\WaveReleaseKN.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\models\\WaveReleaseKN.cs",
-              "RelativeToolTip": "APIWaveRelease\\models\\WaveReleaseKN.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAA4AAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-02T16:21:16.049Z",
+              "Title": "APIDepartureFeedback",
+              "DocumentMoniker": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIDepartureFeedback\\APIDepartureFeedback.csproj",
+              "RelativeDocumentMoniker": "APIDepartureFeedback\\APIDepartureFeedback.csproj",
+              "ToolTip": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIDepartureFeedback\\APIDepartureFeedback.csproj",
+              "RelativeToolTip": "APIDepartureFeedback\\APIDepartureFeedback.csproj",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-08-21T20:39:29.571Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
+              "Title": "DepartureFeedbackController.cs",
+              "DocumentMoniker": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIDepartureFeedback\\controllers\\DepartureFeedbackController.cs",
+              "RelativeDocumentMoniker": "APIDepartureFeedback\\controllers\\DepartureFeedbackController.cs",
+              "ToolTip": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIDepartureFeedback\\controllers\\DepartureFeedbackController.cs",
+              "RelativeToolTip": "APIDepartureFeedback\\controllers\\DepartureFeedbackController.cs",
+              "ViewState": "AQIAACAAAAAAAAAAAAAAwA4AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-21T20:26:17.943Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "APIFamilyMaster",
+              "DocumentMoniker": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIFamilyMaster\\APIFamilyMaster.csproj",
+              "RelativeDocumentMoniker": "APIFamilyMaster\\APIFamilyMaster.csproj",
+              "ToolTip": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIFamilyMaster\\APIFamilyMaster.csproj",
+              "RelativeToolTip": "APIFamilyMaster\\APIFamilyMaster.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-08-21T19:06:08.471Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "PickDtlSeg.cs",
+              "DocumentMoniker": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIWaveRelease\\models\\PickDtlSeg.cs",
+              "RelativeDocumentMoniker": "APIWaveRelease\\models\\PickDtlSeg.cs",
+              "ToolTip": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIWaveRelease\\models\\PickDtlSeg.cs",
+              "RelativeToolTip": "APIWaveRelease\\models\\PickDtlSeg.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABIAAAAtAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-02T16:22:23.668Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ShipSeg.cs",
+              "DocumentMoniker": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIWaveRelease\\models\\ShipSeg.cs",
+              "RelativeDocumentMoniker": "APIWaveRelease\\models\\ShipSeg.cs",
+              "ToolTip": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIWaveRelease\\models\\ShipSeg.cs",
+              "RelativeToolTip": "APIWaveRelease\\models\\ShipSeg.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAA4AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-02T16:22:09.203Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "AddressSeg.cs",
+              "DocumentMoniker": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIWaveRelease\\models\\AddressSeg.cs",
+              "RelativeDocumentMoniker": "APIWaveRelease\\models\\AddressSeg.cs",
+              "ToolTip": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIWaveRelease\\models\\AddressSeg.cs",
+              "RelativeToolTip": "APIWaveRelease\\models\\AddressSeg.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAApAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-02T16:21:54.063Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "OrderSeg.cs",
+              "DocumentMoniker": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIWaveRelease\\models\\OrderSeg.cs",
+              "RelativeDocumentMoniker": "APIWaveRelease\\models\\OrderSeg.cs",
+              "ToolTip": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIWaveRelease\\models\\OrderSeg.cs",
+              "RelativeToolTip": "APIWaveRelease\\models\\OrderSeg.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAsAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-02T16:21:41.744Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "OrderTransSeg.cs",
+              "DocumentMoniker": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIWaveRelease\\models\\OrderTransSeg.cs",
+              "RelativeDocumentMoniker": "APIWaveRelease\\models\\OrderTransSeg.cs",
+              "ToolTip": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIWaveRelease\\models\\OrderTransSeg.cs",
+              "RelativeToolTip": "APIWaveRelease\\models\\OrderTransSeg.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAAuAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-02T16:21:29.574Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "WaveReleaseKN.cs",
+              "DocumentMoniker": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIWaveRelease\\models\\WaveReleaseKN.cs",
+              "RelativeDocumentMoniker": "APIWaveRelease\\models\\WaveReleaseKN.cs",
+              "ToolTip": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIWaveRelease\\models\\WaveReleaseKN.cs",
+              "RelativeToolTip": "APIWaveRelease\\models\\WaveReleaseKN.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAA4AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-02T16:21:16.049Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "WaveReleaseController.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\controllers\\WaveReleaseController.cs",
+              "DocumentMoniker": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIWaveRelease\\controllers\\WaveReleaseController.cs",
               "RelativeDocumentMoniker": "APIWaveRelease\\controllers\\WaveReleaseController.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\controllers\\WaveReleaseController.cs",
+              "ToolTip": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIWaveRelease\\controllers\\WaveReleaseController.cs",
               "RelativeToolTip": "APIWaveRelease\\controllers\\WaveReleaseController.cs",
-              "ViewState": "AQIAAD0AAAAAAAAAAAAgwBkAAABWAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAAFAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-07-26T16:15:52.834Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 11,
               "Title": "FamilyMasterController.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\controllers\\FamilyMasterController.cs",
+              "DocumentMoniker": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIFamilyMaster\\controllers\\FamilyMasterController.cs",
               "RelativeDocumentMoniker": "APIFamilyMaster\\controllers\\FamilyMasterController.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\controllers\\FamilyMasterController.cs",
+              "ToolTip": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIFamilyMaster\\controllers\\FamilyMasterController.cs",
               "RelativeToolTip": "APIFamilyMaster\\controllers\\FamilyMasterController.cs",
               "ViewState": "AQIAACgAAAAAAAAAAAApwCsAAAArAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-02T14:39:16.12Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-02T14:39:16.12Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 13,
               "Title": "FamilyMasterContext.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMasterContext.cs",
+              "DocumentMoniker": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMasterContext.cs",
               "RelativeDocumentMoniker": "APIFamilyMaster\\data\\FamilyMasterContext.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMasterContext.cs",
+              "ToolTip": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMasterContext.cs",
               "RelativeToolTip": "APIFamilyMaster\\data\\FamilyMasterContext.cs",
               "ViewState": "AQIAAEMAAAAAAAAAAAAgwEcAAAASAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-02T14:33:06.783Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-02T14:33:06.783Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 12,
               "Title": "FamilyMaster.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMaster.cs",
+              "DocumentMoniker": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMaster.cs",
               "RelativeDocumentMoniker": "APIFamilyMaster\\data\\FamilyMaster.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMaster.cs",
+              "ToolTip": "C:\\Users\\Qclass\\Documents\\GitHub\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMaster.cs",
               "RelativeToolTip": "APIFamilyMaster\\data\\FamilyMaster.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAAWAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-02T14:31:22.048Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-02T14:31:22.048Z"
             }
           ]
         }
