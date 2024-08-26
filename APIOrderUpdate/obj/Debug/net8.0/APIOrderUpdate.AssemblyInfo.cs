@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("APIOrderUpdate")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+25c3f59dc4000a598664817be399cc6126ab1598")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9acf66b724c81ffbbaf4a1fc66fc1ca8da5c7e60")]
 [assembly: System.Reflection.AssemblyProductAttribute("APIOrderUpdate")]
 [assembly: System.Reflection.AssemblyTitleAttribute("APIOrderUpdate")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
