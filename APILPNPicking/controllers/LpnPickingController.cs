@@ -1,6 +1,5 @@
 ﻿using APILPNPicking.data;
 using APILPNPicking.models;
-using APILPNPicking.services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -19,17 +18,15 @@ namespace APILPNPicking.controllers
         private readonly IConfiguration _configuration;
         private readonly HttpClient _apiWaveReleaseClient;
         private readonly HttpClient _apiFamilyMasterClient;
-        private readonly ISenadServices _senadServices;
 
 
-        public LpnPickingController(LPNPickingContext context, HttpClient httpClient, IConfiguration configuration, IHttpClientFactory httpClientFactory,ISenadServices senadServices)
+        public LpnPickingController(LPNPickingContext context, HttpClient httpClient, IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _context = context;
             _httpClient = httpClient;
             _configuration = configuration;
             _apiWaveReleaseClient = httpClientFactory.CreateClient("apiWaveRelease");
             _apiFamilyMasterClient = httpClientFactory.CreateClient("apiFamilyMaster");
-            _senadServices = senadServices;
         }
 
         private void SetAuthorizationHeader(HttpClient client)
@@ -37,6 +34,7 @@ namespace APILPNPicking.controllers
             var jwtToken = _configuration["Jwt:Token"]; // Obtén el token JWT de la configuración
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
         }
+
         [HttpPost]
         public async Task<IActionResult> PostLpnPicking([FromBody] LPNPickingKN request)
         {
@@ -56,7 +54,7 @@ namespace APILPNPicking.controllers
             {
                 Console.WriteLine($"Procesando detalle de carga con orden: {loadDtlSeg.ordnum} y producto: {loadDtlSeg.prtnum}");
 
-                // Consultar la API WaveRelease con el número de orden
+                // Consultar la API WaveRelease con el wave y la orden
                 SetAuthorizationHeader(_apiWaveReleaseClient);
                 var waveReleaseResponseMessage = await _apiWaveReleaseClient.GetAsync($"api/WaveRelease/{loadDtlSeg.ordnum}");
 
@@ -105,87 +103,87 @@ namespace APILPNPicking.controllers
                     var familyMasterData = JsonConvert.DeserializeObject<List<FamilyMaster>>(familyMasterResponse);
                     var familyMaster = familyMasterData.FirstOrDefault() ?? new FamilyMaster();
 
-                    // Preparar los datos para el servicio PkgWeight
-                   // var senadRequest = new SenadRequest
-                    //{
-                      //  BillCode = request.SORT_INDUCTION.wcs_id,
-                       // BoxCode = loadDtlSeg.prtnum,
-                       // Weight = 1, // verificar si pueden ir en 0
-                       // Length = 1,
-                       // Width = 1,
-                       // Height = 1,
-                       // Rectangle = 1,
-                       // OrgCode = "OrgCode", // Asigna el valor correcto
-                       // WarehouseId = request.SORT_INDUCTION.wh_id, // Asigna el valor correcto
-                       // ScanType = 1,
-                        //DeviceId = "DeviceId", // Asigna el valor correcto
-                        //SendTime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss")
-                    //};
+                    // Calcular cantidadLPN a partir de SUBNUM_SEG
+                    var cantidadLPN = loadDtlSeg.SUBNUM_SEG
+                        .Sum(subnumSeg => subnumSeg.untqty);
 
-                    //var senadResponse = await _senadServices.SendPackageDataAsync(senadRequest);
-
-                   // if (senadResponse.Status != 0)
-                    //{
-                      //  var errorMessage = $"Error en la respuesta de PkgWeight: {senadResponse.Message}";
-                        //Console.WriteLine(errorMessage);
-                        //return BadRequest(errorMessage);
-                    //}
-
-                    //Console.WriteLine("Datos de peso del paquete enviados correctamente.");
-
-                    // Lógica de creación de nuevos registros en OrdenEnProceso si el código de producto es diferente
-                    var existingOrden = _context.ordenesEnProceso
-                        .FirstOrDefault(o => o.wave == waveRelease.wave && o.numOrden == waveRelease.numOrden && o.codProducto == loadDtlSeg.prtnum);
-
-                    if (existingOrden == null)
+                    if (cantidadLPN > waveRelease.cantidad)
                     {
-                        Console.WriteLine("No se encontró un registro existente con el mismo código de producto. Creando nuevo objeto de OrdenEnProceso.");
+                        var errorMessage = $"La cantidad a procesar ({cantidadLPN}) excede la cantidad total ({waveRelease.cantidad}) de la orden {waveRelease.numOrden} y producto {waveRelease.codProducto}.";
+                        Console.WriteLine(errorMessage);
+                        return BadRequest(errorMessage);
+                    }
+
+                    // Buscar el registro de la orden existente
+                    var existingOrden = _context.ordenesEnProceso
+                        .FirstOrDefault(o => o.wave == waveRelease.wave && o.numOrden == waveRelease.numOrden && o.codProducto == waveRelease.codProducto);
+
+                    if (existingOrden != null)
+                    {
+                        Console.WriteLine("Registro existente encontrado en OrdenEnProceso.");
+
+                        // Sumar la cantidad de LPN
+                        existingOrden.cantidadLPN += cantidadLPN;
+
+                        _context.ordenesEnProceso.Update(existingOrden);
+                    }
+                    else
+                    {
+                        Console.WriteLine("No se encontró un registro existente. Creando nuevo objeto de OrdenEnProceso.");
+
+                        //if (cantidadLPN > waveRelease.cantidad)
+                        //{
+                          //  var errorMessage = $"La cantidad a procesar ({cantidadLPN}) excede la cantidad total ({waveRelease.cantidad}) de la orden {waveRelease.numOrden} y producto {waveRelease.codProducto}.";
+                            //Console.WriteLine(errorMessage);
+                            //return BadRequest(errorMessage);
+                        //}
 
                         var ordenEnProceso = new OrdenEnProceso
                         {
-                            codMastr = waveRelease.codMastr ?? loadDtlSeg.prtnum,
-                            codInr = waveRelease.codInr ?? loadDtlSeg.prtnum,
+                            codMastr = waveRelease.codMastr ,
+                            codInr = waveRelease.codInr ,
                             cantidad = waveRelease.cantidad,
+                            cantidadLPN = cantidadLPN,
                             cantInr = waveRelease.cantInr,
                             cantMastr = waveRelease.cantMastr,
-                            cantidadLPN = loadDtlSeg.lod_cas_cnt,
                             cantidadProcesada = 0,
-                            codProducto = waveRelease.codProducto,
+                            codProducto = loadDtlSeg.prtnum,
                             dtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum,
-                            estado = "Activo",//loadDtlSeg.lod_cas_cnt == waveRelease.cantidad ? "Cerrado" : "Activo",
+                            estado = true, // Siempre activo para nuevos registros
                             familia = waveRelease.familia,
                             numOrden = waveRelease.numOrden,
-                            numSalida = familyMaster.numSalida,
-                            numTanda = familyMaster.numTanda,
-                            tienda = waveRelease.tienda,
                             wave = waveRelease.wave
                         };
 
                         _context.ordenesEnProceso.Add(ordenEnProceso);
                     }
 
-                    // LpnSorting: Mantener la inserción en la tabla LpnSorting
+                    // Guardar los cambios en la base de datos
+                    await _context.SaveChangesAsync();
+
+                    // Registrar en la tabla LPN Sorting
                     var lpnSorting = new LPNSorting
                     {
-                        Wave = request.SORT_INDUCTION.wcs_id,
+                        Wave = waveRelease.wave,
                         IdOrdenTrabajo = waveRelease.numOrden,
-                        CantidadUnidades = loadDtlSeg.lod_cas_cnt,
+                        CantidadUnidades = cantidadLPN,
                         CodProducto = loadDtlSeg.prtnum,
-                        DtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum
+                        DtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum ?? string.Empty
                     };
 
                     _context.LPNSorting.Add(lpnSorting);
+                    await _context.SaveChangesAsync();
+
+                    Console.WriteLine("Datos almacenados correctamente en la tabla LpnSorting.");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error procesando FamilyMaster: {ex.Message}");
-                    return StatusCode(StatusCodes.Status500InternalServerError, "Error al procesar datos en FamilyMaster.");
+                    Console.WriteLine($"Error al consultar FamilyMaster o enviar datos: {ex.Message}");
+                    return StatusCode(500, "Error al consultar FamilyMaster o enviar datos.");
                 }
             }
 
-            await _context.SaveChangesAsync();
-            Console.WriteLine("Procesamiento de LPN Picking completado.");
-            return Ok("LPN Picking procesado correctamente.");
+            return Ok("Proceso completado.");
         }
 
 

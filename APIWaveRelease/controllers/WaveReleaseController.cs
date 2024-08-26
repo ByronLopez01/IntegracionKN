@@ -3,6 +3,7 @@ using APIWaveRelease.models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -23,7 +24,7 @@ namespace APIWaveRelease.controllers
         [HttpPost]
         public IActionResult PostOrderTransmission([FromBody] WaveReleaseKN waveKn)
         {
-            if (waveKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null || string.IsNullOrEmpty(waveKn.ORDER_TRANSMISSION.wcs_id))
+            if (waveKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null || string.IsNullOrEmpty(waveKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat))
             {
                 return BadRequest("Datos en formato no válido.");
             }
@@ -40,21 +41,42 @@ namespace APIWaveRelease.controllers
 
                 foreach (var pickDtlSeg in orderSeg.SHIP_SEG.PICK_DTL_SEG)
                 {
-                    var waveRelease = new WaveRelease
-                    {
-                        CodMastr = pickDtlSeg.mscs_ean,
-                        CodInr = pickDtlSeg.incs_ean,
-                        CantMastr = pickDtlSeg.qty_mscs,
-                        CantInr = pickDtlSeg.qty_incs,
-                        Cantidad = pickDtlSeg.qty,
-                        Familia = pickDtlSeg.prtfam,
-                        NumOrden = orderSeg.ordnum,
-                        CodProducto = pickDtlSeg.prtnum,
-                        Wave = waveKn.ORDER_TRANSMISSION.wcs_id,
-                        tienda = orderSeg.rtcust
-                    };
+                    // Busca si ya existe un WaveRelease con el mismo número de orden y producto
+                    var existingWaveRelease = waveReleases
+                        .FirstOrDefault(wr => wr.NumOrden == orderSeg.ordnum && wr.CodProducto == pickDtlSeg.prtnum);
 
-                    waveReleases.Add(waveRelease);
+                    if (existingWaveRelease != null)
+                    {
+                       
+                       // existingWaveRelease.CantMastr = pickDtlSeg.qty_mscs;
+                        //existingWaveRelease.CantInr = pickDtlSeg.qty_incs;
+                        existingWaveRelease.Cantidad += pickDtlSeg.qty;
+
+                        // Mensaje de depuración para indicar que se ha encontrado y actualizado un registro existente
+                        Debug.WriteLine($"Cantidad actualizada para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
+                    }
+                    else
+                    {
+                        // Si no existe, crea un nuevo registro
+                        var newWaveRelease = new WaveRelease
+                        {
+                            CodMastr = pickDtlSeg.mscs_ean,
+                            CodInr = pickDtlSeg.incs_ean,
+                            CantMastr = pickDtlSeg.qty_mscs,
+                            CantInr = pickDtlSeg.qty_incs,
+                            Cantidad = pickDtlSeg.qty,
+                            Familia = pickDtlSeg.prtfam,
+                            NumOrden = orderSeg.ordnum,
+                            CodProducto = pickDtlSeg.prtnum,
+                            Wave = waveKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat,
+                            tienda = orderSeg.rtcust
+                        };
+
+                        waveReleases.Add(newWaveRelease);
+
+                        // Mensaje de depuración para indicar que se ha creado un nuevo registro
+                        Debug.WriteLine($"Nuevo registro creado para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
+                    }
                 }
             }
 
@@ -62,6 +84,7 @@ namespace APIWaveRelease.controllers
             _context.SaveChanges();
             return Ok();
         }
+
 
         [HttpGet("{idOrdenTrabajo}")]
         public async Task<IActionResult> GetWaveByIdOrdenTrabajo(string idOrdenTrabajo)
