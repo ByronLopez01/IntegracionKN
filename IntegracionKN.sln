@@ -20,7 +20,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServices", "AuthService
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APIOrderUpdate", "APIOrderUpdate\APIOrderUpdate.csproj", "{62C135B3-A5DE-4C95-9D4A-6AFF79421FE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APISenad", "APISenad\APISenad.csproj", "{94A5EDBD-0115-431B-935F-8A42C186C48C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APISenad", "APISenad\APISenad.csproj", "{94A5EDBD-0115-431B-935F-8A42C186C48C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementos de la solución", "Elementos de la solución", "{FC47CFB2-097E-468C-9542-A37A2F65F15E}"
+	ProjectSection(SolutionItems) = preProject
+		externalproperties\ExternalProperties.json = externalproperties\ExternalProperties.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,14 +18,18 @@ namespace APIWaveRelease.controllers
     public class WaveReleaseController : ControllerBase
     {
         private readonly WaveReleaseContext _context;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
 
-        public WaveReleaseController(WaveReleaseContext context)
+        public WaveReleaseController(WaveReleaseContext context, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _context = context;
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
         }
 
         [HttpPost]
-        public IActionResult PostOrderTransmission([FromBody] WaveReleaseKN waveKn)
+        public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveKn)
         {
             if (waveKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null || string.IsNullOrEmpty(waveKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat))
             {
@@ -71,7 +78,7 @@ namespace APIWaveRelease.controllers
                             Wave = waveKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat,
                             tienda = orderSeg.rtcust
                         };
-
+                        
                         waveReleases.Add(newWaveRelease);
 
                         // Mensaje de depuración para indicar que se ha creado un nuevo registro
@@ -82,6 +89,33 @@ namespace APIWaveRelease.controllers
 
             _context.WaveRelease.AddRange(waveReleases);
             _context.SaveChanges();
+
+            //enviar el JSON a Luca parametrizado 
+            var urlLuca = _configuration["ServiceUrls:luca"];
+            //Console.WriteLine(urlLuca);
+            //Console.WriteLine(urlLuca);
+            //Console.WriteLine(urlLuca);
+            //Console.WriteLine(urlLuca);
+            //Console.WriteLine(urlLuca);
+            //Console.WriteLine(urlLuca);
+            //enviando json a luca tal cual lo recibimos desde kn
+            var jsonContent = JsonSerializer.Serialize(waveKn);
+            var httpClient = _httpClientFactory.CreateClient();
+
+            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync(urlLuca, httpContent);
+
+            if (response.IsSuccessStatusCode)
+            {
+                
+                Debug.WriteLine("JSON enviado a Luca exitosamente.");
+            }
+            else
+            {
+                
+                Debug.WriteLine($"Error al enviar JSON a Luca. Status code: {response.StatusCode}");
+            }
+
             return Ok();
         }
 
@@ -106,6 +140,7 @@ namespace APIWaveRelease.controllers
         public void Put(int id, [FromBody] string value)
         {
         }
+
 
         // DELETE api/<WaveReleaseController>/5
         [HttpDelete("{id}")]

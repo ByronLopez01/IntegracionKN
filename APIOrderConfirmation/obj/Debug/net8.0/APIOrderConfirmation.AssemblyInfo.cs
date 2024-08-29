@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("APIOrderConfirmation")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9acf66b724c81ffbbaf4a1fc66fc1ca8da5c7e60")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+92444b54aa810373637277d3d95e337d80920547")]
 [assembly: System.Reflection.AssemblyProductAttribute("APIOrderConfirmation")]
 [assembly: System.Reflection.AssemblyTitleAttribute("APIOrderConfirmation")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

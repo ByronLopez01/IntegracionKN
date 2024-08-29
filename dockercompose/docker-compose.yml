@@ -1,6 +1,9 @@
 services:
   apiwaverelease:
+    volumes:
+       - ../externalproperties/ExternalProperties.json:/app/externalproperties/ExternalProperties.json
     build:
+
       context: ..
       dockerfile: APIWaveRelease/Dockerfile
     image: apiwaverelease:latest
