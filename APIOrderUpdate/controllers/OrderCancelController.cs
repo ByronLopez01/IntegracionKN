@@ -24,7 +24,7 @@ namespace APIOrderUpdate.controllers
         {
 
             if (orderCancelKn?.ORDER_CANCEL?.ORDER_CANCEL_SEG == null ||
-                string.IsNullOrEmpty(orderCancelKn.ORDER_CANCEL.wcs_id))
+                string.IsNullOrEmpty(orderCancelKn.ORDER_CANCEL.ORDER_CANCEL_SEG.schbat))
             {
                 return BadRequest("JSON inválido.");
             }

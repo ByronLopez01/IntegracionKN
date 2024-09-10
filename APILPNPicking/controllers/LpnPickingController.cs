@@ -47,7 +47,6 @@ namespace APILPNPicking.controllers
             }
 
             Console.WriteLine("Datos válidos. Procesando el encabezado de carga.");
-
             var loadHdrSeg = request.SORT_INDUCTION.LOAD_HDR_SEG;
 
             foreach (var loadDtlSeg in loadHdrSeg.LOAD_DTL_SEG)
@@ -64,8 +63,7 @@ namespace APILPNPicking.controllers
 
                     if (waveReleaseResponseMessage.StatusCode == HttpStatusCode.NotFound)
                     {
-                        Console.WriteLine("Orden no registrada en WaveRelease. Omitiendo.");
-                        continue;
+                        return NotFound($"Orden {loadDtlSeg.ordnum} no registrada en WaveRelease.");
                     }
 
                     return StatusCode((int)waveReleaseResponseMessage.StatusCode, "Error al obtener datos de WaveRelease.");
@@ -78,21 +76,18 @@ namespace APILPNPicking.controllers
 
                 if (waveReleaseData == null || waveReleaseData.Count == 0)
                 {
-                    Console.WriteLine("No se encontraron datos para la combinación de orden en WaveRelease. Pasando al siguiente.");
-                    continue;
+                    return NotFound($"No se encontraron datos para la orden {loadDtlSeg.ordnum} en WaveRelease.");
                 }
 
-                // Filtrar por el producto después de obtener la respuesta completa
                 var waveRelease = waveReleaseData.FirstOrDefault(wr => wr.wave == request.SORT_INDUCTION.wcs_id && wr.codProducto == loadDtlSeg.prtnum);
 
                 if (waveRelease == null)
                 {
-                    Console.WriteLine("No se encontró un WaveRelease coincidente para el producto. Pasando al siguiente.");
-                    continue;
+                    return NotFound($"No se encontró un WaveRelease coincidente para la orden {loadDtlSeg.ordnum} y producto {loadDtlSeg.prtnum}.");
                 }
 
                 // Consultar la API de FamilyMaster
-                Console.WriteLine($"Consultando FamilyMaster para la familia: {waveRelease.familia}");
+                Console.WriteLine($"Consultando FamilyMaster para la tienda: {waveRelease.tienda}");
 
                 try
                 {
@@ -101,11 +96,14 @@ namespace APILPNPicking.controllers
                     Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse}");
 
                     var familyMasterData = JsonConvert.DeserializeObject<List<FamilyMaster>>(familyMasterResponse);
-                    var familyMaster = familyMasterData.FirstOrDefault() ?? new FamilyMaster();
+                    var familyMaster = familyMasterData.FirstOrDefault();
 
-                    // Calcular cantidadLPN a partir de SUBNUM_SEG
-                    var cantidadLPN = loadDtlSeg.SUBNUM_SEG
-                        .Sum(subnumSeg => subnumSeg.untqty);
+                    if (familyMaster == null)
+                    {
+                        return NotFound($"No se encontró información en FamilyMaster para la tienda {waveRelease.tienda}.");
+                    }
+
+                    var cantidadLPN = loadDtlSeg.SUBNUM_SEG.Sum(subnumSeg => subnumSeg.untqty);
 
                     if (cantidadLPN > waveRelease.cantidad)
                     {
@@ -114,34 +112,20 @@ namespace APILPNPicking.controllers
                         return BadRequest(errorMessage);
                     }
 
-                    // Buscar el registro de la orden existente
                     var existingOrden = _context.ordenesEnProceso
                         .FirstOrDefault(o => o.wave == waveRelease.wave && o.numOrden == waveRelease.numOrden && o.codProducto == waveRelease.codProducto);
 
                     if (existingOrden != null)
                     {
-                        Console.WriteLine("Registro existente encontrado en OrdenEnProceso.");
-
-                        // Sumar la cantidad de LPN
                         existingOrden.cantidadLPN += cantidadLPN;
-
                         _context.ordenesEnProceso.Update(existingOrden);
                     }
                     else
                     {
-                        Console.WriteLine("No se encontró un registro existente. Creando nuevo objeto de OrdenEnProceso.");
-
-                        //if (cantidadLPN > waveRelease.cantidad)
-                        //{
-                          //  var errorMessage = $"La cantidad a procesar ({cantidadLPN}) excede la cantidad total ({waveRelease.cantidad}) de la orden {waveRelease.numOrden} y producto {waveRelease.codProducto}.";
-                            //Console.WriteLine(errorMessage);
-                            //return BadRequest(errorMessage);
-                        //}
-
                         var ordenEnProceso = new OrdenEnProceso
                         {
-                            codMastr = waveRelease.codMastr ,
-                            codInr = waveRelease.codInr ,
+                            codMastr = waveRelease.codMastr,
+                            codInr = waveRelease.codInr,
                             cantidad = waveRelease.cantidad,
                             cantidadLPN = cantidadLPN,
                             cantInr = waveRelease.cantInr,
@@ -149,7 +133,7 @@ namespace APILPNPicking.controllers
                             cantidadProcesada = 0,
                             codProducto = loadDtlSeg.prtnum,
                             dtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum,
-                            estado = true, // Siempre activo para nuevos registros
+                            estado = true,
                             familia = waveRelease.familia,
                             numOrden = waveRelease.numOrden,
                             wave = waveRelease.wave
@@ -158,10 +142,8 @@ namespace APILPNPicking.controllers
                         _context.ordenesEnProceso.Add(ordenEnProceso);
                     }
 
-                    // Guardar los cambios en la base de datos
                     await _context.SaveChangesAsync();
 
-                    // Registrar en la tabla LPN Sorting
                     var lpnSorting = new LPNSorting
                     {
                         Wave = waveRelease.wave,
@@ -185,7 +167,5 @@ namespace APILPNPicking.controllers
 
             return Ok("Proceso completado.");
         }
-
-
     }
 }
