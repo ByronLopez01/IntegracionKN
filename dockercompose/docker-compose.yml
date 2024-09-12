@@ -11,6 +11,8 @@ services:
       - "5000:8080"
     networks:
       - microservices-net
+    env_file:
+      - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
@@ -24,6 +26,8 @@ services:
       - "5001:8080"
     networks:
       - microservices-net
+    env_file:
+      - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
@@ -62,6 +66,8 @@ services:
       - "5004:8080"
     networks:
       - microservices-net
+    env_file:
+      - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
@@ -75,6 +81,8 @@ services:
       - "5005:8080"
     networks:
       - microservices-net
+    env_file:
+      - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
@@ -89,9 +97,42 @@ services:
       - "5006:8080"
     networks:
       - microservices-net
+    env_file:
+      - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment: 
+      - "ACCEPT_EULA=Y"
+      - "MSSQL_SA_PASSWORD=Ch4Xanha!"
+    volumes:
+      - ./sqlscript/:/home/
+    networks:
+      - microservices-net
+    ports:
+      - "1443:1443"
+  
+  proxy-xlog:
+    image: traefik:v2.7
+    container_name: proxy-xlog
+    ports:
+      - "8010:80"
+      - "4443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+     # - ./traefik.toml:/traefik.toml
+      #- ./acme.json:/acme.json
+    #networks:
+    #  - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.proxy-xlog.rule=Host('127.0.0.1')"
+      #- "traefik.http.routers.proxy-xlog.tls=true"
+      #- "traefik.http.routers.proxy-xlog.tls.certresolver=myresolver"
+     # - "traefik.http.services.proxy-xlog.loadbalancer.server.url=http://otro_contenedor:puerto"
 
 networks:
   microservices-net:
