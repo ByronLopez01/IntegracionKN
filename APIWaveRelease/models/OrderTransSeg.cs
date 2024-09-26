@@ -1,9 +1,14 @@
 ﻿
+using Newtonsoft.Json;
+
 namespace APIWaveRelease.models
 {
     public class OrderTransSeg
     {
-        public string Schbat { get; set; }
-        public OrderSeg OrderSeg { get; set; }
+        //[JsonProperty("schbat")]
+        public string schbat { get; set; }
+
+        //[JsonProperty("ORDER_SEG")]
+        public List<OrderSeg> ORDER_SEG { get; set; }
     }
 }

@@ -14,5 +14,7 @@ namespace APIWaveRelease.data
         public string NumOrden { get; set; }
         public string CodProducto { get; set; }
         public string Wave { get; set; }
+        public string tienda { get; set; }
+
     }
 }

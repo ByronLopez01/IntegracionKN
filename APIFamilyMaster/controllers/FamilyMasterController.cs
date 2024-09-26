@@ -1,5 +1,6 @@
 ﻿using APIFamilyMaster.data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace APIFamilyMaster.controllers
@@ -52,6 +53,58 @@ namespace APIFamilyMaster.controllers
             await _context.SaveChangesAsync();
 
             return Ok("Datos guardados correctamente.");
+        }
+
+        // GET: api/FamilyMaster
+        [HttpGet]
+        public async Task<IActionResult> GetFamilyMasters([FromQuery] string tienda)
+        {
+            if (string.IsNullOrEmpty(tienda))
+            {
+                return BadRequest("El parámetro de búsqueda 'tienda' no puede ser nulo o vacío.");
+            }
+
+            var familyMasters = await _context.Familias
+                .Where(f => f.Tienda1 == tienda ||
+                            f.Tienda2 == tienda ||
+                            f.Tienda3 == tienda ||
+                            f.Tienda4 == tienda ||
+                            f.Tienda5 == tienda ||
+                            f.Tienda6 == tienda ||
+                            f.Tienda7 == tienda ||
+                            f.Tienda8 == tienda ||
+                            f.Tienda9 == tienda ||
+                            f.Tienda10 == tienda)
+                .Select(f => new
+                {
+                    f.IdFamilyMaster,
+                    f.Familia,
+                    f.NumSalida,
+                    f.NumTanda,
+                    TiendaConsultada = tienda
+                })
+                .ToListAsync();
+
+            if (familyMasters == null || !familyMasters.Any())
+            {
+                return NotFound("No se encontraron datos para la tienda proporcionada.");
+            }
+
+            return Ok(familyMasters);
+        }
+
+        // GET: api/FamilyMaster/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetFamilyMasterById(int id)
+        {
+            var familyMaster = await _context.Familias.FindAsync(id);
+
+            if (familyMaster == null)
+            {
+                return NotFound("No se encontró el dato con el id proporcionado.");
+            }
+
+            return Ok(familyMaster);
         }
     }
 }

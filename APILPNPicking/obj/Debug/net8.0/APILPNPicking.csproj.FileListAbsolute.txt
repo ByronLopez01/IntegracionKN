@@ -152,6 +152,7 @@ C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APILPNPicking\bin\Debug\
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APILPNPicking\bin\Debug\net8.0\Azure.Core.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APILPNPicking\bin\Debug\net8.0\Azure.Identity.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APILPNPicking\bin\Debug\net8.0\Humanizer.dll
+C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APILPNPicking\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APILPNPicking\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APILPNPicking\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APILPNPicking\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.dll

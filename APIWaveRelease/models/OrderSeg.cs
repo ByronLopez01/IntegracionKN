@@ -1,13 +1,28 @@
-﻿namespace APIWaveRelease.models
+﻿using Newtonsoft.Json;
+
+namespace APIWaveRelease.models
 {
     public class OrderSeg
     {
-        public string Ordnum { get; set; }
-        public string Cponum { get; set; }
-        public string Rtcust { get; set; }
-        public string Stcust { get; set; }
-        public string Ordtyp { get; set; }
-        public AddressSeg AddressSeg { get; set; }
-        public ShipSeg ShipSeg { get; set; }
+        //[JsonProperty("ordnum")]
+        public string ordnum { get; set; }
+
+        //[JsonProperty("cponum")]
+        public string cponum { get; set; }
+
+        //[JsonProperty("rtcust")]
+        public string rtcust { get; set; }
+
+        //[JsonProperty("stcust")]
+        public string stcust { get; set; }
+
+        //[JsonProperty("ordtyp")]
+        public string ordtyp { get; set; }
+
+        //[JsonProperty("ADDRESS_SEG")]
+        public AddressSeg ADDRESS_SEG { get; set; }
+
+        //[JsonProperty("SHIP_SEG")]
+        public ShipSeg SHIP_SEG { get; set; }
     }
 }

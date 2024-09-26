@@ -1,21 +1,50 @@
-﻿namespace APIWaveRelease.models
+﻿using Newtonsoft.Json;
+
+namespace APIWaveRelease.models
 {
     public class PickDtlSeg
     {
 
-        public string Wrkref { get; set; }
-        public string Prtnum { get; set; }
-        public string Prtfam { get; set; }
-        public string AltPrtnum { get; set; }
-        public string MscsEan { get; set; }
-        public string IncsEan { get; set; }
-        public int QtyMscs { get; set; }
-        public int QtyIncs { get; set; }
-        public int Qty { get; set; }
-        public int OrdCasCnt { get; set; }
-        public string Stgloc { get; set; }
-        public string MovZoneCode { get; set; }
-        public string Conveyable { get; set; }
-        public decimal CubicVol { get; set; }
+       // [JsonProperty("wrkref")]
+        public string wrkref { get; set; }
+
+        //[JsonProperty("prtnum")]
+        public string prtnum { get; set; }
+
+        //[JsonProperty("prtfam")]
+        public string prtfam { get; set; }
+
+        //[JsonProperty("alt_prtnum")]
+        public string alt_prtnum { get; set; }
+
+        //[JsonProperty("mscs_ean")]
+        public string mscs_ean { get; set; }
+
+        //[JsonProperty("incs_ean")]
+        public string incs_ean { get; set; }
+
+        //[JsonProperty("qty_mscs")]
+        public int qty_mscs { get; set; }
+
+        //[JsonProperty("qty_incs")]
+        public int qty_incs { get; set; }
+
+        //[JsonProperty("qty")]
+        public int qty { get; set; }
+
+        //[JsonProperty("ord_cas_cnt")]
+        public int ord_cas_cnt { get; set; }
+
+        //[JsonProperty("stgloc")]
+        public string stgloc { get; set; }
+
+        //[JsonProperty("mov_zone_code")]
+        public string mov_zone_code { get; set; }
+
+        //[JsonProperty("conveyable")]
+        public string conveyable { get; set; }
+
+        //[JsonProperty("cubic_vol")]
+        public decimal cubic_vol { get; set; }
     }
 }

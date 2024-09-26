@@ -5,11 +5,18 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
+
 var builder = WebApplication.CreateBuilder(args);
+
+
+//agrega el archivo para parametrizar (ExternalProperties.json)        true = archivo opcional o false = obligatorio para compilar
+builder.Configuration.AddJsonFile("externalproperties/ExternalProperties.json", optional: false, reloadOnChange: true);
+
 
 // Configurar servicios
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
+builder.Services.AddHttpClient();
 
 // Configuración de JWT
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
@@ -26,7 +33,8 @@ builder.Services.AddAuthentication(x =>
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"], // Asegúrate de que este valor coincida
         ValidateAudience = false
     };
 });

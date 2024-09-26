@@ -1,6 +1,9 @@
 services:
   apiwaverelease:
+    volumes:
+       - ../externalproperties/ExternalProperties.json:/app/externalproperties/ExternalProperties.json
     build:
+
       context: ..
       dockerfile: APIWaveRelease/Dockerfile
     image: apiwaverelease:latest
@@ -44,6 +47,46 @@ services:
     image: authservices:latest
     ports:
       - "5003:8080"
+    networks:
+      - microservices-net
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    restart: unless-stopped
+
+  orderupdate:
+    build:
+      context: ..
+      dockerfile: APIOrderUpdate/Dockerfile
+    image: orderupdate:latest
+    ports:
+      - "5004:8080"
+    networks:
+      - microservices-net
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    restart: unless-stopped
+
+  apiorderconfirmation:
+    build:
+      context: ..
+      dockerfile: APIOrderConfirmation/Dockerfile
+    image: apiorderconfirmation:latest
+    ports:
+      - "5005:8080"
+    networks:
+      - microservices-net
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    restart: unless-stopped
+
+
+  apisenad:
+    build:
+      context: ..
+      dockerfile: APISenad/Dockerfile
+    image: apisenad:latest
+    ports:
+      - "5006:8080"
     networks:
       - microservices-net
     environment:
