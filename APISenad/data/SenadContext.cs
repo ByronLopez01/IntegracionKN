@@ -5,7 +5,7 @@ namespace APISenad.data
     public class SenadContext : DbContext
     {
         public DbSet<OrdenEnProceso> ordenesEnProceso { get; set; }
-
+        public DbSet<FamilyMaster> Familias { get; set; }
         public SenadContext(DbContextOptions<SenadContext> options)
             : base(options)
         {
@@ -86,6 +86,36 @@ namespace APISenad.data
                     .HasColumnName("cantidad");
 
 
+            });
+
+            modelBuilder.Entity<FamilyMaster>(entity =>
+            {
+                entity.ToTable("FamilyMaster"); // Asegúrate de que este sea el nombre correcto de la tabla en tu base de datos
+
+                entity.HasKey(e => e.IdFamilyMaster);
+
+                entity.Property(e => e.IdFamilyMaster)
+                    .HasColumnName("IdFamilyMaster")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Familia)
+                    .HasMaxLength(50)
+                    .HasColumnName("Familia");
+
+                entity.Property(e => e.NumSalida)
+                    .HasColumnName("NumSalida");
+
+                entity.Property(e => e.NumTanda)
+                    .HasColumnName("NumTanda");
+
+                entity.Property(e => e.Tienda1) // Agregar el resto de tiendas
+                    .HasMaxLength(50)
+                    .HasColumnName("Tienda1");
+
+                // ... repetir para Tienda2, Tienda3, etc.
+
+                entity.Property(e => e.TandaActiva)
+                    .HasColumnName("TandaActiva");
             });
         }
     }

@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("APISenad")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+92444b54aa810373637277d3d95e337d80920547")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7929b7c62e98c98a9e4d9c23b3b7f636cb8e0260")]
 [assembly: System.Reflection.AssemblyProductAttribute("APISenad")]
 [assembly: System.Reflection.AssemblyTitleAttribute("APISenad")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -41,9 +41,12 @@ services:
       - "5002:8080" # Puerto externo 5002 mapeado al puerto interno 8080
     networks:
       - microservices-net
+    env_file:
+      - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
+
   authservices:
     build:
       context: ..
@@ -103,33 +106,21 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
 
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    environment: 
-      - "ACCEPT_EULA=Y"
-      - "MSSQL_SA_PASSWORD=Ch4Xanha!"
-    volumes:
-      - ./sqlscript/:/home/
-    networks:
-      - microservices-net
-    ports:
-      - "1443:1443"
-  
-  proxy-xlog:
-    image: traefik:v2.7
-    container_name: proxy-xlog
-    ports:
-      - "8010:80"
-      - "4443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+  #proxy-xlog:
+   # image: traefik:v2.7
+    #container_name: proxy-xlog
+    #ports:
+     # - "8010:80"
+      #- "4443:443"
+    #volumes:
+     # - /var/run/docker.sock:/var/run/docker.sock
      # - ./traefik.toml:/traefik.toml
       #- ./acme.json:/acme.json
     #networks:
     #  - web
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.proxy-xlog.rule=Host('127.0.0.1')"
+    #labels:
+     # - "traefik.enable=true"
+     # - "traefik.http.routers.proxy-xlog.rule=Host('127.0.0.1')"
       #- "traefik.http.routers.proxy-xlog.tls=true"
       #- "traefik.http.routers.proxy-xlog.tls.certresolver=myresolver"
      # - "traefik.http.services.proxy-xlog.loadbalancer.server.url=http://otro_contenedor:puerto"

@@ -40,7 +40,7 @@ namespace APILPNPicking.controllers
         {
             Console.WriteLine("Inicio del procesamiento de LPN Picking");
 
-            if (request?.SORT_INDUCTION?.LOAD_HDR_SEG?.LOAD_DTL_SEG == null || string.IsNullOrEmpty(request.SORT_INDUCTION.wcs_id))
+            if (request?.SORT_INDUCTION?.LOAD_HDR_SEG?.LOAD_DTL_SEG == null || string.IsNullOrEmpty(request.SORT_INDUCTION.LOAD_HDR_SEG.lodnum))
             {
                 Console.WriteLine("Datos en formato incorrecto.");
                 return BadRequest("Datos en formato incorrecto.");
