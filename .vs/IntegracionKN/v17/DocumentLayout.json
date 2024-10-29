@@ -3,28 +3,28 @@
   "WorkspaceRootPath": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\data\\familymaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\data\\familymaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\data\\familymastercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\data\\familymastercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|dockercompose{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\dockercompose\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|dockercompose{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|solutionrelative:dockercompose\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
       "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|dockercompose{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\dockercompose\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|dockercompose{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|solutionrelative:dockercompose\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}"
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\data\\familymaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\data\\familymaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\data\\familymastercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\data\\familymastercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FC47CFB2-097E-468C-9542-A37A2F65F15E}|Elementos de la soluci\u00F3n{FC47CFB2-097E-468C-9542-A37A2F65F15E}|C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\externalproperties\\ExternalProperties.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
@@ -142,7 +142,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -150,7 +150,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
               "Title": "FamilyMaster.cs",
               "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMaster.cs",
               "RelativeDocumentMoniker": "APIFamilyMaster\\data\\FamilyMaster.cs",
@@ -176,7 +176,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 2,
               "Title": "Dockerfile",
               "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\Dockerfile",
               "RelativeDocumentMoniker": "APIFamilyMaster\\Dockerfile",
@@ -202,7 +202,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\appsettings.json",
               "RelativeDocumentMoniker": "APIFamilyMaster\\appsettings.json",
@@ -215,13 +215,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 0,
               "Title": "docker-compose.yml",
               "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\dockercompose\\docker-compose.yml",
               "RelativeDocumentMoniker": "dockercompose\\docker-compose.yml",
               "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\dockercompose\\docker-compose.yml",
               "RelativeToolTip": "dockercompose\\docker-compose.yml",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAADIAAAAKAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
               "WhenOpened": "2024-08-28T16:25:26.372Z",
               "EditorCaption": ""
@@ -241,7 +241,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 5,
               "Title": "FamilyMasterContext.cs",
               "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMasterContext.cs",
               "RelativeDocumentMoniker": "APIFamilyMaster\\data\\FamilyMasterContext.cs",
