@@ -29,9 +29,9 @@ namespace APIWaveRelease.controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveKn)
+        public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveReleaseKn)
         {
-            if (waveKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null || string.IsNullOrEmpty(waveKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat))
+            if (waveReleaseKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null || string.IsNullOrEmpty(waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat))
             {
                 return BadRequest("Datos en formato no válido.");
             }
@@ -39,7 +39,7 @@ namespace APIWaveRelease.controllers
             var waveReleases = new List<WaveRelease>();
 
             // Itera sobre cada ORDER_SEG en la lista
-            foreach (var orderSeg in waveKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG)
+            foreach (var orderSeg in waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG)
             {
                 if (orderSeg?.SHIP_SEG?.PICK_DTL_SEG == null)
                 {
@@ -75,7 +75,7 @@ namespace APIWaveRelease.controllers
                             Familia = pickDtlSeg.prtfam,
                             NumOrden = orderSeg.ordnum,
                             CodProducto = pickDtlSeg.prtnum,
-                            Wave = waveKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat,
+                            Wave = waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat,
                             tienda = orderSeg.rtcust
                         };
                         
@@ -99,7 +99,7 @@ namespace APIWaveRelease.controllers
             //Console.WriteLine(urlLuca);
             //Console.WriteLine(urlLuca);
             //enviando json a luca tal cual lo recibimos desde kn
-            var jsonContent = JsonSerializer.Serialize(waveKn);
+            var jsonContent = JsonSerializer.Serialize(waveReleaseKn);
             var httpClient = _httpClientFactory.CreateClient();
 
             var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");

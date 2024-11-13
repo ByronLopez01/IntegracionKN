@@ -1,4 +1,5 @@
 using APIFamilyMaster.data;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -10,28 +11,31 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
-builder.Services.AddHttpClient();   
+builder.Services.AddHttpClient();
 
 // Configuración de JWT
-var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
-builder.Services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(x =>
-{
-    x.RequireHttpsMetadata = false; // Cambiar a true para producción
-    x.SaveToken = true;
-    x.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"], // Agrega el Issuer desde la configuración
-        ValidateAudience = false
-    };
-});
+//var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+//builder.Services.AddAuthentication(x =>
+//{
+//  x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//})
+//.AddJwtBearer(x =>
+//{
+//  x.RequireHttpsMetadata = false; // Cambiar a true para producción
+// x.SaveToken = true;
+// x.TokenValidationParameters = new TokenValidationParameters
+// {
+//   ValidateIssuerSigningKey = true,
+// IssuerSigningKey = new SymmetricSecurityKey(key),
+// ValidateIssuer = true,
+//  ValidIssuer = builder.Configuration["Jwt:Issuer"], // Agrega el Issuer desde la configuración
+//  ValidateAudience = false
+// };
+//});
+builder.Services.AddAuthentication("BasicAuthentication")
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+builder.Services.AddHttpClient();
 
 // Configuración Swagger
 builder.Services.AddEndpointsApiExplorer();

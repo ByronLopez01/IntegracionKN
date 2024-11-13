@@ -10,6 +10,8 @@ C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Azure.Identity.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Humanizer.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Microsoft.AspNetCore.JsonPatch.dll
+C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.dll
@@ -35,6 +37,7 @@ C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Mono.TextTemplating.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Newtonsoft.Json.dll
+C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Newtonsoft.Json.Bson.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIOrderConfirmation\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
