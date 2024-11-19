@@ -21,5 +21,8 @@
       //  public string Tienda12 { get; set; }
       //  public string Tienda13 { get; set; }
       //  public string Tienda14 { get; set; }
+
     }
+
+
 }

@@ -1,4 +1,5 @@
 ﻿using APIFamilyMaster.data;
+using APIFamilyMaster.services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +13,12 @@ namespace APIFamilyMaster.controllers
     public class FamilyMasterController :ControllerBase
     {
         private readonly FamilyMasterContext _context;
+        private readonly FamilyMasterService _familyMasterService;
 
-        public FamilyMasterController(FamilyMasterContext context)
+        public FamilyMasterController(FamilyMasterContext context, FamilyMasterService familyMasterService)
         {
             _context = context;
+            _familyMasterService = familyMasterService;
         }
 
         [HttpPost]
@@ -123,6 +126,24 @@ namespace APIFamilyMaster.controllers
             }
 
             return Ok(familyMaster);
+        }
+
+        [HttpPost("activar-tandas")]
+        public async Task<IActionResult> ActivarTandas([FromQuery] int salidasDisponibles)
+        {
+            if (salidasDisponibles <= 0)
+            {
+                return BadRequest("El número de salidas disponibles debe ser mayor a cero.");
+            }
+
+            // Llamamos al servicio para activar las tandas
+            var tandasActivadas = await _familyMasterService.ActivarTandasAsync(salidasDisponibles);
+
+            return Ok(new
+            {
+                Message = $"{tandasActivadas.Count} tanda(s) activada(s).",
+                TandasActivadas = tandasActivadas
+            });
         }
     }
 }

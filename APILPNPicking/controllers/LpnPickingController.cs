@@ -10,7 +10,7 @@ namespace APILPNPicking.controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "BasicAuthentication")]
     public class LpnPickingController : ControllerBase
     {
         private readonly LPNPickingContext _context;

@@ -1,5 +1,7 @@
 using APIOrderUpdate.data;
+using APIOrderUpdate.security;
 using APIOrderUpdate.services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
@@ -17,37 +19,41 @@ builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 
 
-var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
-builder.Services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(x =>
-{
-    x.RequireHttpsMetadata = false; // Cambiar a true para producción
-    x.SaveToken = true;
-    x.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"], 
-        ValidateAudience = false
-    };
-});
+//var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+//builder.Services.AddAuthentication(x =>
+//{
+//  x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+// x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//})
+//.AddJwtBearer(x =>
+//{
+//  x.RequireHttpsMetadata = false; // Cambiar a true para producción
+// x.SaveToken = true;
+// x.TokenValidationParameters = new TokenValidationParameters
+// {
+//   ValidateIssuerSigningKey = true,
+//   IssuerSigningKey = new SymmetricSecurityKey(key),
+//   ValidateIssuer = true,
+//  ValidIssuer = builder.Configuration["Jwt:Issuer"], 
+//  ValidateAudience = false
+// };
+//});
 
-// Configuración Swagger (si aplica)
+//basic auth
+builder.Services.AddAuthentication("BasicAuthentication")
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+builder.Services.AddHttpClient();
+
+// Configuración Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Order Update", Version = "v1" });
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Order Update ", Version = "v1" });
+    options.AddSecurityDefinition("basic", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        Description = "Ingresa tu Bearer token en el formato: 'Bearer {token}'"
+        Scheme = "basic",
+        Description = "Autenticacion basica. Ingresa el usuario y la contrasena en el formato 'username:password'."
     });
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -57,19 +63,15 @@ builder.Services.AddSwaggerGen(options =>
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
+                    Id = "Basic"
                 }
             },
             new string[] { }
         }
     });
 });
-
 // Configuración del DbContext
 builder.Services.AddDbContext<OrderUpdateContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddDbContext<WaveReleaseContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();

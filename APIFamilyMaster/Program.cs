@@ -1,3 +1,4 @@
+using APIFamilyMaster.security;
 using APIFamilyMaster.data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -5,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using APIFamilyMaster.services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
+
 
 // Configuración de JWT
 //var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
@@ -33,6 +37,8 @@ builder.Services.AddHttpClient();
 //  ValidateAudience = false
 // };
 //});
+
+//basic auth
 builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 builder.Services.AddHttpClient();
@@ -42,12 +48,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "Family Master", Version = "v1" });
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("basic", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        Description = "Ingresa tu Bearer token en el formato: 'Bearer {token}'"
+        Scheme = "basic",
+        Description = "Autenticacion basica. Ingresa el usuario y la contraseña en el formato 'username:password'."
     });
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -57,7 +62,7 @@ builder.Services.AddSwaggerGen(options =>
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
+                    Id = "Basic"
                 }
             },
             new string[] { }
@@ -68,6 +73,9 @@ builder.Services.AddSwaggerGen(options =>
 // Configuración del DbContext
 builder.Services.AddDbContext<FamilyMasterContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// **Registrar el servicio `FamilyMasterService`**
+builder.Services.AddScoped<FamilyMasterService>();
 
 var app = builder.Build();
 
@@ -85,6 +93,9 @@ else
     app.UseExceptionHandler("/Error");
  // app.UseHsts();
 }
+
+
+
 
 // Configuración del middleware
 app.UseHttpsRedirection();

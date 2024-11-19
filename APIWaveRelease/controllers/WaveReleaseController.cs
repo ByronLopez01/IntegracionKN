@@ -14,7 +14,7 @@ namespace APIWaveRelease.controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "BasicAuthentication")]
     public class WaveReleaseController : ControllerBase
     {
         private readonly WaveReleaseContext _context;

@@ -5,7 +5,7 @@ namespace APIOrderConfirmation.controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "BasicAuthentication")]
     public class OrderConfirmationController :ControllerBase
     {
         [HttpGet]
