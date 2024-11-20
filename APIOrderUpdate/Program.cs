@@ -27,7 +27,7 @@ builder.Services.AddHttpClient();
 //})
 //.AddJwtBearer(x =>
 //{
-//  x.RequireHttpsMetadata = false; // Cambiar a true para producción
+//  x.RequireHttpsMetadata = false; // Cambiar a true para producciï¿½n
 // x.SaveToken = true;
 // x.TokenValidationParameters = new TokenValidationParameters
 // {
@@ -44,7 +44,7 @@ builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 builder.Services.AddHttpClient();
 
-// Configuración Swagger
+// Configuraciï¿½n Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -63,14 +63,14 @@ builder.Services.AddSwaggerGen(options =>
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "Basic"
+                    Id = "basic"
                 }
             },
             new string[] { }
         }
     });
 });
-// Configuración del DbContext
+// Configuraciï¿½n del DbContext
 builder.Services.AddDbContext<OrderUpdateContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -82,7 +82,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Order Update API v1");
-        c.RoutePrefix = string.Empty; // Para acceder a Swagger desde la raíz
+        c.RoutePrefix = string.Empty; // Para acceder a Swagger desde la raï¿½z
     });
 }
 else
@@ -91,12 +91,12 @@ else
   //  app.UseHsts();
 }
 
-// Configuración del middleware
+// Configuraciï¿½n del middleware
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthentication(); // Autenticación
-app.UseAuthorization(); // Autorización
+app.UseAuthentication(); // Autenticaciï¿½n
+app.UseAuthorization(); // Autorizaciï¿½n
 
 app.MapRazorPages();
 app.MapControllers();
