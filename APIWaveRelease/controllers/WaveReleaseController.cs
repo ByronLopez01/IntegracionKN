@@ -8,30 +8,34 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 
+
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace APIWaveRelease.controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "BasicAuthentication")]
     public class WaveReleaseController : ControllerBase
     {
         private readonly WaveReleaseContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
+     
 
         public WaveReleaseController(WaveReleaseContext context, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _context = context;
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
+
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveKn)
+        public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveReleaseKn)
         {
-            if (waveKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null || string.IsNullOrEmpty(waveKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat))
+            int salidasDisponibles = 2;
+            if (waveReleaseKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null || string.IsNullOrEmpty(waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat))
             {
                 return BadRequest("Datos en formato no válido.");
             }
@@ -39,7 +43,7 @@ namespace APIWaveRelease.controllers
             var waveReleases = new List<WaveRelease>();
 
             // Itera sobre cada ORDER_SEG en la lista
-            foreach (var orderSeg in waveKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG)
+            foreach (var orderSeg in waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG)
             {
                 if (orderSeg?.SHIP_SEG?.PICK_DTL_SEG == null)
                 {
@@ -75,7 +79,7 @@ namespace APIWaveRelease.controllers
                             Familia = pickDtlSeg.prtfam,
                             NumOrden = orderSeg.ordnum,
                             CodProducto = pickDtlSeg.prtnum,
-                            Wave = waveKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat,
+                            Wave = waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat,
                             tienda = orderSeg.rtcust
                         };
                         
@@ -88,7 +92,7 @@ namespace APIWaveRelease.controllers
             }
 
             _context.WaveRelease.AddRange(waveReleases);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             //enviar el JSON a Luca parametrizado 
             var urlLuca = _configuration["ServiceUrls:luca"];
@@ -99,7 +103,7 @@ namespace APIWaveRelease.controllers
             //Console.WriteLine(urlLuca);
             //Console.WriteLine(urlLuca);
             //enviando json a luca tal cual lo recibimos desde kn
-            var jsonContent = JsonSerializer.Serialize(waveKn);
+            var jsonContent = JsonSerializer.Serialize(waveReleaseKn);
             var httpClient = _httpClientFactory.CreateClient();
 
             var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
@@ -116,7 +120,25 @@ namespace APIWaveRelease.controllers
                 Debug.WriteLine($"Error al enviar JSON a Luca. Status code: {response.StatusCode}");
             }
 
-            return Ok();
+            // Llamar al endpoint "activar-tandas"
+            var urlActivarTandas = _configuration["ServiceUrls:FamilyMaster"] + "/activar-tandas";
+            var responseTandas = await httpClient.PostAsync($"{urlActivarTandas}?salidasDisponibles={salidasDisponibles}", null);
+
+            if (responseTandas.IsSuccessStatusCode)
+            {
+                var tandasActivadas = await responseTandas.Content.ReadFromJsonAsync<List<string>>();
+                return Ok(new
+                {
+                    Message = "WaveRelease creado y tandas activadas automáticamente.",
+                    TandasActivadas = tandasActivadas
+                });
+            }
+            else
+            {
+                Debug.WriteLine($"Error al activar tandas. Status code: {responseTandas.StatusCode}");
+                return StatusCode((int)responseTandas.StatusCode, "Error al activar tandas.");
+            }
+            // return Ok();
         }
 
 

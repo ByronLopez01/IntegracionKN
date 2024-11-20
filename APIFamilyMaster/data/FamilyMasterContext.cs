@@ -4,7 +4,14 @@ namespace APIFamilyMaster.data
 {
     public class FamilyMasterContext : DbContext
     {
-
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                var connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
+                optionsBuilder.UseSqlServer(connectionString);
+            }
+        }
         public FamilyMasterContext(DbContextOptions<FamilyMasterContext> options) : base(options) 
         { 
         }

@@ -1,19 +1,24 @@
 ﻿using APIFamilyMaster.data;
+using APIFamilyMaster.services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace APIFamilyMaster.controllers
 {
+    [Authorize(AuthenticationSchemes = "BasicAuthentication")]
     [Route("api/[controller]")]
     [ApiController]
     public class FamilyMasterController :ControllerBase
     {
         private readonly FamilyMasterContext _context;
+        private readonly FamilyMasterService _familyMasterService;
 
-        public FamilyMasterController(FamilyMasterContext context)
+        public FamilyMasterController(FamilyMasterContext context, FamilyMasterService familyMasterService)
         {
             _context = context;
+            _familyMasterService = familyMasterService;
         }
 
         [HttpPost]
@@ -57,41 +62,57 @@ namespace APIFamilyMaster.controllers
 
         // GET: api/FamilyMaster
         [HttpGet]
-        public async Task<IActionResult> GetFamilyMasters([FromQuery] string tienda)
+        public async Task<IActionResult> GetFamilyMasters([FromQuery] string tienda, [FromQuery] string familia)
         {
-            if (string.IsNullOrEmpty(tienda))
+            // Validar los parámetros de entrada
+            if (string.IsNullOrEmpty(tienda) && string.IsNullOrEmpty(familia))
             {
-                return BadRequest("El parámetro de búsqueda 'tienda' no puede ser nulo o vacío.");
+                return BadRequest("Los parámetros de búsqueda 'tienda' y 'familia' no pueden ser nulos o vacíos.");
             }
 
-            var familyMasters = await _context.Familias
-                .Where(f => f.Tienda1 == tienda ||
-                            f.Tienda2 == tienda ||
-                            f.Tienda3 == tienda ||
-                            f.Tienda4 == tienda ||
-                            f.Tienda5 == tienda ||
-                            f.Tienda6 == tienda ||
-                            f.Tienda7 == tienda ||
-                            f.Tienda8 == tienda ||
-                            f.Tienda9 == tienda ||
-                            f.Tienda10 == tienda)
+            // Realizar la consulta en base a los parámetros proporcionados
+            var query = _context.Familias.AsQueryable();
+
+            if (!string.IsNullOrEmpty(tienda))
+            {
+                query = query.Where(f => f.Tienda1 == tienda ||
+                                         f.Tienda2 == tienda ||
+                                         f.Tienda3 == tienda ||
+                                         f.Tienda4 == tienda ||
+                                         f.Tienda5 == tienda ||
+                                         f.Tienda6 == tienda ||
+                                         f.Tienda7 == tienda ||
+                                         f.Tienda8 == tienda ||
+                                         f.Tienda9 == tienda ||
+                                         f.Tienda10 == tienda);
+            }
+
+            if (!string.IsNullOrEmpty(familia))
+            {
+                query = query.Where(f => f.Familia == familia);
+            }
+
+            var familyMasters = await query
                 .Select(f => new
                 {
                     f.IdFamilyMaster,
                     f.Familia,
                     f.NumSalida,
                     f.NumTanda,
-                    TiendaConsultada = tienda
+                    TiendaConsultada = tienda,
+                    FamiliaConsultada = familia
                 })
                 .ToListAsync();
 
+            // Verificar si se encontraron resultados
             if (familyMasters == null || !familyMasters.Any())
             {
-                return NotFound("No se encontraron datos para la tienda proporcionada.");
+                return NotFound("No se encontraron datos para la tienda y familia proporcionadas.");
             }
 
             return Ok(familyMasters);
         }
+
 
         // GET: api/FamilyMaster/{id}
         [HttpGet("{id}")]
@@ -105,6 +126,24 @@ namespace APIFamilyMaster.controllers
             }
 
             return Ok(familyMaster);
+        }
+
+        [HttpPost("activar-tandas")]
+        public async Task<IActionResult> ActivarTandas([FromQuery] int salidasDisponibles)
+        {
+            if (salidasDisponibles <= 0)
+            {
+                return BadRequest("El número de salidas disponibles debe ser mayor a cero.");
+            }
+
+            // Llamamos al servicio para activar las tandas
+            var tandasActivadas = await _familyMasterService.ActivarTandasAsync(salidasDisponibles);
+
+            return Ok(new
+            {
+                Message = $"{tandasActivadas.Count} tanda(s) activada(s).",
+                TandasActivadas = tandasActivadas
+            });
         }
     }
 }

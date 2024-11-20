@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("APILPNPicking")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+92444b54aa810373637277d3d95e337d80920547")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7ac7ff752fc993d9bdd24688f4f97f7f855df5eb")]
 [assembly: System.Reflection.AssemblyProductAttribute("APILPNPicking")]
 [assembly: System.Reflection.AssemblyTitleAttribute("APILPNPicking")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

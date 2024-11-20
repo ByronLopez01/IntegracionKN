@@ -41,5 +41,26 @@ namespace AuthServices.controllers
 
             return Ok(new { Token = tokenString });
         }
+
+        [HttpPost("validate-basic")]
+        public IActionResult ValidateBasicAuth([FromHeader] string authorization)
+        {
+            if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Basic "))
+                return Unauthorized("Missing or invalid Authorization header");
+
+            // Decodificar credenciales básicas (Formato: 'Basic base64(username:password)')
+            var encodedUsernamePassword = authorization.Substring("Basic ".Length).Trim();
+            var decodedUsernamePassword = Encoding.UTF8.GetString(Convert.FromBase64String(encodedUsernamePassword)).Split(':');
+            var username = decodedUsernamePassword[0];
+            var password = decodedUsernamePassword[1];
+
+            // Lógica de autenticación - reemplaza esto con tu lógica de validación de usuario
+            if (username == "UsuarioCorrecto" && password == "ContraseñaCorrecta")
+            {
+                return Ok(); // Respuesta OK si las credenciales son válidas
+            }
+
+            return Unauthorized("Invalid credentials");
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace APISenad.controllers
         {
             _context = context;
         }
-
+        /*
         [HttpGet("{codItem}")]
         public async Task<ActionResult> consultaCodigo(string codItem)
         {
@@ -103,6 +103,135 @@ namespace APISenad.controllers
 
             return Ok(respuestaSorter);
         }
+        */
+
+        [HttpGet("{codItem}")]
+        public async Task<ActionResult> consultaCodigo(string codItem)
+        {
+            if (string.IsNullOrEmpty(codItem))
+            {
+                return BadRequest("El código del ítem no puede estar vacío.");
+            }
+
+            // Buscar órdenes en proceso que coincidan con el código de ítem
+            var ordenesEncontradas = await _context.ordenesEnProceso
+                .Where(o => o.codMastr == codItem || o.codInr == codItem || o.codProducto == codItem)
+                .ToListAsync();
+
+            if (!ordenesEncontradas.Any())
+            {
+                // Si no se encuentra ninguna orden con el código, verificar si hay una tanda activa
+                var tandaActiva = await _context.Familias
+                    .Where(f => f.TandaActiva)
+                    .ToListAsync();
+
+                if (tandaActiva.Count > 0)
+                {
+                    // En caso de que haya una tanda activa, redirigir a salida de error
+                    var response = new
+                    {
+                        CodigoEscaneado = codItem,
+                        NumeroOrden = "N/A", // Sin número de orden disponible
+                        Salida = -1, // Salida de error
+                        Error = "El código no corresponde a ninguna orden activa."
+                    };
+                    return BadRequest(response);
+                }
+                else
+                {
+                    // Si no hay tanda activa, se puede manejar este caso como se desee
+                    return NotFound($"No se encontró ninguna orden con el código {codItem}.");
+                }
+            }
+
+            // Identificar la salida y familia de la orden procesada
+            int salidaAsignada = ordenesEncontradas.First().numSalida;
+            string ordennum = "";
+
+            foreach (var orden in ordenesEncontradas)
+            {
+                string tipoCodigo = "Desconocido";
+                int cantidadProcesada = 0;
+
+                if (orden.codMastr == codItem)
+                {
+                    tipoCodigo = "Master";
+                    cantidadProcesada = orden.cantMastr + orden.cantidadProcesada;
+                }
+                else if (orden.codInr == codItem)
+                {
+                    tipoCodigo = "Inner";
+                    cantidadProcesada = orden.cantInr + orden.cantidadProcesada;
+                }
+                else if (orden.codProducto == codItem)
+                {
+                    tipoCodigo = "Producto";
+                    cantidadProcesada = orden.cantidad + orden.cantidadProcesada;
+                }
+
+                ordennum = orden.numOrden;
+
+                // Verifica si la cantidad procesada supera la cantidad total permitida
+                if (cantidadProcesada > orden.cantidad)
+                {
+                    var response = new
+                    {
+                        CodigoEscaneado = codItem,
+                        NumeroOrden = ordennum,
+                        Salida = 0, // Asignar salida de error 
+                        Error = "La cantidad a procesar supera la cantidad permitida."
+                    };
+                    return BadRequest(response);
+                }
+
+                // Actualiza la cantidad procesada solo si no supera la cantidad total
+                orden.cantidadProcesada = cantidadProcesada;
+                _context.ordenesEnProceso.Update(orden);
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Verificar si quedan órdenes pendientes para la combinación de familia y salida actual
+            bool quedanOrdenesParaTanda = await _context.ordenesEnProceso
+                .AnyAsync(o => o.familia == ordenesEncontradas.First().familia && o.numSalida == salidaAsignada);
+
+            // Si no quedan órdenes, desactivar la tanda actual para esta salida y activar la siguiente tanda
+            if (!quedanOrdenesParaTanda)
+            {
+                var tandaActual = await _context.Familias
+                    .FirstOrDefaultAsync(f => f.Familia == ordenesEncontradas.First().familia && f.NumSalida == salidaAsignada && f.TandaActiva);
+
+                if (tandaActual != null)
+                {
+                    tandaActual.TandaActiva = false;
+                    _context.Familias.Update(tandaActual);
+
+                    // Activar la siguiente tanda para la misma salida
+                    var siguienteTanda = await _context.Familias
+                        .Where(f => f.Familia == ordenesEncontradas.First().familia && f.NumSalida == salidaAsignada && !f.TandaActiva)
+                        .OrderBy(f => f.NumTanda)
+                        .FirstOrDefaultAsync();
+
+                    if (siguienteTanda != null)
+                    {
+                        siguienteTanda.TandaActiva = true;
+                        _context.Familias.Update(siguienteTanda);
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            var respuestaSorter = new
+            {
+                codigoIngresado = codItem,
+                numeroOrden = ordennum,
+                salida = salidaAsignada
+            };
+
+            return Ok(respuestaSorter);
+        }
+
 
 
     }
