@@ -12,6 +12,7 @@ namespace APIWaveRelease.security
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         private readonly IConfiguration _configuration;
+        //private readonly TimeProvider _timeProvider; 
 
         public BasicAuthenticationHandler(
             IOptionsMonitor<AuthenticationSchemeOptions> options,
@@ -21,6 +22,7 @@ namespace APIWaveRelease.security
             IConfiguration configuration)
             : base(options, logger, encoder, clock)
         {
+            //_timeProvider = TimeProvider;
             _configuration = configuration;
         }
 

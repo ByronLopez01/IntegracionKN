@@ -2,7 +2,10 @@
 # FROM mcr.microsoft.com/dotnet/sdk:8.0-windowsservercore-ltsc2019 AS build # W.S.2019
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
+
 COPY ["APIWaveRelease/APIWaveRelease.csproj", "APIWaveRelease/"]
+
+
 RUN dotnet restore "APIWaveRelease/APIWaveRelease.csproj"
 COPY APIWaveRelease/. APIWaveRelease/
 WORKDIR "/src/APIWaveRelease"

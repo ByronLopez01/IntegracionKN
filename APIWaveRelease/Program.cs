@@ -9,6 +9,7 @@ using APIWaveRelease.security;
 using Microsoft.AspNetCore.Authentication;
 
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -94,9 +95,8 @@ builder.Services.AddSwaggerGen(options =>
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        Description = "Ingresa tu Bearer token en el formato: 'Bearer {token}'"
+        Scheme = "Basic",
+        Description = "Ingresa usuario y contraseña "
     });
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -106,7 +106,7 @@ builder.Services.AddSwaggerGen(options =>
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
+                    Id = "Basic"
                 }
             },
             new string[] { }
@@ -115,6 +115,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
 
 if (app.Environment.IsDevelopment())
 {

@@ -51,7 +51,7 @@ builder.Services.AddSwaggerGen(options =>
     options.AddSecurityDefinition("basic", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.Http,
-        Scheme = "basic",
+        Scheme = "Basic",
         Description = "Autenticacion basica. Ingresa el usuario y la contraseña en el formato 'username:password'."
     });
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
