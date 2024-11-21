@@ -5,7 +5,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuración de JWT
+// Configuraciï¿½n de JWT
 var key = Encoding.ASCII.GetBytes("Xlog2024"); // Tu clave secreta
 builder.Services.AddAuthentication(x =>
 {
@@ -14,7 +14,7 @@ builder.Services.AddAuthentication(x =>
 })
 .AddJwtBearer(x =>
 {
-    x.RequireHttpsMetadata = false; // Cambiar a true para producción
+    x.RequireHttpsMetadata = false; // Cambiar a true para producciï¿½n
     x.SaveToken = true;
     x.TokenValidationParameters = new TokenValidationParameters
     {
@@ -26,9 +26,9 @@ builder.Services.AddAuthentication(x =>
 });
 
 // Agregar servicios para MVC
-builder.Services.AddControllers(); // Asegúrate de que los servicios para los controladores están registrados
+builder.Services.AddControllers(); // Asegï¿½rate de que los servicios para los controladores estï¿½n registrados
 
-// Configuración de Swagger
+// Configuraciï¿½n de Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -71,9 +71,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthentication(); // Autenticación
+app.UseAuthentication(); // Autenticaciï¿½n
 app.UseAuthorization();
 
-app.MapControllers(); // Asegúrate de que las rutas para los controladores están configuradas
+app.MapControllers(); // Asegï¿½rate de que las rutas para los controladores estï¿½n configuradas
 
 app.Run();

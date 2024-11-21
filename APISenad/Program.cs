@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 
-// Configuración de JWT
+// Configuraciï¿½n de JWT
 //var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
 //builder.Services.AddAuthentication(x =>
 //{
@@ -22,14 +22,14 @@ builder.Services.AddControllers();
 //})
 //.AddJwtBearer(x =>
 //{
-//  x.RequireHttpsMetadata = false; // true en producción
+//  x.RequireHttpsMetadata = false; // true en producciï¿½n
 //  x.SaveToken = true;
 //  x.TokenValidationParameters = new TokenValidationParameters
 //  {
 //     ValidateIssuerSigningKey = true,
 //    IssuerSigningKey = new SymmetricSecurityKey(key),
 //    ValidateIssuer = true,
-//   ValidIssuer = builder.Configuration["Jwt:Issuer"], // Asegúrate de que este valor coincida
+//   ValidIssuer = builder.Configuration["Jwt:Issuer"], // Asegï¿½rate de que este valor coincida
 //   ValidateAudience = false
 // };
 //});
@@ -39,7 +39,7 @@ builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 builder.Services.AddHttpClient();
 
-// Configuración Swagger
+// Configuraciï¿½n Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -48,7 +48,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Type = SecuritySchemeType.Http,
         Scheme = "basic",
-        Description = "Autenticacion basica. Ingresa el usuario y la contraseña en el formato 'username:password'."
+        Description = "Autenticacion basica. Ingresa el usuario y la contraseï¿½a en el formato 'username:password'."
     });
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -58,7 +58,7 @@ builder.Services.AddSwaggerGen(options =>
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "Basic"
+                    Id = "basic"
                 }
             },
             new string[] { }
@@ -73,7 +73,7 @@ builder.Services.AddDbContext<SenadContext>(options =>
 builder.Services.AddAuthorization();
 
 
-// Configuración de Swagger
+// Configuraciï¿½n de Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -117,7 +117,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthentication(); // Autenticación
+app.UseAuthentication(); // Autenticaciï¿½n
 app.UseAuthorization();
 
 app.MapRazorPages();

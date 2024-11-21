@@ -27,7 +27,7 @@ builder.Services.AddHttpClient("apiFamilyMaster", client =>
 });
 
 
-// Configuración de JWT
+// Configuraciï¿½n de JWT
 //var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
 //builder.Services.AddAuthentication(x =>
 //{
@@ -36,14 +36,14 @@ builder.Services.AddHttpClient("apiFamilyMaster", client =>
 //})
 //.AddJwtBearer(x =>
 //{
-//  x.RequireHttpsMetadata = false; // Cambiar a true para producción
+//  x.RequireHttpsMetadata = false; // Cambiar a true para producciï¿½n
 // x.SaveToken = true;
 // x.TokenValidationParameters = new TokenValidationParameters
 // {
 //   ValidateIssuerSigningKey = true,
 //   IssuerSigningKey = new SymmetricSecurityKey(key),
 //   ValidateIssuer = true,
-//   ValidIssuer = builder.Configuration["Jwt:Issuer"], // Agrega el Issuer desde la configuración
+//   ValidIssuer = builder.Configuration["Jwt:Issuer"], // Agrega el Issuer desde la configuraciï¿½n
 //   ValidateAudience = false
 // };
 //});
@@ -53,7 +53,7 @@ builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 builder.Services.AddHttpClient();
 
-// Configuración Swagger
+// Configuraciï¿½n Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -62,7 +62,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Type = SecuritySchemeType.Http,
         Scheme = "basic",
-        Description = "Autenticacion basica. Ingresa el usuario y la contraseña en el formato 'username:password'."
+        Description = "Autenticacion basica. Ingresa el usuario y la contraseï¿½a en el formato 'username:password'."
     });
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -72,14 +72,14 @@ builder.Services.AddSwaggerGen(options =>
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "Basic"
+                    Id = "basic"
                 }
             },
             new string[] { }
         }
     });
 });
-// Configuración del DbContext
+// Configuraciï¿½n del DbContext
 builder.Services.AddDbContext<LPNPickingContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -91,7 +91,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "API LPN Picking v1");
-        c.RoutePrefix = string.Empty; // Para acceder a Swagger desde la raíz
+        c.RoutePrefix = string.Empty; // Para acceder a Swagger desde la raï¿½z
     });
 }
 else
@@ -100,12 +100,12 @@ else
    // app.UseHsts();
 }
 
-// Configuración del middleware
+// Configuraciï¿½n del middleware
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthentication(); // Autenticación
-app.UseAuthorization(); // Autorización
+app.UseAuthentication(); // Autenticaciï¿½n
+app.UseAuthorization(); // Autorizaciï¿½n
 
 app.MapRazorPages();
 app.MapControllers();
