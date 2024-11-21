@@ -3,16 +3,48 @@
   "WorkspaceRootPath": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\controllers\\wavereleasecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\controllers\\wavereleasecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\controllers\\familymastercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\controllers\\familymastercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\apiwaverelease.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\apiwaverelease.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|dockercompose{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\dockercompose\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|dockercompose{5D8C7DEC-E99F-4392-9C0F-28D9FD3D8010}|solutionrelative:dockercompose\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\services\\familymasterservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\services\\familymasterservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apiwaverelease\\security\\basicauthenticationhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A312E6E-D91B-4C6C-BE08-77FD0357A1BF}|APIWaveRelease\\APIWaveRelease.csproj|solutionrelative:apiwaverelease\\security\\basicauthenticationhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\data\\familymastercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -21,14 +53,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\data\\familymaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\data\\familymaster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|c:\\users\\byron\\source\\repos\\integracionkn\\integracionkn\\apifamilymaster\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{E8FE6BD6-C8CD-4D9B-8F6E-E902568B3792}|APIFamilyMaster\\APIFamilyMaster.csproj|solutionrelative:apifamilymaster\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,7 +62,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,7 +70,137 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\Dockerfile",
+              "RelativeDocumentMoniker": "APIWaveRelease\\Dockerfile",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\Dockerfile",
+              "RelativeToolTip": "APIWaveRelease\\Dockerfile",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAArAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-11-20T13:43:19.026Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 3,
+              "Title": "APIWaveRelease",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\APIWaveRelease.csproj",
+              "RelativeDocumentMoniker": "APIWaveRelease\\APIWaveRelease.csproj",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\APIWaveRelease.csproj",
+              "RelativeToolTip": "APIWaveRelease\\APIWaveRelease.csproj",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAAAA4AAABPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-11-20T13:30:45.593Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\Program.cs",
+              "RelativeDocumentMoniker": "APIWaveRelease\\Program.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\Program.cs",
+              "RelativeToolTip": "APIWaveRelease\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-20T13:15:01.586Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "WaveReleaseController.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\controllers\\WaveReleaseController.cs",
+              "RelativeDocumentMoniker": "APIWaveRelease\\controllers\\WaveReleaseController.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\controllers\\WaveReleaseController.cs",
+              "RelativeToolTip": "APIWaveRelease\\controllers\\WaveReleaseController.cs",
+              "ViewState": "AQIAAHkAAAAAAAAAAAAwwIsAAAANAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-20T13:03:49.199Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\Program.cs",
+              "RelativeDocumentMoniker": "APIFamilyMaster\\Program.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\Program.cs",
+              "RelativeToolTip": "APIFamilyMaster\\Program.cs",
+              "ViewState": "AQIAAC8AAAAAAAAAAAAwwDUAAAATAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-15T14:59:15.059Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "docker-compose.yml",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\dockercompose\\docker-compose.yml",
+              "RelativeDocumentMoniker": "dockercompose\\docker-compose.yml",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\dockercompose\\docker-compose.yml",
+              "RelativeToolTip": "dockercompose\\docker-compose.yml",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
+              "WhenOpened": "2024-11-20T13:51:49.277Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\Dockerfile",
+              "RelativeDocumentMoniker": "APIFamilyMaster\\Dockerfile",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\Dockerfile",
+              "RelativeToolTip": "APIFamilyMaster\\Dockerfile",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-11-15T17:04:52.309Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "FamilyMasterController.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\controllers\\FamilyMasterController.cs",
+              "RelativeDocumentMoniker": "APIFamilyMaster\\controllers\\FamilyMasterController.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\controllers\\FamilyMasterController.cs",
+              "RelativeToolTip": "APIFamilyMaster\\controllers\\FamilyMasterController.cs",
+              "ViewState": "AQIAAHsAAAAAAAAAAAAAAIIAAAAHAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-18T20:30:29.293Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "FamilyMasterService.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\services\\FamilyMasterService.cs",
+              "RelativeDocumentMoniker": "APIFamilyMaster\\services\\FamilyMasterService.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\services\\FamilyMasterService.cs",
+              "RelativeToolTip": "APIFamilyMaster\\services\\FamilyMasterService.cs",
+              "ViewState": "AQIAAC0AAAAAAAAAAAAAADwAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-18T21:47:49.505Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "BasicAuthenticationHandler.cs",
+              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\security\\BasicAuthenticationHandler.cs",
+              "RelativeDocumentMoniker": "APIWaveRelease\\security\\BasicAuthenticationHandler.cs",
+              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIWaveRelease\\security\\BasicAuthenticationHandler.cs",
+              "RelativeToolTip": "APIWaveRelease\\security\\BasicAuthenticationHandler.cs",
+              "ViewState": "AQIAAAQAAAAAAAAAAAAwwA4AAAAKAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-20T17:25:19.833Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
               "Title": "FamilyMasterContext.cs",
               "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMasterContext.cs",
               "RelativeDocumentMoniker": "APIFamilyMaster\\data\\FamilyMasterContext.cs",
@@ -59,20 +213,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "FamilyMasterService.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\services\\FamilyMasterService.cs",
-              "RelativeDocumentMoniker": "APIFamilyMaster\\services\\FamilyMasterService.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\services\\FamilyMasterService.cs",
-              "RelativeToolTip": "APIFamilyMaster\\services\\FamilyMasterService.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAA2AAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-18T21:47:49.505Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 12,
               "Title": "FamilyMaster.cs",
               "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\data\\FamilyMaster.cs",
               "RelativeDocumentMoniker": "APIFamilyMaster\\data\\FamilyMaster.cs",
@@ -85,54 +226,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "FamilyMasterController.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\controllers\\FamilyMasterController.cs",
-              "RelativeDocumentMoniker": "APIFamilyMaster\\controllers\\FamilyMasterController.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\controllers\\FamilyMasterController.cs",
-              "RelativeToolTip": "APIFamilyMaster\\controllers\\FamilyMasterController.cs",
-              "ViewState": "AQIAAAYAAAAAAAAAAAAAABIAAAAJAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-18T20:30:29.293Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 10,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\appsettings.json",
               "RelativeDocumentMoniker": "APIFamilyMaster\\appsettings.json",
               "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\appsettings.json",
               "RelativeToolTip": "APIFamilyMaster\\appsettings.json",
-              "ViewState": "AQIAAAMAAAAAAAAAAAAAAAwAAAACAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAAEAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2024-11-15T19:43:09.676Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Dockerfile",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\Dockerfile",
-              "RelativeDocumentMoniker": "APIFamilyMaster\\Dockerfile",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\Dockerfile",
-              "RelativeToolTip": "APIFamilyMaster\\Dockerfile",
-              "ViewState": "AQIAAAMAAAAAAAAAAAAAABYAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-11-15T17:04:52.309Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\Program.cs",
-              "RelativeDocumentMoniker": "APIFamilyMaster\\Program.cs",
-              "ToolTip": "C:\\Users\\Byron\\source\\repos\\IntegracionKN\\IntegracionKN\\APIFamilyMaster\\Program.cs",
-              "RelativeToolTip": "APIFamilyMaster\\Program.cs",
-              "ViewState": "AQIAAEQAAAAAAAAAAAAwwEwAAAAyAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-15T14:59:15.059Z",
               "EditorCaption": ""
             }
           ]

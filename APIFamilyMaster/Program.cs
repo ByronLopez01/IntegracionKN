@@ -17,7 +17,7 @@ builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 
 
-// Configuraci�n de JWT
+// Configuraciï¿½n de JWT
 //var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
 //builder.Services.AddAuthentication(x =>
 //{
@@ -26,14 +26,14 @@ builder.Services.AddHttpClient();
 //})
 //.AddJwtBearer(x =>
 //{
-//  x.RequireHttpsMetadata = false; // Cambiar a true para producci�n
+//  x.RequireHttpsMetadata = false; // Cambiar a true para producciï¿½n
 // x.SaveToken = true;
 // x.TokenValidationParameters = new TokenValidationParameters
 // {
 //   ValidateIssuerSigningKey = true,
 // IssuerSigningKey = new SymmetricSecurityKey(key),
 // ValidateIssuer = true,
-//  ValidIssuer = builder.Configuration["Jwt:Issuer"], // Agrega el Issuer desde la configuraci�n
+//  ValidIssuer = builder.Configuration["Jwt:Issuer"], // Agrega el Issuer desde la configuraciï¿½n
 //  ValidateAudience = false
 // };
 //});
@@ -43,7 +43,7 @@ builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 builder.Services.AddHttpClient();
 
-// Configuraci�n Swagger
+// Configuraciï¿½n Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -52,7 +52,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Type = SecuritySchemeType.Http,
         Scheme = "basic",
-        Description = "Autenticacion basica. Ingresa el usuario y la contrasena en el formato 'username:password'."
+        Description = "Autenticacion basica. Ingresa el usuario y la contraseña en el formato 'username:password'."
     });
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -70,7 +70,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// Configuraci�n del DbContext
+// Configuraciï¿½n del DbContext
 builder.Services.AddDbContext<FamilyMasterContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -85,7 +85,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Family Master v1");
-        c.RoutePrefix = string.Empty; // Para acceder a Swagger desde la ra�z
+        c.RoutePrefix = string.Empty; // Para acceder a Swagger desde la raï¿½z
     });
 }
 else
@@ -97,12 +97,12 @@ else
 
 
 
-// Configuraci�n del middleware
+// Configuraciï¿½n del middleware
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthentication(); // Autenticaci�n
-app.UseAuthorization(); // Autorizaci�n
+app.UseAuthentication(); // Autenticaciï¿½n
+app.UseAuthorization(); // Autorizaciï¿½n
 
 app.MapRazorPages();
 app.MapControllers();
