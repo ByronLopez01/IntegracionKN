@@ -3,6 +3,7 @@ using APILPNPicking.models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Text; // Import para el Encoding
 using System.Net;
 using System.Net.Http.Headers; // Asegúrate de importar este espacio de nombres
 
@@ -31,8 +32,11 @@ namespace APILPNPicking.controllers
 
         private void SetAuthorizationHeader(HttpClient client)
         {
-            var jwtToken = _configuration["Jwt:Token"]; // Obtén el token JWT de la configuración
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+            var username = _configuration["BasicAuth:Username"];
+            var password = _configuration["BasicAuth:Password"];
+            var credentials = $"{username}:{password}";
+            var encodedCredentials = Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials));
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encodedCredentials);
         }
 
         [HttpPost]
