@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-
+using System.Net.Http.Headers;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -22,6 +22,7 @@ namespace APIWaveRelease.controllers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
      
+        
 
         public WaveReleaseController(WaveReleaseContext context, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
@@ -31,10 +32,19 @@ namespace APIWaveRelease.controllers
 
         }
 
+        private void SetAuthorizationHeader(HttpClient client)
+        {
+            var username = _configuration["BasicAuth:Username"];
+            var password = _configuration["BasicAuth:Password"];
+            var credentials = $"{username}:{password}";
+            var encodedCredentials = Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials));
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encodedCredentials);
+        }
+
         [HttpPost]
         public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveReleaseKn)
         {
-            int salidasDisponibles = 2;
+            int salidasDisponibles = 4;
             if (waveReleaseKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null || string.IsNullOrEmpty(waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat))
             {
                 return BadRequest("Datos en formato no válido.");
@@ -94,8 +104,9 @@ namespace APIWaveRelease.controllers
             _context.WaveRelease.AddRange(waveReleases);
             await _context.SaveChangesAsync();
 
+            
             //enviar el JSON a Luca parametrizado 
-            var urlLuca = _configuration["ServiceUrls:luca"];
+            //var urlLuca = _configuration["ServiceUrls:luca"];
             //Console.WriteLine(urlLuca);
             //Console.WriteLine(urlLuca);
             //Console.WriteLine(urlLuca);
@@ -103,12 +114,14 @@ namespace APIWaveRelease.controllers
             //Console.WriteLine(urlLuca);
             //Console.WriteLine(urlLuca);
             //enviando json a luca tal cual lo recibimos desde kn
+
             var jsonContent = JsonSerializer.Serialize(waveReleaseKn);
             var httpClient = _httpClientFactory.CreateClient();
 
             var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            var response = await httpClient.PostAsync(urlLuca, httpContent);
-
+            //var response = await httpClient.PostAsync(urlLuca, httpContent);
+            
+            /*
             if (response.IsSuccessStatusCode)
             {
                 
@@ -119,26 +132,59 @@ namespace APIWaveRelease.controllers
                 
                 Debug.WriteLine($"Error al enviar JSON a Luca. Status code: {response.StatusCode}");
             }
+            */
+            
+            //var client = new HttpClient();
+            SetAuthorizationHeader(httpClient);
+
 
             // Llamar al endpoint "activar-tandas"
-            var urlActivarTandas = _configuration["ServiceUrls:FamilyMaster"] + "/activar-tandas";
+            var urlActivarTandas = "http://host.docker.internal:5002/api/FamilyMaster/activar-tandas"; //+ "/activar-tandas";
             var responseTandas = await httpClient.PostAsync($"{urlActivarTandas}?salidasDisponibles={salidasDisponibles}", null);
 
-            if (responseTandas.IsSuccessStatusCode)
+
+            try
             {
-                var tandasActivadas = await responseTandas.Content.ReadFromJsonAsync<List<string>>();
-                return Ok(new
+                var responseContent = await responseTandas.Content.ReadAsStringAsync();
+                Console.WriteLine("Respuesta JSON recibida: " + responseContent);
+
+                // Deserializa el JSON a la clase ActivarTandasResponse
+                var tandaResponse = JsonSerializer.Deserialize<ActivarTandasResponse>(responseContent, new JsonSerializerOptions
                 {
-                    Message = "WaveRelease creado y tandas activadas automáticamente.",
-                    TandasActivadas = tandasActivadas
+                    PropertyNameCaseInsensitive = true // Por si las propiedades tienen diferente casing
                 });
+
+                if (tandaResponse != null && tandaResponse.TandasActivadas != null)
+                {
+                    Console.WriteLine($"Mensaje: {tandaResponse.Message}");
+                    Console.WriteLine($"Tandas activadas: {string.Join(", ", tandaResponse.TandasActivadas)}");
+
+                    // Devuelve el mensaje y las tandas activadas en la respuesta
+                    return Ok(new { tandaResponse.Message, tandaResponse.TandasActivadas });
+
+                }
+                else
+                {
+                    Console.WriteLine("La respuesta no contiene las propiedades esperadas.");
+
+                    return Ok(new { Message = "La respuesta no contiene las propiedades esperadas.", TandasActivadas = new List<int>() });
+                }
             }
-            else
+            catch (JsonException ex)
             {
-                Debug.WriteLine($"Error al activar tandas. Status code: {responseTandas.StatusCode}");
-                return StatusCode((int)responseTandas.StatusCode, "Error al activar tandas.");
+                Console.WriteLine("Error al deserializar el JSON: " + ex.Message);
+                return StatusCode(500, "Error al deserializar el JSON.");
             }
-            // return Ok();
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine("Error en la solicitud HTTP: " + ex.Message);
+                return StatusCode(500, "Error en la solicitud HTTP.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ocurrió un error inesperado: " + ex.Message);
+                return StatusCode(500, "Ocurrió un error inesperado.");
+            }
         }
 
 

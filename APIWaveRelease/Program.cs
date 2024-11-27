@@ -85,35 +85,6 @@ builder.Services.AddDbContext<WaveReleaseContext>(options =>
 
 builder.Services.AddAuthorization();
 
-
-// Configuraciï¿½n de Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "API WaveRelease", Version = "v1" });
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Type = SecuritySchemeType.Http,
-        Scheme = "Basic",
-        Description = "Ingresa usuario y contraseña "
-    });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Basic"
-                }
-            },
-            new string[] { }
-        }
-    });
-});
-
 var app = builder.Build();
 
 
