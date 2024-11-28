@@ -74,9 +74,9 @@ namespace APILPNPicking.controllers
                 }
 
                 var waveReleaseResponse = await waveReleaseResponseMessage.Content.ReadAsStringAsync();
-                Console.WriteLine("RESPUESTA JSON WAVERELEASE " + waveReleaseResponse);
+                //Console.WriteLine("RESPUESTA JSON WAVERELEASE " + waveReleaseResponse);
 
-                Console.WriteLine($"Respuesta de WaveRelease: {waveReleaseResponse}");
+                //Console.WriteLine($"Respuesta de WaveRelease: {waveReleaseResponse}");
                 Console.WriteLine("---------------------- Antes de la serializacion ---------------------------");
                 List<WaveRelease> waveReleaseData = null; // Declarar la variable aquí
 
@@ -88,13 +88,18 @@ namespace APILPNPicking.controllers
                     // Deserializar la respuesta
                     waveReleaseData = JsonConvert.DeserializeObject<List<WaveRelease>>(waveReleaseResponse);
                     Console.WriteLine("Deserialización exitosa. Cantidad de resultados: " + waveReleaseData.Count);
+
+
+                    // Imprimir el contenido de waveReleaseData
+                    Console.WriteLine("JSON WAVERELEASE " + JsonConvert.SerializeObject(waveReleaseData, Formatting.Indented));
+
                 }
                 catch (JsonException jsonEx)
                 {
                     Console.WriteLine("Error en la deserialización: " + jsonEx.Message);
                     return StatusCode(500, "Error en la deserialización de WaveRelease.");
                 }
-                Console.WriteLine("JSON WAVERELEASE " + waveReleaseData);
+                //Console.WriteLine("JSON WAVERELEASE " + waveReleaseData);
 
                 if (waveReleaseData == null || waveReleaseData.Count == 0)
                 {
@@ -115,10 +120,13 @@ namespace APILPNPicking.controllers
                 try
                 {
                     SetAuthorizationHeader(_apiFamilyMasterClient);
-                    // Modificar la consulta para incluir la familia
-                    var familyMasterResponse = await _apiFamilyMasterClient.GetStringAsync($"api/FamilyMaster?tienda={waveRelease.Tienda}&familia={waveRelease.Familia}");
+
+                    var urlFamilyMaster = $"http://host.docker.internal:5002/api/FamilyMaster?tienda={waveRelease.Tienda}&familia={waveRelease.Familia}";
+                    Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
+
+                    var familyMasterResponse = await _apiFamilyMasterClient.GetStringAsync(urlFamilyMaster);
                     Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse}");
-                    Console.WriteLine($"Respuesta de FamilyMaster: familyMasterResponse");
+
 
                     var familyMasterData = JsonConvert.DeserializeObject<List<FamilyMaster>>(familyMasterResponse);
                     var familyMaster = familyMasterData.FirstOrDefault();
@@ -190,10 +198,11 @@ namespace APILPNPicking.controllers
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error al consultar FamilyMaster o enviar datos: {ex.Message}");
+                    Console.WriteLine($"Stack Trace: {ex.StackTrace}");
                     return StatusCode(500, "Error al consultar FamilyMaster o enviar datos.");
                 }
             }
-            return Ok("PRoceso Completado");
+            return Ok("Proceso Completado");
         }
 
     }

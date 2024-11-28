@@ -18,11 +18,11 @@ namespace APIOrderUpdate.services
 
         public async Task<OrderCancelResult> HandleOrderCancelAsync(OrderCancelKN orderCancelKn)
         {
-            var wcsId = orderCancelKn.ORDER_CANCEL.wcs_id;
+            var waveId = orderCancelKn.ORDER_CANCEL.ORDER_CANCEL_SEG.schbat;
             var ordnum = orderCancelKn.ORDER_CANCEL.ORDER_CANCEL_SEG.ordnum;
 
             var existingWaveRelease = await _context.WaveReleases
-                .Where(w => w.Wave == wcsId && w.NumOrden == ordnum)
+                .Where(w => w.Wave == waveId && w.NumOrden == ordnum)
                 .FirstOrDefaultAsync();
 
             if (existingWaveRelease != null)
@@ -31,7 +31,7 @@ namespace APIOrderUpdate.services
 
                var newOrderCancel = new OrderCancelEntity
                 {
-                    Wave = wcsId,
+                    Wave = waveId,
                     WhId = orderCancelKn.ORDER_CANCEL.wh_id,
                     MsgId = orderCancelKn.ORDER_CANCEL.msg_id,
                     Trandt = orderCancelKn.ORDER_CANCEL.trandt,
@@ -55,7 +55,7 @@ namespace APIOrderUpdate.services
 
                 var newOrderCancel = new OrderCancelEntity
                 {
-                    Wave = wcsId,
+                    Wave = waveId,
                     WhId = orderCancelKn.ORDER_CANCEL.wh_id,
                     MsgId = orderCancelKn.ORDER_CANCEL.msg_id,
                     Trandt = orderCancelKn.ORDER_CANCEL.trandt,
