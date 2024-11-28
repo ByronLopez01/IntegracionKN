@@ -122,7 +122,7 @@ namespace APISenad.controllers
             {
                 // Si no se encuentra ninguna orden con el código, verificar si hay una tanda activa
                 var tandaActiva = await _context.Familias
-                    .Where(f => f.TandaActiva)
+                    .Where(f => f.estado)
                     .ToListAsync();
 
                 if (tandaActiva.Count > 0)
@@ -199,22 +199,22 @@ namespace APISenad.controllers
             if (!quedanOrdenesParaTanda)
             {
                 var tandaActual = await _context.Familias
-                    .FirstOrDefaultAsync(f => f.Familia == ordenesEncontradas.First().familia && f.NumSalida == salidaAsignada && f.TandaActiva);
+                    .FirstOrDefaultAsync(f => f.Familia == ordenesEncontradas.First().familia && f.NumSalida == salidaAsignada && f.estado);
 
                 if (tandaActual != null)
                 {
-                    tandaActual.TandaActiva = false;
+                    tandaActual.estado = false;
                     _context.Familias.Update(tandaActual);
 
                     // Activar la siguiente tanda para la misma salida
                     var siguienteTanda = await _context.Familias
-                        .Where(f => f.Familia == ordenesEncontradas.First().familia && f.NumSalida == salidaAsignada && !f.TandaActiva)
+                        .Where(f => f.Familia == ordenesEncontradas.First().familia && f.NumSalida == salidaAsignada && !f.estado)
                         .OrderBy(f => f.NumTanda)
                         .FirstOrDefaultAsync();
 
                     if (siguienteTanda != null)
                     {
-                        siguienteTanda.TandaActiva = true;
+                        siguienteTanda.estado = true;
                         _context.Familias.Update(siguienteTanda);
                     }
                 }
