@@ -1,0 +1,7 @@
+{
+  "ServiceUrls": {
+    "luca": "http://100.100.244.80:4000/api",
+    "senad": "http://senad.com/api",
+    "kn": "http://kn.com/api"
+  }
+}
