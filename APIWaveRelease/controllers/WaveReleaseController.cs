@@ -139,7 +139,7 @@ namespace APIWaveRelease.controllers
 
 
             // Llamar al endpoint "activar-tandas"
-            var urlActivarTandas = "http://host.docker.internal:5002/api/FamilyMaster/activar-tandas"; //+ "/activar-tandas";
+            var urlActivarTandas = "http://apifamilymaster:8080/api/FamilyMaster/activar-tandas";
             var responseTandas = await httpClient.PostAsync($"{urlActivarTandas}?salidasDisponibles={salidasDisponibles}", null);
 
 

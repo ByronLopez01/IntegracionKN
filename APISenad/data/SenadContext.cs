@@ -114,8 +114,9 @@ namespace APISenad.data
 
                 // ... repetir para Tienda2, Tienda3, etc.
 
-                entity.Property(e => e.TandaActiva)
-                    .HasColumnName("TandaActiva");
+                entity.Property(e => e.estado)
+                    .HasColumnName("estado");
+
             });
         }
     }

@@ -121,7 +121,7 @@ namespace APILPNPicking.controllers
                 {
                     SetAuthorizationHeader(_apiFamilyMasterClient);
 
-                    var urlFamilyMaster = $"http://host.docker.internal:5002/api/FamilyMaster?tienda={waveRelease.Tienda}&familia={waveRelease.Familia}";
+                    var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster?tienda={waveRelease.Tienda}&familia={waveRelease.Familia}";
                     Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
 
                     var familyMasterResponse = await _apiFamilyMasterClient.GetStringAsync(urlFamilyMaster);
