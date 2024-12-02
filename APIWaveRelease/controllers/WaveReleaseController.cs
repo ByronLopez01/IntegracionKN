@@ -44,7 +44,7 @@ namespace APIWaveRelease.controllers
         [HttpPost]
         public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveReleaseKn)
         {
-            int salidasDisponibles = 4;
+            int salidasDisponibles = 15;
             if (waveReleaseKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null || string.IsNullOrEmpty(waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat))
             {
                 return BadRequest("Datos en formato no válido.");
@@ -104,39 +104,44 @@ namespace APIWaveRelease.controllers
             _context.WaveRelease.AddRange(waveReleases);
             await _context.SaveChangesAsync();
 
-            
-            //enviar el JSON a Luca parametrizado 
-            //var urlLuca = _configuration["ServiceUrls:luca"];
-            //Console.WriteLine(urlLuca);
-            //Console.WriteLine(urlLuca);
-            //Console.WriteLine(urlLuca);
-            //Console.WriteLine(urlLuca);
-            //Console.WriteLine(urlLuca);
-            //Console.WriteLine(urlLuca);
-            //enviando json a luca tal cual lo recibimos desde kn
 
+            // ENVIO DE JSON A LUCA!!
             var jsonContent = JsonSerializer.Serialize(waveReleaseKn);
             var httpClient = _httpClientFactory.CreateClient();
-
             var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            //var response = await httpClient.PostAsync(urlLuca, httpContent);
-            
-            /*
-            if (response.IsSuccessStatusCode)
-            {
-                
-                Debug.WriteLine("JSON enviado a Luca exitosamente.");
-            }
-            else
-            {
-                
-                Debug.WriteLine($"Error al enviar JSON a Luca. Status code: {response.StatusCode}");
-            }
-            */
-            
-            //var client = new HttpClient();
+
             SetAuthorizationHeader(httpClient);
 
+            var urlLucaBase = _configuration["ServiceUrls:luca"];
+            var urlLuca = $"{urlLucaBase}/api/sort/waveRelease";
+
+            try
+            {
+                var response = await httpClient.PostAsync(urlLuca, httpContent);
+                Console.WriteLine("URL LUCA: " + urlLuca);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("El JSON fue enviado correctamente a Luca.");
+                }
+                else
+                {
+                    Console.WriteLine("Error al enviar el JSON a Luca.");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Error en la solicitud HTTP: {ex.Message}");
+                return StatusCode(500, $"Error en la solicitud HTTP: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
+                return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
+            }
+
+            // TEST!!
+            //var urlActivarTandas = "http://host.docker.internal:5002/api/FamilyMaster/activar-tandas";
 
             // Llamar al endpoint "activar-tandas"
             var urlActivarTandas = "http://apifamilymaster:8080/api/FamilyMaster/activar-tandas";
