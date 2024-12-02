@@ -15,7 +15,7 @@ namespace APILPNPicking.controllers
     public class LpnPickingController : ControllerBase
     {
         private readonly LPNPickingContext _context;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly HttpClient _apiWaveReleaseClient;
         private readonly HttpClient _apiFamilyMasterClient;
@@ -24,7 +24,7 @@ namespace APILPNPicking.controllers
         public LpnPickingController(LPNPickingContext context, HttpClient httpClient, IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _context = context;
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _apiWaveReleaseClient = httpClientFactory.CreateClient("apiWaveRelease");
             _apiFamilyMasterClient = httpClientFactory.CreateClient("apiFamilyMaster");
@@ -121,6 +121,10 @@ namespace APILPNPicking.controllers
                 {
                     SetAuthorizationHeader(_apiFamilyMasterClient);
 
+                    // TEST!!
+                    //var urlFamilyMaster = $"http://host.docker.internal:5002/api/FamilyMaster?tienda={waveRelease.Tienda}&familia={waveRelease.Familia}";
+
+
                     var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster?tienda={waveRelease.Tienda}&familia={waveRelease.Familia}";
                     Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
 
@@ -172,7 +176,8 @@ namespace APILPNPicking.controllers
                             numOrden = waveRelease.NumOrden,
                             wave = waveRelease.Wave,
                             tienda = waveRelease.Tienda,
-                            numTanda = familyMaster.numTanda
+                            numTanda = familyMaster.numTanda,
+                            numSalida = familyMaster.numSalida
 
                         };
 
@@ -194,6 +199,74 @@ namespace APILPNPicking.controllers
                     await _context.SaveChangesAsync();
 
                     Console.WriteLine("Datos almacenados correctamente en la tabla LpnSorting.");
+
+                    // ENVIO DE JSON A LUCA
+                    var jsonContent = JsonConvert.SerializeObject(lpnSorting);
+                    var httpClient = _httpClientFactory.CreateClient();
+                    var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                    //Determinar el sorterId basado en el numSalida.
+                    int sorterId = familyMaster.numSalida;
+
+                    var urlLucaBase = _configuration["ServiceUrls:luca"];
+                    var urlLuca = $"{urlLucaBase}/api/sort/LpnSorter?sorterId={sorterId}";
+
+
+                    Console.WriteLine("URL LUCA: " + urlLuca);
+                    
+                    try
+                    {
+                        var response = await httpClient.PostAsync(urlLuca, httpContent);
+                        Console.WriteLine("URL LUCA: " + urlLuca);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            Console.WriteLine("El JSON fue enviado correctamente a LpnSorter.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Error al enviar el JSON a LpnSorter.");
+                        }
+                    }
+                    catch (HttpRequestException ex)
+                    {
+                        Console.WriteLine($"Error en la solicitud HTTP: {ex.Message}");
+                        return StatusCode(500, $"Error en la solicitud HTTP: {ex.Message}");
+                    }
+                    catch (TaskCanceledException ex)
+                    {
+                        Console.WriteLine($"La solicitud HTTP fue cancelada: {ex.Message}");
+                        return StatusCode(500, $"La solicitud HTTP fue cancelada: {ex.Message}");
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        Console.WriteLine($"La solicitud HTTP excedió el tiempo de espera: {ex.Message}");
+                        return StatusCode(500, $"La solicitud HTTP excedió el tiempo de espera: {ex.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Ocurrió un error inesperado durante la solicitud HTTP: {ex.Message}");
+                        return StatusCode(500, $"Ocurrió un error inesperado durante la solicitud HTTP: {ex.Message}");
+                    }
+                    
+                }
+                catch (JsonException jsonEx)
+                {
+                    Console.WriteLine($"Error en la deserialización de FamilyMaster: {jsonEx.Message}");
+                    return StatusCode(500, "Error en la deserialización de FamilyMaster.");
+                }
+                catch (HttpRequestException httpEx)
+                {
+                    if (httpEx.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        Console.WriteLine($"No se encontró el registro en FamilyMaster: {httpEx.Message}");
+                        return NotFound("No se encontró el registro en FamilyMaster.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error en la solicitud HTTP a FamilyMaster: {httpEx.Message}");
+                        return StatusCode(500, $"Error en la solicitud HTTP a FamilyMaster: {httpEx.Message}");
+                    }
                 }
                 catch (Exception ex)
                 {

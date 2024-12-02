@@ -12,6 +12,10 @@ using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Archivo de configuración
+builder.Configuration.AddJsonFile("externalproperties/ExternalProperties.json", optional: false, reloadOnChange: true);
+
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
