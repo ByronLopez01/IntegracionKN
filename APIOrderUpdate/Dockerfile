@@ -6,12 +6,13 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copia el archivo del proyecto y restaura las dependencias
-COPY ["APIOrderUpdate/APIOrderUpdate.csproj", "APIOrderUpdate/"]
-RUN dotnet restore "APIOrderUpdate/APIOrderUpdate.csproj"
+COPY APIOrderUpdate.csproj ./
+
+RUN dotnet restore "APIOrderUpdate.csproj"
 
 # Copia el resto de los archivos y construye el proyecto
-COPY APIOrderUpdate/. APIOrderUpdate/
-WORKDIR "/src/APIOrderUpdate"
+COPY . ./
+WORKDIR /src
 RUN dotnet build "APIOrderUpdate.csproj" -c Release -o /app/build
 
 # Publica la aplicación en una carpeta
