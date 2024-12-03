@@ -6,6 +6,10 @@ using Newtonsoft.Json;
 using System.Text; // Import para el Encoding
 using System.Net;
 using System.Net.Http.Headers; // Asegúrate de importar este espacio de nombres
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 
 namespace APILPNPicking.controllers
 {
@@ -44,235 +48,208 @@ namespace APILPNPicking.controllers
         {
             Console.WriteLine("Inicio del procesamiento de LPN Picking");
 
-            if (request?.SORT_INDUCTION?.LOAD_HDR_SEG?.LOAD_DTL_SEG == null || string.IsNullOrEmpty(request.SORT_INDUCTION.LOAD_HDR_SEG.lodnum))
+
+            // Comprobar si la lista no sea nula ni vacía.
+            if (request?.SORT_INDUCTION?.LOAD_HDR_SEG == null || !request.SORT_INDUCTION.LOAD_HDR_SEG.Any())
             {
                 Console.WriteLine("Datos en formato incorrecto.");
                 return BadRequest("Datos en formato incorrecto.");
             }
 
             Console.WriteLine("Datos válidos. Procesando el encabezado de carga.");
-            var loadHdrSeg = request.SORT_INDUCTION.LOAD_HDR_SEG;
+            //var loadHdrSeg = request.SORT_INDUCTION.LOAD_HDR_SEG;
 
-            foreach (var loadDtlSeg in loadHdrSeg.LOAD_DTL_SEG)
+            foreach (var loadHdrSeg in request.SORT_INDUCTION.LOAD_HDR_SEG)
             {
-                Console.WriteLine($"Procesando detalle de carga con orden: {loadDtlSeg.ordnum} y producto: {loadDtlSeg.prtnum}");
-
-                // Consultar la API WaveRelease el numero de orden
-                SetAuthorizationHeader(_apiWaveReleaseClient);
-                var waveReleaseResponseMessage = await _apiWaveReleaseClient.GetAsync($"api/WaveRelease/{loadDtlSeg.ordnum}");
-
-                if (!waveReleaseResponseMessage.IsSuccessStatusCode)
+                foreach (var loadDtlSeg in loadHdrSeg.LOAD_DTL_SEG)
                 {
-                    Console.WriteLine($"Error al obtener datos de WaveRelease. Estado: {waveReleaseResponseMessage.StatusCode}");
+                    Console.WriteLine($"Procesando detalle de carga con orden: {loadDtlSeg.ordnum} y producto: {loadDtlSeg.prtnum}");
 
-                    if (waveReleaseResponseMessage.StatusCode == HttpStatusCode.NotFound)
+                    // Consultar la API WaveRelease con el número de orden
+                    SetAuthorizationHeader(_apiWaveReleaseClient);
+                    var waveReleaseResponseMessage = await _apiWaveReleaseClient.GetAsync($"api/WaveRelease/{loadDtlSeg.ordnum}");
+
+                    if (!waveReleaseResponseMessage.IsSuccessStatusCode)
                     {
-                        return NotFound($"Orden {loadDtlSeg.ordnum} no registrada en WaveRelease.");
-                    }
+                        Console.WriteLine($"Error al obtener datos de WaveRelease. Estado: {waveReleaseResponseMessage.StatusCode}");
 
-                    return StatusCode((int)waveReleaseResponseMessage.StatusCode, "Error al obtener datos de WaveRelease.");
-                }
-
-                var waveReleaseResponse = await waveReleaseResponseMessage.Content.ReadAsStringAsync();
-                //Console.WriteLine("RESPUESTA JSON WAVERELEASE " + waveReleaseResponse);
-
-                //Console.WriteLine($"Respuesta de WaveRelease: {waveReleaseResponse}");
-                Console.WriteLine("---------------------- Antes de la serializacion ---------------------------");
-                List<WaveRelease> waveReleaseData = null; // Declarar la variable aquí
-
-                try
-                {
-
-                    Console.WriteLine("Respuesta de WaveRelease: " + waveReleaseResponse);
-
-                    // Deserializar la respuesta
-                    waveReleaseData = JsonConvert.DeserializeObject<List<WaveRelease>>(waveReleaseResponse);
-                    Console.WriteLine("Deserialización exitosa. Cantidad de resultados: " + waveReleaseData.Count);
-
-
-                    // Imprimir el contenido de waveReleaseData
-                    Console.WriteLine("JSON WAVERELEASE " + JsonConvert.SerializeObject(waveReleaseData, Formatting.Indented));
-
-                }
-                catch (JsonException jsonEx)
-                {
-                    Console.WriteLine("Error en la deserialización: " + jsonEx.Message);
-                    return StatusCode(500, "Error en la deserialización de WaveRelease.");
-                }
-                //Console.WriteLine("JSON WAVERELEASE " + waveReleaseData);
-
-                if (waveReleaseData == null || waveReleaseData.Count == 0)
-                {
-                    return NotFound($"No se encontraron datos para la orden {loadDtlSeg.ordnum} en WaveRelease.");
-                }
-
-                // Filtrar por número de orden y código de producto
-                var waveRelease = waveReleaseData.FirstOrDefault(wr => wr.NumOrden == loadDtlSeg.ordnum && wr.CodProducto == loadDtlSeg.prtnum);
-
-                if (waveRelease == null)
-                {
-                    return NotFound($"No se encontró un WaveRelease coincidente para la orden {loadDtlSeg.ordnum} y producto {loadDtlSeg.prtnum}.");
-                }
-
-                // Consultar la API de FamilyMaster
-                Console.WriteLine($"Consultando FamilyMaster para la tienda: {waveRelease.Tienda} y familia: {waveRelease.Familia}");
-
-                try
-                {
-                    SetAuthorizationHeader(_apiFamilyMasterClient);
-
-                    // TEST!!
-                    //var urlFamilyMaster = $"http://host.docker.internal:5002/api/FamilyMaster?tienda={waveRelease.Tienda}&familia={waveRelease.Familia}";
-
-
-                    var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster?tienda={waveRelease.Tienda}&familia={waveRelease.Familia}";
-                    Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
-
-                    var familyMasterResponse = await _apiFamilyMasterClient.GetStringAsync(urlFamilyMaster);
-                    Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse}");
-
-
-                    var familyMasterData = JsonConvert.DeserializeObject<List<FamilyMaster>>(familyMasterResponse);
-                    var familyMaster = familyMasterData.FirstOrDefault();
-
-                    if (familyMaster == null)
-                    {
-                        return NotFound($"No se encontró información en FamilyMaster para la tienda {waveRelease.Tienda} y familia {waveRelease.Familia}.");
-                    }
-
-                    var cantidadLPN = loadDtlSeg.SUBNUM_SEG.Sum(subnumSeg => subnumSeg.untqty);
-
-                    if (cantidadLPN > waveRelease.Cantidad)
-                    {
-                        var errorMessage = $"La cantidad a procesar ({cantidadLPN}) excede la cantidad total ({waveRelease.Cantidad}) de la orden {waveRelease.NumOrden} y producto {waveRelease.CodProducto}.";
-                        Console.WriteLine(errorMessage);
-                        return BadRequest(errorMessage);
-                    }
-
-                    var existingOrden = _context.ordenesEnProceso
-                        .FirstOrDefault(o => o.wave == waveRelease.Wave && o.numOrden == waveRelease.NumOrden && o.codProducto == waveRelease.CodProducto);
-
-                    if (existingOrden != null)
-                    {
-                        existingOrden.cantidadLPN += cantidadLPN;
-
-                        _context.ordenesEnProceso.Update(existingOrden);
-                    }
-                    else
-                    {
-                        var ordenEnProceso = new OrdenEnProceso
+                        if (waveReleaseResponseMessage.StatusCode == HttpStatusCode.NotFound)
                         {
-                            codMastr = waveRelease.CodMastr,
-                            codInr = waveRelease.CodInr,
-                            cantidad = waveRelease.Cantidad,
-                            cantidadLPN = cantidadLPN,
-                            cantInr = waveRelease.CantInr,
-                            cantMastr = waveRelease.CantMastr,
-                            cantidadProcesada = 0,
-                            codProducto = loadDtlSeg.prtnum,
-                            dtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum,
-                            estado = true,
-                            familia = waveRelease.Familia,
-                            numOrden = waveRelease.NumOrden,
-                            wave = waveRelease.Wave,
-                            tienda = waveRelease.Tienda,
-                            numTanda = familyMaster.numTanda,
-                            numSalida = familyMaster.numSalida
+                            return NotFound($"Orden {loadDtlSeg.ordnum} no registrada en WaveRelease.");
+                        }
 
-                        };
-
-                        _context.ordenesEnProceso.Add(ordenEnProceso);
+                        return StatusCode((int)waveReleaseResponseMessage.StatusCode, "Error al obtener datos de WaveRelease.");
                     }
 
-                    await _context.SaveChangesAsync();
+                    var waveReleaseResponse = await waveReleaseResponseMessage.Content.ReadAsStringAsync();
+                    Console.WriteLine("---------------------- Antes de la serialización ---------------------------");
+                    List<WaveRelease> waveReleaseData = null;
 
-                    var lpnSorting = new LPNSorting
-                    {
-                        Wave = waveRelease.Wave,
-                        IdOrdenTrabajo = waveRelease.NumOrden,
-                        CantidadUnidades = cantidadLPN,
-                        CodProducto = loadDtlSeg.prtnum,
-                        DtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum ?? string.Empty
-                    };
-
-                    _context.LPNSorting.Add(lpnSorting);
-                    await _context.SaveChangesAsync();
-
-                    Console.WriteLine("Datos almacenados correctamente en la tabla LpnSorting.");
-
-                    // ENVIO DE JSON A LUCA
-                    var jsonContent = JsonConvert.SerializeObject(lpnSorting);
-                    var httpClient = _httpClientFactory.CreateClient();
-                    var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-                    //Determinar el sorterId basado en el numSalida.
-                    int sorterId = familyMaster.numSalida;
-
-                    var urlLucaBase = _configuration["ServiceUrls:luca"];
-                    var urlLuca = $"{urlLucaBase}/api/sort/LpnSorter?sorterId={sorterId}";
-
-
-                    Console.WriteLine("URL LUCA: " + urlLuca);
-                    
                     try
                     {
-                        var response = await httpClient.PostAsync(urlLuca, httpContent);
-                        Console.WriteLine("URL LUCA: " + urlLuca);
+                        Console.WriteLine("Respuesta de WaveRelease: " + waveReleaseResponse);
 
-                        if (response.IsSuccessStatusCode)
+                        // Deserializar la respuesta
+                        waveReleaseData = JsonConvert.DeserializeObject<List<WaveRelease>>(waveReleaseResponse);
+                        Console.WriteLine("Deserialización exitosa. Cantidad de resultados: " + waveReleaseData.Count);
+
+                        // Imprimir el contenido de waveReleaseData
+                        Console.WriteLine("JSON WAVERELEASE " + JsonConvert.SerializeObject(waveReleaseData, Formatting.Indented));
+                    }
+                    catch (JsonException jsonEx)
+                    {
+                        Console.WriteLine("Error en la deserialización: " + jsonEx.Message);
+                        return StatusCode(500, "Error en la deserialización de WaveRelease.");
+                    }
+
+                    if (waveReleaseData == null || waveReleaseData.Count == 0)
+                    {
+                        return NotFound($"No se encontraron datos para la orden {loadDtlSeg.ordnum} en WaveRelease.");
+                    }
+
+                    // Filtrar por número de orden y código de producto
+                    var waveRelease = waveReleaseData.FirstOrDefault(wr => wr.NumOrden == loadDtlSeg.ordnum && wr.CodProducto == loadDtlSeg.prtnum);
+
+                    if (waveRelease == null)
+                    {
+                        return NotFound($"No se encontró un WaveRelease coincidente para la orden {loadDtlSeg.ordnum} y producto {loadDtlSeg.prtnum}.");
+                    }
+
+                    // Consultar la API de FamilyMaster
+                    Console.WriteLine($"Consultando FamilyMaster para la tienda: {waveRelease.Tienda} y familia: {waveRelease.Familia}");
+
+                    try
+                    {
+                        SetAuthorizationHeader(_apiFamilyMasterClient);
+
+                        var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster?tienda={waveRelease.Tienda}&familia={waveRelease.Familia}";
+                        Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
+
+                        var familyMasterResponse = await _apiFamilyMasterClient.GetStringAsync(urlFamilyMaster);
+                        Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse}");
+
+                        var familyMasterData = JsonConvert.DeserializeObject<List<FamilyMaster>>(familyMasterResponse);
+                        var familyMaster = familyMasterData.FirstOrDefault();
+
+                        if (familyMaster == null)
                         {
-                            Console.WriteLine("El JSON fue enviado correctamente a LpnSorter.");
+                            return NotFound($"No se encontró información en FamilyMaster para la tienda {waveRelease.Tienda} y familia {waveRelease.Familia}.");
+                        }
+
+                        var cantidadLPN = loadDtlSeg.SUBNUM_SEG.Sum(subnumSeg => subnumSeg.untqty);
+
+                        if (cantidadLPN > waveRelease.Cantidad)
+                        {
+                            var errorMessage = $"La cantidad a procesar ({cantidadLPN}) excede la cantidad total ({waveRelease.Cantidad}) de la orden {waveRelease.NumOrden} y producto {waveRelease.CodProducto}.";
+                            Console.WriteLine(errorMessage);
+                            return BadRequest(errorMessage);
+                        }
+
+                        var existingOrden = _context.ordenesEnProceso
+                            .FirstOrDefault(o => o.wave == waveRelease.Wave && o.numOrden == waveRelease.NumOrden && o.codProducto == waveRelease.CodProducto);
+
+                        if (existingOrden != null)
+                        {
+                            existingOrden.cantidadLPN += cantidadLPN;
+                            _context.ordenesEnProceso.Update(existingOrden);
                         }
                         else
                         {
-                            Console.WriteLine("Error al enviar el JSON a LpnSorter.");
+                            var ordenEnProceso = new OrdenEnProceso
+                            {
+                                codMastr = waveRelease.CodMastr,
+                                codInr = waveRelease.CodInr,
+                                cantidad = waveRelease.Cantidad,
+                                cantidadLPN = cantidadLPN,
+                                cantInr = waveRelease.CantInr,
+                                cantMastr = waveRelease.CantMastr,
+                                cantidadProcesada = 0,
+                                codProducto = loadDtlSeg.prtnum,
+                                dtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum,
+                                estado = true,
+                                familia = waveRelease.Familia,
+                                numOrden = waveRelease.NumOrden,
+                                wave = waveRelease.Wave,
+                                tienda = waveRelease.Tienda,
+                                numTanda = familyMaster.numTanda,
+                                numSalida = familyMaster.numSalida
+                            };
+
+                            _context.ordenesEnProceso.Add(ordenEnProceso);
+                        }
+
+                        await _context.SaveChangesAsync();
+
+                        var lpnSorting = new LPNSorting
+                        {
+                            Wave = waveRelease.Wave,
+                            IdOrdenTrabajo = waveRelease.NumOrden,
+                            CantidadUnidades = cantidadLPN,
+                            CodProducto = loadDtlSeg.prtnum,
+                            DtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum ?? string.Empty
+                        };
+
+                        _context.LPNSorting.Add(lpnSorting);
+                        await _context.SaveChangesAsync();
+
+                        Console.WriteLine("Datos almacenados correctamente en la tabla LpnSorting.");
+
+                        // ENVÍO DE JSON A LUCA
+                        var jsonContent = JsonConvert.SerializeObject(lpnSorting);
+                        var httpClient = _httpClientFactory.CreateClient();
+                        var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                        // Determinar el sorterId basado en el numSalida
+                        int sorterId = familyMaster.numSalida;
+
+                        var urlLucaBase = _configuration["ServiceUrls:luca"];
+                        var urlLuca = $"{urlLucaBase}/api/sort/LpnSorter?sorterId={sorterId}";
+
+                        Console.WriteLine("URL LUCA: " + urlLuca);
+
+                        try
+                        {
+                            var response = await httpClient.PostAsync(urlLuca, httpContent);
+                            Console.WriteLine("URL LUCA: " + urlLuca);
+
+                            if (response.IsSuccessStatusCode)
+                            {
+                                Console.WriteLine("El JSON fue enviado correctamente a LpnSorter.");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Error al enviar el JSON a LpnSorter.");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Ocurrió un error al enviar datos a LpnSorter: {ex.Message}");
+                            return StatusCode(500, $"Error al enviar datos a LpnSorter: {ex.Message}");
                         }
                     }
-                    catch (HttpRequestException ex)
+                    catch (JsonException jsonEx)
                     {
-                        Console.WriteLine($"Error en la solicitud HTTP: {ex.Message}");
-                        return StatusCode(500, $"Error en la solicitud HTTP: {ex.Message}");
+                        Console.WriteLine($"Error en la deserialización de FamilyMaster: {jsonEx.Message}");
+                        return StatusCode(500, "Error en la deserialización de FamilyMaster.");
                     }
-                    catch (TaskCanceledException ex)
+                    catch (HttpRequestException httpEx)
                     {
-                        Console.WriteLine($"La solicitud HTTP fue cancelada: {ex.Message}");
-                        return StatusCode(500, $"La solicitud HTTP fue cancelada: {ex.Message}");
-                    }
-                    catch (TimeoutException ex)
-                    {
-                        Console.WriteLine($"La solicitud HTTP excedió el tiempo de espera: {ex.Message}");
-                        return StatusCode(500, $"La solicitud HTTP excedió el tiempo de espera: {ex.Message}");
+                        if (httpEx.StatusCode == HttpStatusCode.NotFound)
+                        {
+                            Console.WriteLine($"No se encontró el registro en FamilyMaster: {httpEx.Message}");
+                            return NotFound("No se encontró el registro en FamilyMaster.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Error en la solicitud HTTP a FamilyMaster: {httpEx.Message}");
+                            return StatusCode(500, $"Error en la solicitud HTTP a FamilyMaster: {httpEx.Message}");
+                        }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Ocurrió un error inesperado durante la solicitud HTTP: {ex.Message}");
-                        return StatusCode(500, $"Ocurrió un error inesperado durante la solicitud HTTP: {ex.Message}");
+                        Console.WriteLine($"Error al consultar FamilyMaster o enviar datos: {ex.Message}");
+                        return StatusCode(500, "Error al consultar FamilyMaster o enviar datos.");
                     }
-                    
-                }
-                catch (JsonException jsonEx)
-                {
-                    Console.WriteLine($"Error en la deserialización de FamilyMaster: {jsonEx.Message}");
-                    return StatusCode(500, "Error en la deserialización de FamilyMaster.");
-                }
-                catch (HttpRequestException httpEx)
-                {
-                    if (httpEx.StatusCode == HttpStatusCode.NotFound)
-                    {
-                        Console.WriteLine($"No se encontró el registro en FamilyMaster: {httpEx.Message}");
-                        return NotFound("No se encontró el registro en FamilyMaster.");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Error en la solicitud HTTP a FamilyMaster: {httpEx.Message}");
-                        return StatusCode(500, $"Error en la solicitud HTTP a FamilyMaster: {httpEx.Message}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error al consultar FamilyMaster o enviar datos: {ex.Message}");
-                    Console.WriteLine($"Stack Trace: {ex.StackTrace}");
-                    return StatusCode(500, "Error al consultar FamilyMaster o enviar datos.");
                 }
             }
             return Ok("Proceso Completado");
