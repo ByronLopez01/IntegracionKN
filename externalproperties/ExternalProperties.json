@@ -1,7 +1,7 @@
 {
-  "ServiceUrls": {
-    "luca": "http://100.100.244.80:4000/api",
-    "senad": "http://senad.com/api",
-    "kn": "http://kn.com/api"
-  }
+    "ServiceUrls": {
+        "luca": "https://10.28.136.32:9500",
+        "senad": "http://senad.com/api",
+        "kn": "http://kn.com/api"
+    }
 }
