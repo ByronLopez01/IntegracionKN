@@ -9,6 +9,6 @@ namespace APILPNPicking.models
         public string wh_id { get; set; }
         public string msg_id { get; set; }
         public string trandt { get; set; }
-        public LoadHdrSeg LOAD_HDR_SEG { get; set; }
+        public List<LoadHdrSeg> LOAD_HDR_SEG { get; set; }
     }
 }
