@@ -196,7 +196,7 @@ namespace APILPNPicking.controllers
 
                         // ENVÍO DE JSON A LUCA
                         var jsonContent = JsonConvert.SerializeObject(lpnSorting);
-                        var httpClient = _httpClientFactory.CreateClient();
+                        var httpClient = _httpClientFactory.CreateClient("apiLuca");
                         var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
                         // Determinar el sorterId basado en el numSalida

@@ -52,6 +52,14 @@ builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 builder.Services.AddHttpClient();
 
+// Configuración cliente HTTP
+builder.Services.AddHttpClient("apiLuca", m => { })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        // Acepta cualquier certificado SSL
+        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+    });
+
 // Configuraci�n Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -97,6 +105,7 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty;
     });
 }
+
 
 // Configurar middleware
 app.UseHttpsRedirection();

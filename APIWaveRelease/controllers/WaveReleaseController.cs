@@ -107,7 +107,7 @@ namespace APIWaveRelease.controllers
 
             // ENVIO DE JSON A LUCA!!
             var jsonContent = JsonSerializer.Serialize(waveReleaseKn);
-            var httpClient = _httpClientFactory.CreateClient();
+            var httpClient = _httpClientFactory.CreateClient("apiLuca");
             var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
             SetAuthorizationHeader(httpClient);
