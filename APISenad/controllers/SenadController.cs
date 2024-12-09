@@ -178,7 +178,7 @@ namespace APISenad.controllers
                     {
                         CodigoEscaneado = codItem,
                         NumeroOrden = ordennum,
-                        Salida = 0, // Asignar salida de error 
+                        Salida = 9, // Asignar salida de error 
                         Error = "La cantidad a procesar supera la cantidad permitida."
                     };
                     return BadRequest(response);

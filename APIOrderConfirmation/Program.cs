@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using APIOrderConfirmation.services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,6 +83,12 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty;
     });
 }
+
+// Registrar el servicio de confirmación de órdenes
+builder.Services.AddScoped<IOrderConfirmationService, OrderConfirmationService>();
+
+// Registrar el BackgroundService
+builder.Services.AddHostedService<OrderConfirmationBackgroundService>();
 
 // Configurar middleware
 app.UseHttpsRedirection();
