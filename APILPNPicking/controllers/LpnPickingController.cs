@@ -83,14 +83,14 @@ namespace APILPNPicking.controllers
 
                     var waveReleaseResponse = await waveReleaseResponseMessage.Content.ReadAsStringAsync();
                     Console.WriteLine("---------------------- Antes de la serialización ---------------------------");
-                    List<WaveRelease> waveReleaseData = null;
+                    List<WaveRelease> waveReleaseData = new List<WaveRelease>();
 
                     try
                     {
                         Console.WriteLine("Respuesta de WaveRelease: " + waveReleaseResponse);
 
                         // Deserializar la respuesta
-                        waveReleaseData = JsonConvert.DeserializeObject<List<WaveRelease>>(waveReleaseResponse);
+                        waveReleaseData = JsonConvert.DeserializeObject<List<WaveRelease>>(waveReleaseResponse) ?? new List<WaveRelease>();
                         Console.WriteLine("Deserialización exitosa. Cantidad de resultados: " + waveReleaseData.Count);
 
                         // Imprimir el contenido de waveReleaseData
@@ -128,7 +128,18 @@ namespace APILPNPicking.controllers
                         var familyMasterResponse = await _apiFamilyMasterClient.GetStringAsync(urlFamilyMaster);
                         Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse}");
 
-                        var familyMasterData = JsonConvert.DeserializeObject<List<FamilyMaster>>(familyMasterResponse);
+                        List<FamilyMaster> familyMasterData = new List<FamilyMaster>();
+
+                        try
+                        {
+                            familyMasterData = JsonConvert.DeserializeObject<List<FamilyMaster>>(familyMasterResponse) ?? new List<FamilyMaster>();
+                        }
+                        catch (JsonException jsonEx)
+                        {
+                            Console.WriteLine($"Error en la deserialización de FamilyMaster: {jsonEx.Message}");
+                            return StatusCode(500, "Error en la deserialización de FamilyMaster.");
+                        }
+                        
                         var familyMaster = familyMasterData.FirstOrDefault();
 
                         if (familyMaster == null)
@@ -136,7 +147,7 @@ namespace APILPNPicking.controllers
                             return NotFound($"No se encontró información en FamilyMaster para la tienda {waveRelease.Tienda} y familia {waveRelease.Familia}.");
                         }
 
-                        var cantidadLPN = loadDtlSeg.SUBNUM_SEG.Sum(subnumSeg => subnumSeg.untqty);
+                        var cantidadLPN = loadDtlSeg.SUBNUM_SEG?.Sum(subnumSeg => subnumSeg.untqty) ?? 0;
 
                         if (cantidadLPN > waveRelease.Cantidad)
                         {
@@ -165,7 +176,7 @@ namespace APILPNPicking.controllers
                                 cantMastr = waveRelease.CantMastr,
                                 cantidadProcesada = 0,
                                 codProducto = loadDtlSeg.prtnum,
-                                dtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum,
+                                dtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum ?? string.Empty,
                                 estado = true,
                                 familia = waveRelease.Familia,
                                 numOrden = waveRelease.NumOrden,
@@ -194,8 +205,30 @@ namespace APILPNPicking.controllers
 
                         Console.WriteLine("Datos almacenados correctamente en la tabla LpnSorting.");
 
+                        // CREACIÓN OBJETO JSON PARA ENVIO A LUCA
+                        var lucaRequest = new LucaRequest
+                        {
+                            codMastr = waveRelease.CodMastr,
+                            codInr = waveRelease.CodInr,
+                            cantMastr = waveRelease.CantMastr,
+                            cantInr = waveRelease.CantInr,
+                            familia = waveRelease.Familia,
+                            numOrden = waveRelease.NumOrden,
+                            codProducto = waveRelease.CodProducto,
+                            onda = waveRelease.Wave,
+                            numSalida = familyMaster.numSalida,
+                            numTanda = familyMaster.numTanda,
+                            dtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum ?? string.Empty,
+                            tienda = waveRelease.Tienda
+                        };
+
                         // ENVÍO DE JSON A LUCA
-                        var jsonContent = JsonConvert.SerializeObject(lpnSorting);
+                        var jsonContent = JsonConvert.SerializeObject(lucaRequest);
+
+                        Console.WriteLine("JSON LUCA:");
+                        Console.WriteLine(jsonContent);
+
+
                         var httpClient = _httpClientFactory.CreateClient("apiLuca");
                         var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -221,16 +254,16 @@ namespace APILPNPicking.controllers
                                 Console.WriteLine("Error al enviar el JSON a LpnSorter.");
                             }
                         }
+                        catch (HttpRequestException httpEx)
+                        {
+                            Console.WriteLine($"Error en la solicitud HTTP a Luca: {httpEx.Message}");
+                            return StatusCode(500, $"Error en la solicitud HTTP a Luca: {httpEx.Message}");
+                        }
                         catch (Exception ex)
                         {
                             Console.WriteLine($"Ocurrió un error al enviar datos a LpnSorter: {ex.Message}");
                             return StatusCode(500, $"Error al enviar datos a LpnSorter: {ex.Message}");
                         }
-                    }
-                    catch (JsonException jsonEx)
-                    {
-                        Console.WriteLine($"Error en la deserialización de FamilyMaster: {jsonEx.Message}");
-                        return StatusCode(500, "Error en la deserialización de FamilyMaster.");
                     }
                     catch (HttpRequestException httpEx)
                     {
