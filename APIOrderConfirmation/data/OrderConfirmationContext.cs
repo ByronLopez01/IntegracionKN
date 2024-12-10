@@ -123,7 +123,8 @@ namespace APIOrderConfirmation.data
                     .HasMaxLength(50)
                     .HasColumnName("tienda");
 
-
+                entity.Property(e => e.estadoLuca)
+                    .HasColumnName("estadoLuca");
             });
         }
 

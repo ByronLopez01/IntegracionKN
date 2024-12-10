@@ -183,7 +183,8 @@ namespace APILPNPicking.controllers
                                 wave = waveRelease.Wave,
                                 tienda = waveRelease.Tienda,
                                 numTanda = familyMaster.numTanda,
-                                numSalida = familyMaster.numSalida
+                                numSalida = familyMaster.numSalida,
+                                estadoLuca = true                       //EstadoLuca
                             };
 
                             _context.ordenesEnProceso.Add(ordenEnProceso);

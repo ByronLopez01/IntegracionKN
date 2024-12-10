@@ -20,6 +20,7 @@
         public string dtlNumber {  get; set; }
         public bool estado { get; set; }
         public string tienda { get; set; }
+        public bool estadoLuca { get; set; }
 
     }
 }

@@ -70,6 +70,12 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddDbContext<OrderConfirmationContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Registrar el servicio de confirmación de órdenes
+builder.Services.AddScoped<IOrderConfirmationService, OrderConfirmationService>();
+
+// Registrar el BackgroundService
+//builder.Services.AddHostedService<OrderConfirmationBackgroundService>();
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -83,12 +89,6 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty;
     });
 }
-
-// Registrar el servicio de confirmación de órdenes
-builder.Services.AddScoped<IOrderConfirmationService, OrderConfirmationService>();
-
-// Registrar el BackgroundService
-builder.Services.AddHostedService<OrderConfirmationBackgroundService>();
 
 // Configurar middleware
 app.UseHttpsRedirection();
