@@ -232,6 +232,110 @@ namespace APISenad.controllers
             return Ok(respuestaSorter);
         }
 
+        [HttpGet("test/{codItem}")]
+        public async Task<ActionResult> codigoEscaneado(string codItem)
+        {
+            if (string.IsNullOrEmpty(codItem))
+            {
+                return BadRequest("El código del ítem no puede estar vacío.");
+            }
+
+            // Buscar si el código pertenece a alguna orden en proceso
+            var ordenesEncontradas = await _context.ordenesEnProceso
+                .Where(o => o.codMastr == codItem || o.codInr == codItem || o.codProducto == codItem)
+                .ToListAsync();
+
+            if (!ordenesEncontradas.Any())
+            {
+                // Verificar si el código pertenece a una familia con tanda activa en FamilyMaster
+                var familiaActiva = await _context.Familias
+                    .Where(f => (f.Tienda1 == codItem || f.Tienda2 == codItem || f.Tienda3 == codItem ||
+                                 f.Tienda4 == codItem || f.Tienda5 == codItem || f.Tienda6 == codItem ||
+                                 f.Tienda7 == codItem || f.Tienda8 == codItem || f.Tienda9 == codItem ||
+                                 f.Tienda10 == codItem || f.Tienda11 == codItem || f.Tienda12 == codItem) // ||
+                                 //f.tienda13 == codItem || f.tienda14 == codItem)
+                                 && f.estado == true) // Verificar si la tanda está activa
+                    .FirstOrDefaultAsync();
+
+                if (familiaActiva != null)
+                {
+                    // Si pertenece a una familia activa, devolver información de la familia y tanda
+                    var response = new
+                    {
+                        CodigoEscaneado = codItem,
+                        Familia = familiaActiva.Familia,
+                        NumeroTanda = familiaActiva.NumTanda,
+                        Salida = familiaActiva.NumSalida,
+                        Estado = "Tanda Activa"
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    // Si no pertenece a una familia activa
+                    var responseError = new
+                    {
+                        CodigoEscaneado = codItem,
+                        Error = "El código no pertenece a una familia con tanda activa."
+                    };
+                    return NotFound(responseError);
+                }
+            }
+
+            // Lógica existente para las órdenes encontradas
+            int salidaAsignada = ordenesEncontradas.First().numSalida;
+            string ordennum = "";
+
+            foreach (var orden in ordenesEncontradas)
+            {
+                string tipoCodigo = "Desconocido";
+                int cantidadProcesada = 0;
+
+                if (orden.codMastr == codItem)
+                {
+                    tipoCodigo = "Master";
+                    cantidadProcesada = orden.cantMastr + orden.cantidadProcesada;
+                }
+                else if (orden.codInr == codItem)
+                {
+                    tipoCodigo = "Inner";
+                    cantidadProcesada = orden.cantInr + orden.cantidadProcesada;
+                }
+                else if (orden.codProducto == codItem)
+                {
+                    tipoCodigo = "Producto";
+                    cantidadProcesada = orden.cantidad + orden.cantidadProcesada;
+                }
+
+                ordennum = orden.numOrden;
+
+                if (cantidadProcesada > orden.cantidad)
+                {
+                    var response = new
+                    {
+                        CodigoEscaneado = codItem,
+                        NumeroOrden = ordennum,
+                        Salida = 9,
+                        Error = "La cantidad a procesar supera la cantidad permitida."
+                    };
+                    return BadRequest(response);
+                }
+
+                orden.cantidadProcesada = cantidadProcesada;
+                _context.ordenesEnProceso.Update(orden);
+            }
+
+            await _context.SaveChangesAsync();
+
+            var respuestaSorter = new
+            {
+                codigoIngresado = codItem,
+                numeroOrden = ordennum,
+                salida = salidaAsignada
+            };
+
+            return Ok(respuestaSorter);
+        }
 
 
     }

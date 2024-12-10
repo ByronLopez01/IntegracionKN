@@ -112,6 +112,49 @@ namespace APISenad.data
                     .HasMaxLength(50)
                     .HasColumnName("Tienda1");
 
+                entity.Property(e => e.Tienda2) // Agregar el resto de tiendas
+                    .HasMaxLength(50)
+                    .HasColumnName("Tienda2");
+
+                entity.Property(e => e.Tienda3) // Agregar el resto de tiendas
+                    .HasMaxLength(50)
+                    .HasColumnName("Tienda3");
+
+                entity.Property(e => e.Tienda4) // Agregar el resto de tiendas
+                    .HasMaxLength(50)
+                    .HasColumnName("Tienda4");
+
+                entity.Property(e => e.Tienda5) // Agregar el resto de tiendas
+                    .HasMaxLength(50)
+                    .HasColumnName("Tienda5");
+
+                entity.Property(e => e.Tienda6) // Agregar el resto de tiendas
+                    .HasMaxLength(50)
+                    .HasColumnName("Tienda6");
+
+                entity.Property(e => e.Tienda7) // Agregar el resto de tiendas
+                    .HasMaxLength(50)
+                    .HasColumnName("Tienda7");
+
+                entity.Property(e => e.Tienda8) // Agregar el resto de tiendas
+                    .HasMaxLength(50)
+                    .HasColumnName("Tienda8");
+
+                entity.Property(e => e.Tienda9) // Agregar el resto de tiendas
+                    .HasMaxLength(50)
+                    .HasColumnName("Tienda9");
+
+                entity.Property(e => e.Tienda10) // Agregar el resto de tiendas
+                    .HasMaxLength(50)
+                    .HasColumnName("Tienda10");
+
+                entity.Property(e => e.Tienda11) // Agregar el resto de tiendas
+                    .HasMaxLength(50)
+                    .HasColumnName("Tienda11");
+
+                entity.Property(e => e.Tienda12) // Agregar el resto de tiendas
+                    .HasMaxLength(50)
+                    .HasColumnName("Tienda12");
                 // ... repetir para Tienda2, Tienda3, etc.
 
                 entity.Property(e => e.estado)

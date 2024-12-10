@@ -47,7 +47,11 @@ namespace APIFamilyMaster.controllers
                     Tienda7 = dto.Tienda7,
                     Tienda8 = dto.Tienda8,
                     Tienda9 = dto.Tienda9,
-                    Tienda10 = dto.Tienda10
+                    Tienda10 = dto.Tienda10,
+                    Tienda11 = dto.Tienda11,
+                    Tienda12 = dto.Tienda12,
+
+                    
                     
                 };
 
@@ -84,7 +88,9 @@ namespace APIFamilyMaster.controllers
                                          f.Tienda7 == tienda ||
                                          f.Tienda8 == tienda ||
                                          f.Tienda9 == tienda ||
-                                         f.Tienda10 == tienda);
+                                         f.Tienda10 == tienda ||
+                                         f.Tienda11 == tienda ||
+                                         f.Tienda12 == tienda);
             }
 
             if (!string.IsNullOrEmpty(familia))

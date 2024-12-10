@@ -16,8 +16,8 @@
         public string Tienda8 { get; set; }
         public string Tienda9 { get; set; }
         public string Tienda10 { get; set; }
-        //  public string Tienda11 { get; set; }
-        //  public string Tienda12 { get; set; }
+        public string Tienda11 { get; set; }
+        public string Tienda12 { get; set; }
         //  public string Tienda13 { get; set; }
         //  public string Tienda14 { get; set; }
         public bool estado { get; set; }
