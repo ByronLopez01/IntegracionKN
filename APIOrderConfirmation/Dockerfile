@@ -4,12 +4,12 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copiar el archivo de proyecto y restaurar dependencias
-COPY ["APIOrderConfirmation/APIOrderConfirmation.csproj", "APIOrderConfirmation/"]
-RUN dotnet restore "APIOrderConfirmation/APIOrderConfirmation.csproj"
-COPY APIOrderConfirmation/. APIOrderConfirmation/
+COPY APIOrderConfirmation.csproj ./
+RUN dotnet restore "APIOrderConfirmation.csproj"
 
-# Construir la aplicación
-WORKDIR "/src/APIOrderConfirmation"
+# Copiar el resto de los archivos y construir la aplicación
+COPY . ./
+WORKDIR /src
 RUN dotnet build "APIOrderConfirmation.csproj" -c Release -o /app/build
 
 # Publicar la aplicación en una carpeta
