@@ -1,9 +1,13 @@
-﻿using APIOrderConfirmation.data;
+﻿using System.Text;
+using System.Net.Http.Headers;
+using APIOrderConfirmation.data;
 using APIOrderConfirmation.models;
 using APIOrderConfirmation.services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace APIOrderConfirmation.controllers
 {
@@ -15,13 +19,15 @@ namespace APIOrderConfirmation.controllers
 
         private readonly IOrderConfirmationService _orderConfirmationService;
         private readonly OrderConfirmationContext _context;
+        private readonly IConfiguration _configuration;
         //Variable secuencial para generar el subnum 
         private static int _numSubNum = 1;
 
-        public OrderConfirmationController(IOrderConfirmationService orderConfirmationService, OrderConfirmationContext context)
+        public OrderConfirmationController(IOrderConfirmationService orderConfirmationService, OrderConfirmationContext context, IConfiguration configuration)
         {
             _orderConfirmationService = orderConfirmationService;
             _context = context;
+            _configuration = configuration;
         }
 
 
@@ -119,12 +125,58 @@ namespace APIOrderConfirmation.controllers
                 await _context.SaveChangesAsync();
 
                 Console.WriteLine("EstadoLuca actualizado correctamente.");
-                return Ok("EstadoLuca actualizado correctamente.");
+                //return Ok("EstadoLuca actualizado correctamente.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Ocurrió un error al procesar las órdenes: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al procesar las órdenes: {ex.Message}");
+            }
+
+            //ENVIO DE DATOS A LA URL DE KN
+            try
+            {
+                var urlKN = _configuration["ExternalService:UrlKN"];
+                Console.WriteLine("URL KN:" + urlKN);
+
+                using (var client = new HttpClient())
+                {
+                    // Basic Auth
+                    var username = _configuration["BasicAuth:Username"];
+                    var password = _configuration["BasicAuth:Password"];
+
+                    var array = Encoding.ASCII.GetBytes($"{username}:{password}");
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(array));
+
+                    //Serializar el JSON.
+                    var jsonContent = JsonConvert.SerializeObject(request);
+                    var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                    //POST
+                    var response = await client.PostAsync(urlKN, httpContent);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine("Datos enviados correctamente a KN.");
+                        return Ok("Datos enviados correctamente a KN.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error al enviar datos a KN.");
+                        return StatusCode((int)response.StatusCode, "Error al enviar datos a KN.");
+                    }
+                }
+
+            }
+            catch (HttpRequestException httpEx)
+            {
+                Console.WriteLine("Ocurrió un error HTTP al enviar los datos a KN: " + httpEx.Message);
+                return StatusCode(500, $"Ocurrió un error HTTP al enviar los datos a KN: {httpEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
+                return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
         }
     }
