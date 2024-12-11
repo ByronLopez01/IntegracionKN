@@ -5,7 +5,7 @@ namespace APISenad.data
     public class SenadContext : DbContext
     {
         public DbSet<OrdenEnProceso> ordenesEnProceso { get; set; }
-        public DbSet<FamilyMaster> Familias { get; set; }
+        public DbSet<FamilyMaster> familias { get; set; }
         public SenadContext(DbContextOptions<SenadContext> options)
             : base(options)
         {

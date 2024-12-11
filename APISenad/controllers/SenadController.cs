@@ -16,14 +16,22 @@ namespace APISenad.controllers
         {
             _context = context;
         }
-        /*
+        
         [HttpGet("{codItem}")]
         public async Task<ActionResult> consultaCodigo(string codItem)
         {
             // Verifica que el código de ítem no esté vacío
             if (string.IsNullOrEmpty(codItem))
             {
-                return BadRequest("El código del ítem no puede estar vacío.");
+                //cambiar a json con salida de error 
+                var repuestaError = new RespuestaEscaneo
+                {
+                    codigoIngresado = codItem,
+                    numeroOrden = "Sincodigo",
+                    salida = 0 // Indica una salida de error
+                };
+
+                return Ok(repuestaError);
             }
 
             // Busca el código en los campos codMastr, codInr y codProducto en la tabla ordenesEnProceso
@@ -36,8 +44,17 @@ namespace APISenad.controllers
 
             if (ordenesEncontradas == null || !ordenesEncontradas.Any())
             {
-                return NotFound($"No se encontró ningún registro con el código {codItem}.");
+                //cambiar a retornar un json con la salida de error 
+                var repuestaError = new RespuestaEscaneo
+                {
+                    codigoIngresado = codItem,
+                    numeroOrden = "NoSeEnCuentranOrdenes",
+                    salida = 0 // Indica una salida de error
+                };
+
+                return Ok(repuestaError);
             }
+
 
             int salida = 0;
             string ordennum = "";
@@ -46,26 +63,78 @@ namespace APISenad.controllers
             {
                 string tipoCodigo = "Desconocido";
                 int cantidadProcesada = 0;
+                var familiasActivas = await _context.familias
+                    .Where(f =>f.Familia ==orden.familia && f.estado == true) // Verificar si la tanda está activa
+                    .FirstOrDefaultAsync();
+                if (familiasActivas == null) {
+                    //retornar a la salida de error 
+                    Console.WriteLine("No se encontro familia para el codigo " + codItem);
+                    var repuestaError = new RespuestaEscaneo
+                    {
+                        codigoIngresado = codItem,
+                        numeroOrden = orden.numOrden,
+                        salida = 0 // Indica una salida de error
+                    };
 
-                if (orden.codMastr == codItem)
-                {
-                    tipoCodigo = "Master";
-                    // Sumar la cantidad master a cantidad procesada
-                    cantidadProcesada = orden.cantMastr + orden.cantidadProcesada;
+                    return Ok(repuestaError);
+
                 }
-                else if (orden.codInr == codItem)
+                else
                 {
-                    tipoCodigo = "Inner";
-                    // Sumar la cantidad del campo cantidadInr
-                    cantidadProcesada = orden.cantInr + orden.cantidadProcesada;
+                    if (orden.codMastr == codItem)
+                    {
+                        tipoCodigo = "Master";
+                        // Sumar la cantidad master solo si la cantidad es igual o menor a la cantidad lpn
+                        if (orden.cantidadProcesada + orden.cantMastr <= orden.cantidadLPN)
+                        {
+                            cantidadProcesada = orden.cantMastr + orden.cantidadProcesada;
+                        }
+                        else
+                        {
+
+                            var repuestaError = new RespuestaEscaneo
+                            {
+                                codigoIngresado = codItem,
+                                numeroOrden = orden.numOrden,
+                                salida = 0 // Indica una salida de error
+                            };
+
+                            return Ok(repuestaError);
+                        }
+                        
+                    }
+                    else if (orden.codInr == codItem)
+                    {
+                        tipoCodigo = "Inner";
+                        // Sumar la cantidad del campo cantidadInr
+                        if (orden.cantidadProcesada + orden.cantInr <= orden.cantidadLPN)
+                        {
+                            cantidadProcesada = orden.cantInr + orden.cantidadProcesada;
+                        }
+                        else
+                        {
+
+                            var repuestaError = new RespuestaEscaneo
+                            {
+                                codigoIngresado = codItem,
+                                numeroOrden = orden.numOrden,
+                                salida = 0 // Indica una salida de error
+                            };
+
+                            return Ok(repuestaError);
+                        }
+                        
+                    }
+                    else if (orden.codProducto == codItem)
+                    {
+
+                        //No deberia pasar!!!!!
+                        tipoCodigo = "Producto";
+                        // Sumar la cantidad del campo cantidad
+                        cantidadProcesada = orden.cantidad + orden.cantidadProcesada;
+                    }
                 }
-                else if (orden.codProducto == codItem)
-                {
-                    //No deberia pasar!!!!!
-                    tipoCodigo = "Producto";
-                    // Sumar la cantidad del campo cantidad
-                    cantidadProcesada = orden.cantidad + orden.cantidadProcesada;
-                }
+                
 
                 salida = orden.numSalida;
                 ordennum = orden.numOrden;
@@ -75,7 +144,7 @@ namespace APISenad.controllers
                 Console.WriteLine($"Cantidad procesada actualizada: {cantidadProcesada}");
 
                 // Verifica si la cantidad procesada supera la cantidad total permitida
-                if (cantidadProcesada > orden.cantidad)
+                if (cantidadProcesada > orden.cantidadLPN)
                 {
                     var response = new
                     {
@@ -89,6 +158,9 @@ namespace APISenad.controllers
 
                 // Actualiza la cantidad procesada solo si no supera la cantidad total
                 orden.cantidadProcesada = cantidadProcesada;
+                //Cabiar estado de senad a false
+                orden.estado = false;
+
                 _context.ordenesEnProceso.Update(orden);
             }
 
@@ -103,9 +175,11 @@ namespace APISenad.controllers
 
             return Ok(respuestaSorter);
         }
-        */
-
-        [HttpGet("{codItem}")]
+        
+        
+        
+        
+        /*  [HttpGet("{codItem}")]
         public async Task<ActionResult> consultaCodigo(string codItem)
         {
             if (string.IsNullOrEmpty(codItem))
@@ -231,7 +305,7 @@ namespace APISenad.controllers
 
             return Ok(respuestaSorter);
         }
-
+      */
         [HttpGet("test/{codItem}")]
         public async Task<ActionResult> codigoEscaneado(string codItem)
         {
@@ -248,7 +322,7 @@ namespace APISenad.controllers
             if (!ordenesEncontradas.Any())
             {
                 // Verificar si el código pertenece a una familia con tanda activa en FamilyMaster
-                var familiaActiva = await _context.Familias
+                var familiaActiva = await _context.familias
                     .Where(f => (f.Tienda1 == codItem || f.Tienda2 == codItem || f.Tienda3 == codItem ||
                                  f.Tienda4 == codItem || f.Tienda5 == codItem || f.Tienda6 == codItem ||
                                  f.Tienda7 == codItem || f.Tienda8 == codItem || f.Tienda9 == codItem ||
@@ -265,7 +339,7 @@ namespace APISenad.controllers
                         CodigoEscaneado = codItem,
                         Familia = familiaActiva.Familia,
                         NumeroTanda = familiaActiva.NumTanda,
-                        Salida = familiaActiva.NumSalida,
+                        Salida = familiaActiva.NumSalida,//output 
                         Estado = "Tanda Activa"
                     };
                     return Ok(response);
@@ -315,7 +389,7 @@ namespace APISenad.controllers
                     {
                         CodigoEscaneado = codItem,
                         NumeroOrden = ordennum,
-                        Salida = 9,
+                        Salida = 9,//error 
                         Error = "La cantidad a procesar supera la cantidad permitida."
                     };
                     return BadRequest(response);
