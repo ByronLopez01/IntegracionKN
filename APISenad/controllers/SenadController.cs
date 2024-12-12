@@ -16,7 +16,7 @@ namespace APISenad.controllers
         {
             _context = context;
         }
-<<<<<<< HEAD
+
         
         [HttpGet("{codItem}")]
         public async Task<ActionResult> consultaCodigo(string codItem)
@@ -340,7 +340,7 @@ namespace APISenad.controllers
 =======
 
         // TEST!!
->>>>>>> 0093c8d525e452609ce5db5192669a8b6ba40d75
+
         [HttpGet("test/{codItem}")]
         public async Task<ActionResult> codigoEscaneado(string codItem)
         {
@@ -355,7 +355,6 @@ namespace APISenad.controllers
                 .Where(o => o.codMastr == codItem || o.codInr == codItem || o.codProducto == codItem)
                 .ToListAsync();
 
-<<<<<<< HEAD
             if (!ordenesEncontradas.Any())
             {
                 // Verificar si el código pertenece a una familia con tanda activa en FamilyMaster
@@ -398,7 +397,7 @@ namespace APISenad.controllers
             if (ordenesEncontradas == null || !ordenesEncontradas.Any())
             {
                 return NotFound($"No se encontró ningún registro con el código {codItem}.");
->>>>>>> 0093c8d525e452609ce5db5192669a8b6ba40d75
+
             }
 
             int salida = 0;
@@ -443,11 +442,11 @@ namespace APISenad.controllers
                     {
                         CodigoEscaneado = codItem,
                         NumeroOrden = ordennum,
-<<<<<<< HEAD
+
                         Salida = 9,//error 
-=======
+
                         Salida = 0,//Asignar salida de error 
->>>>>>> 0093c8d525e452609ce5db5192669a8b6ba40d75
+
                         Error = "La cantidad a procesar supera la cantidad permitida."
                     };
                     return BadRequest(response);
