@@ -158,13 +158,38 @@ namespace APISenad.controllers
 
                 // Actualiza la cantidad procesada solo si no supera la cantidad total
                 orden.cantidadProcesada = cantidadProcesada;
-                //Cabiar estado de senad a false
-                orden.estado = false;
+                
+                if (cantidadProcesada == orden.cantidadLPN)
+                {
+
+                    //Cabiar estado de senad a false
+                    orden.estado = false;
+                }
+                
+                
 
                 _context.ordenesEnProceso.Update(orden);
             }
 
             await _context.SaveChangesAsync();
+
+            // Verificar si hay más órdenes en la misma familia
+            var familiaProcesada = ordenesEncontradas.First().familia;
+            var ordenesFamilia = await _context.ordenesEnProceso
+                .Where(o => o.familia == familiaProcesada && o.estado == true)
+                .ToListAsync();
+
+
+            if (!ordenesFamilia.Any())
+            {
+                // Si todas las órdenes de la familia están completas, actualizar la tanda en FamilyMaster
+                var familyMaster = await _context.familias
+                    .Where(fm => fm.Familia == familiaProcesada && fm.estado == true)
+                    .FirstOrDefaultAsync();
+
+                
+            }
+
 
             var respuestaSorter = new RespuestaEscaneo
             {

@@ -10,7 +10,7 @@ namespace APIFamilyMaster.controllers
     [Authorize(AuthenticationSchemes = "BasicAuthentication")]
     [Route("api/[controller]")]
     [ApiController]
-    public class FamilyMasterController :ControllerBase
+    public class FamilyMasterController : ControllerBase
     {
         private readonly FamilyMasterContext _context;
         private readonly FamilyMasterService _familyMasterService;
@@ -51,8 +51,8 @@ namespace APIFamilyMaster.controllers
                     Tienda11 = dto.Tienda11,
                     Tienda12 = dto.Tienda12,
 
-                    
-                    
+
+
                 };
 
                 familyMasterEntities.Add(familyMaster);
@@ -150,6 +150,31 @@ namespace APIFamilyMaster.controllers
                 Message = $"{tandasActivadas.Count} tanda(s) activada(s).",
                 TandasActivadas = tandasActivadas
             });
+        }
+
+        [HttpPost("activarSiguienteTanda")]
+        public async Task<IActionResult> ActivarSiguienteTanda([FromQuery] int salidasDisponibles)
+        {
+            try
+            {
+                // Llamar al servicio para activar la siguiente tanda
+                var tandasActivadas = await _familyMasterService.ActivarSiguientesTandasAsync(salidasDisponibles);
+
+                if (tandasActivadas.Count == 0)
+                {
+                    return Ok(new { message = "No se activó ninguna tanda. Salidas insuficientes o no hay más tandas disponibles." });
+                }
+
+                return Ok(new
+                {
+                    message = "Tanda activada correctamente.",
+                    tandasActivadas = tandasActivadas
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", error = ex.Message });
+            }
         }
     }
 }
