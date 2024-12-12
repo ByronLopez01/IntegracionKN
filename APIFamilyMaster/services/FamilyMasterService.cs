@@ -82,14 +82,19 @@ namespace APIFamilyMaster.services
                 registro.estado = false; // Desactivar la tanda actual
             }
 
-            // 3. Buscar la siguiente tanda que use las mismas salidas
-            var siguienteTanda = await _context.Set<FamilyMaster>()
+            
+            var posiblesTandas = await _context.Set<FamilyMaster>()
                 .Where(f => f.NumTanda > numTandaActual) // Solo tandas siguientes
                 .GroupBy(f => f.NumTanda)
                 .OrderBy(g => g.Key)
-                .FirstOrDefaultAsync(g =>
-                    g.Select(f => f.NumSalida).Distinct().All(salida => salidasAsociadas.Contains(salida))
-                );
+                .ToListAsync(); 
+
+          
+            var siguienteTanda = posiblesTandas
+                .FirstOrDefault(g => g
+                    .Select(f => f.NumSalida)
+                    .Distinct()
+                    .All(salida => salidasAsociadas.Contains(salida)));
 
             if (siguienteTanda == null)
             {
@@ -98,16 +103,17 @@ namespace APIFamilyMaster.services
                 return null;
             }
 
-            // 4. Activar la siguiente tanda
+            // 5. Activar la siguiente tanda
             foreach (var registro in siguienteTanda)
             {
                 registro.estado = true; // Activar el estado
             }
 
-            // 5. Guardar los cambios y devolver la nueva tanda activada
+            // Guardar los cambios
             await _context.SaveChangesAsync();
 
             return siguienteTanda.Key; // Devuelve el número de la tanda activada
         }
+
     }
 }
