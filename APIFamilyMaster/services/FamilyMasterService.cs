@@ -59,7 +59,7 @@ namespace APIFamilyMaster.services
 
         public async Task<int?> ActivarSiguienteTandaAsync(int numTandaActual)
         {
-            // 1. Obtener las salidas asociadas a la tanda actual
+            // Obtener las salidas asociadas a la tanda actual
             var salidasAsociadas = await _context.Set<FamilyMaster>()
                 .Where(f => f.NumTanda == numTandaActual)
                 .Select(f => f.NumSalida)
@@ -72,7 +72,7 @@ namespace APIFamilyMaster.services
                 return null;
             }
 
-            // 2. Desactivar la tanda actual
+            // Desactivar la tanda actual
             var tandaActual = await _context.Set<FamilyMaster>()
                 .Where(f => f.NumTanda == numTandaActual)
                 .ToListAsync();
@@ -82,19 +82,18 @@ namespace APIFamilyMaster.services
                 registro.estado = false; // Desactivar la tanda actual
             }
 
-            
+            // Obtener todas las posibles tandas siguientes
             var posiblesTandas = await _context.Set<FamilyMaster>()
-                .Where(f => f.NumTanda > numTandaActual) // Solo tandas siguientes
-                .GroupBy(f => f.NumTanda)
-                .OrderBy(g => g.Key)
-                .ToListAsync(); 
+                .Where(f => f.NumTanda > numTandaActual) // Solo tandas posteriores
+                .ToListAsync(); // Trae todas las tandas siguientes
 
-          
+            // Buscar la siguiente tanda con todas las salidas
             var siguienteTanda = posiblesTandas
-                .FirstOrDefault(g => g
-                    .Select(f => f.NumSalida)
-                    .Distinct()
-                    .All(salida => salidasAsociadas.Contains(salida)));
+                .GroupBy(f => f.NumTanda) // Agrupa por número de tanda
+                .OrderBy(g => g.Key) // Ordena las tandas por número
+                .FirstOrDefault(g =>
+                    g.Select(f => f.NumSalida).Distinct() // Selecciona las salidas de cada tanda
+                    .All(salida => salidasAsociadas.Contains(salida))); // Verifica si todas las salidas coinciden
 
             if (siguienteTanda == null)
             {
@@ -103,17 +102,18 @@ namespace APIFamilyMaster.services
                 return null;
             }
 
-            // 5. Activar la siguiente tanda
+            // Activar la siguiente tanda
             foreach (var registro in siguienteTanda)
             {
-                registro.estado = true; // Activar el estado
+                registro.estado = true; // Activar la tanda siguiente
             }
 
-            // Guardar los cambios
+         
             await _context.SaveChangesAsync();
 
-            return siguienteTanda.Key; // Devuelve el número de la tanda activada
+            return siguienteTanda.Key; // Devuelve la tanda activada
         }
+
 
     }
 }
