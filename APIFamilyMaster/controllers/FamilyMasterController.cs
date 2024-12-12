@@ -153,26 +153,27 @@ namespace APIFamilyMaster.controllers
         }
 
         [HttpPost("activarSiguienteTanda")]
-        public async Task<IActionResult> ActivarSiguienteTanda([FromQuery] int salidasDisponibles)
+        public async Task<IActionResult> ActivarSiguienteTanda([FromQuery] int numTandaActual)
         {
             try
             {
-                // Llamar al servicio para activar la siguiente tanda
-                var tandasActivadas = await _familyMasterService.ActivarSiguientesTandasAsync(salidasDisponibles);
+                // Llama al método del servicio
+                var tandaActivada = await _familyMasterService.ActivarSiguienteTandaAsync(numTandaActual);
 
-                if (tandasActivadas.Count == 0)
+                if (tandaActivada == null)
                 {
-                    return Ok(new { message = "No se activó ninguna tanda. Salidas insuficientes o no hay más tandas disponibles." });
+                    return Ok(new { message = "No se encontró una tanda siguiente que coincida con las salidas." });
                 }
 
                 return Ok(new
                 {
-                    message = "Tanda activada correctamente.",
-                    tandasActivadas = tandasActivadas
+                    message = $"Tanda {tandaActivada} activada correctamente.",
+                    tandaActivada = tandaActivada
                 });
             }
             catch (Exception ex)
             {
+                // Manejo de errores
                 return StatusCode(500, new { message = "Error interno del servidor.", error = ex.Message });
             }
         }
