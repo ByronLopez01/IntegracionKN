@@ -206,10 +206,7 @@ namespace APISenad.controllers
 
 
         /*  [HttpGet("{codItem}")]
-=======
-
         [HttpGet("{codItem}")]
->>>>>>> 0093c8d525e452609ce5db5192669a8b6ba40d75
         public async Task<ActionResult> consultaCodigo(string codItem)
         {
             if (string.IsNullOrEmpty(codItem))
@@ -335,7 +332,6 @@ namespace APISenad.controllers
 
             return Ok(respuestaSorter);
         }
-<<<<<<< HEAD
       */
     
 
