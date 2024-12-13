@@ -2,10 +2,14 @@
 # FROM mcr.microsoft.com/dotnet/sdk:8.0-windowsservercore-ltsc2019 AS build # W.S.2019
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["APISenad/APISenad.csproj", "APISenad/"]
-RUN dotnet restore "APISenad/APISenad.csproj"
-COPY APISenad/. APISenad/
-WORKDIR "/src/APISenad"
+
+# Copiar el archivo de proyecto y restaurar las dependencias
+COPY APISenad.csproj ./
+RUN dotnet restore "APISenad.csproj"
+
+# Copiar el resto de los archivos y compilar la aplicación
+COPY . ./
+WORKDIR /src
 RUN dotnet build "APISenad.csproj" -c Release -o /app/build
 
 # Publicar la aplicación en una carpeta
