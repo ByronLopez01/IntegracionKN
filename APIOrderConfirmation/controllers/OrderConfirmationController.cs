@@ -116,9 +116,15 @@ namespace APIOrderConfirmation.controllers
                         return BadRequest($"La orden con dtlnum {dtlnum} ya fue procesada.");
                     }
 
-                    // Actualizar el estadoLuca a false
-                    orden.estadoLuca = false;
-                    _context.ordenesEnProceso.Update(orden);
+                    
+                    // Si la cantidad procesada es igual a la cantidad LPN, actualizar el estadoLuca a false
+                    if (orden.cantidadProcesada == orden.cantidadLPN)
+                    {
+                        // Actualizar el estadoLuca a false
+                        orden.estadoLuca = false;
+                    }
+                        _context.ordenesEnProceso.Update(orden);
+
                 }
 
                 // Guardar cambios a BD
