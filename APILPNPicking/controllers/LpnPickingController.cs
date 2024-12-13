@@ -177,6 +177,7 @@ namespace APILPNPicking.controllers
                                 cantidadProcesada = 0,
                                 codProducto = loadDtlSeg.prtnum,
                                 dtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum ?? string.Empty,
+                                subnum = loadDtlSeg.SUBNUM_SEG.FirstOrDefault()?.subnum ?? string.Empty,
                                 estado = true,
                                 familia = waveRelease.Familia,
                                 numOrden = waveRelease.NumOrden,
@@ -198,7 +199,9 @@ namespace APILPNPicking.controllers
                             IdOrdenTrabajo = waveRelease.NumOrden,
                             CantidadUnidades = cantidadLPN,
                             CodProducto = loadDtlSeg.prtnum,
-                            DtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum ?? string.Empty
+                            DtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum ?? string.Empty,
+                            subnum = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.subnum ?? string.Empty
+                            
                         };
 
                         _context.LPNSorting.Add(lpnSorting);
@@ -220,6 +223,7 @@ namespace APILPNPicking.controllers
                             numSalida = familyMaster.numSalida,
                             numTanda = familyMaster.numTanda,
                             dtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum ?? string.Empty,
+                            //subnum = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.subnum ?? string.Empty,
                             tienda = waveRelease.Tienda
                         };
 

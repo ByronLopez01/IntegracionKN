@@ -46,6 +46,10 @@ namespace APILPNPicking.data
                     .HasMaxLength(50) 
                     .HasColumnName("DtlNumber");
 
+                entity.Property(e => e.subnum)
+                    .HasMaxLength(50)
+                    .HasColumnName("subnum");
+
             });
 
             // Configuración para OrdenEnProceso
@@ -106,6 +110,10 @@ namespace APILPNPicking.data
 
                 entity.Property(e => e.dtlNumber)
                    .HasColumnName("dtlNumber");
+
+                entity.Property(e => e.subnum)
+                    .HasMaxLength(50)
+                    .HasColumnName("subnum");
 
                 entity.Property(e => e.estado)
                    .HasMaxLength(50)

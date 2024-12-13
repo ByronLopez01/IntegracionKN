@@ -84,7 +84,7 @@ namespace APIFamilyMaster.services
 
             // Obtener todas las posibles tandas siguientes
             var posiblesTandas = await _context.Set<FamilyMaster>()
-                .Where(f => f.NumTanda > numTandaActual) // Solo tandas posteriores
+                .Where(f => f.NumTanda > numTandaActual !=null) // Solo tandas posteriores
                 .ToListAsync(); // Trae todas las tandas siguientes
 
             // Buscar la siguiente tanda con todas las salidas

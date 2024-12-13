@@ -12,5 +12,6 @@ namespace APILPNPicking.data
         public string CodProducto { get; set; }
         public int CantidadUnidades { get; set; }
         public string DtlNumber { get; set; }
+        public string subnum { get; set; }
     }
 }
