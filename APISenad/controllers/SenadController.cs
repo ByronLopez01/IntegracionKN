@@ -213,12 +213,12 @@ namespace APISenad.controllers
                 catch (HttpRequestException ex)
                 {
                     Console.WriteLine($"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                    //return StatusCode(500, $"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                    return StatusCode(500, $"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                    //return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                    return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
                 }
 
             }
@@ -230,7 +230,12 @@ namespace APISenad.controllers
                 salida = ordenesEncontradas.First().numSalida
             };
 
-            Console.WriteLine(respuestaSorter.ToString());
+            Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
+            Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
+            Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
+            Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
+            Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
+
             return Ok(respuestaSorter);
 
         }
