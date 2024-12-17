@@ -80,10 +80,11 @@ namespace APISenad.controllers
                     var responseError = new
                     {
                         CodigoEscaneado = codItem,
+                        NumeroOrden = "Código sin familia con tanda activa",
                         Salida = 9, // Salida de error
-                        Error = "El código no pertenece a una familia con tanda activa."
+                        //Error = "El código no pertenece a una familia con tanda activa."
                     };
-                    return NotFound(responseError);
+                    return Ok(responseError);
                 }
             }
 
@@ -112,11 +113,12 @@ namespace APISenad.controllers
                     var repuestaError = new
                     {
                         codigoIngresado = codItem,
-                        numeroOrden = orden.numOrden,
+                        numeroOrden = "No hay FAMILIA activa",
                         salida = 9, // Salida de error
-                        error = "No se encontró una familia ACTIVADA para la orden."
+                        //error = "No se encontró una familia ACTIVADA para la orden."
                     };
-                    return NotFound(repuestaError);
+                    Console.WriteLine("No se encontró una familia ACTIVADA para la orden");
+                    return Ok(repuestaError);
                 }
 
                 Console.WriteLine($"Familia activa: {familiasActivas.Familia}");
@@ -143,11 +145,12 @@ namespace APISenad.controllers
                     var response = new
                     {
                         CodigoEscaneado = codItem,
-                        NumeroOrden = orden.numOrden,
+                        NumeroOrden = "Cantidad procesada supera limite",
                         Salida = 9, // Salida de error
-                        Error = "La cantidad a procesar supera la cantidad permitida."
+                        //Error = "La cantidad a procesar supera la cantidad permitida."
                     };
-                    return BadRequest(response);
+                    Console.WriteLine("La cantidad a procesar supera la cantidad.");
+                    return Ok(response);
                 }
 
                 // Actualiza la cantidad procesada solo si no supera la cantidad total
@@ -210,12 +213,12 @@ namespace APISenad.controllers
                 catch (HttpRequestException ex)
                 {
                     Console.WriteLine($"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                    return StatusCode(500, $"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                    //return StatusCode(500, $"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                    return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                    //return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
                 }
 
             }
@@ -227,6 +230,7 @@ namespace APISenad.controllers
                 salida = ordenesEncontradas.First().numSalida
             };
 
+            Console.WriteLine(respuestaSorter.ToString());
             return Ok(respuestaSorter);
 
         }
