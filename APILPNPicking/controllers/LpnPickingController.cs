@@ -394,102 +394,108 @@ namespace APILPNPicking.controllers
 
                         var cantidadLPN = loadDtlSeg.SUBNUM_SEG?.Sum(subnumSeg => subnumSeg.untqty) ?? 0;
 
-                        if (cantidadLPN > waveRelease.Cantidad)
+                        foreach (var subnumSeg in loadDtlSeg.SUBNUM_SEG)
                         {
-                            var errorMessage = $"La cantidad a procesar ({cantidadLPN}) excede la cantidad total ({waveRelease.Cantidad}) de la orden {waveRelease.NumOrden} y producto {waveRelease.CodProducto}.";
-                            Console.WriteLine(errorMessage);
-                            return BadRequest(errorMessage);
-                        }
-
-                        // Guardar la orden en proceso (si no existe, crearla)
-                        var ordenEnProceso = new OrdenEnProceso
-                        {
-                            codMastr = waveRelease.CodMastr,
-                            codInr = waveRelease.CodInr,
-                            cantidad = waveRelease.Cantidad,
-                            cantidadLPN = cantidadLPN,
-                            cantInr = waveRelease.CantInr,
-                            cantMastr = waveRelease.CantMastr,
-                            cantidadProcesada = 0,
-                            codProducto = loadDtlSeg.prtnum,
-                            dtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum ?? string.Empty,
-                            subnum = loadDtlSeg.SUBNUM_SEG.FirstOrDefault()?.subnum ?? string.Empty,
-                            estado = true,
-                            familia = waveRelease.Familia,
-                            numOrden = waveRelease.NumOrden,
-                            wave = waveRelease.Wave,
-                            tienda = waveRelease.Tienda,
-                            numTanda = familyMaster.numTanda,
-                            numSalida = familyMaster.numSalida,
-                            estadoLuca = true
-                        };
-
-                        _context.ordenesEnProceso.Add(ordenEnProceso);
-
-                        await _context.SaveChangesAsync();
-
-                        // Guardar LPNSorting
-                        var lpnSorting = new LPNSorting
-                        {
-                            Wave = waveRelease.Wave,
-                            IdOrdenTrabajo = waveRelease.NumOrden,
-                            CantidadUnidades = cantidadLPN,
-                            CodProducto = loadDtlSeg.prtnum,
-                            DtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum ?? string.Empty,
-                            subnum = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.subnum ?? string.Empty
-                        };
-
-                        _context.LPNSorting.Add(lpnSorting);
-                        await _context.SaveChangesAsync();
-
-                        Console.WriteLine("Datos almacenados correctamente en la tabla LpnSorting.");
-
-                        // CREACIÓN OBJETO JSON PARA ENVIO A LUCA
-                        var lucaRequest = new LucaRequest
-                        {
-                            codMastr = waveRelease.CodMastr,
-                            codInr = waveRelease.CodInr,
-                            cantMastr = waveRelease.CantMastr,
-                            cantInr = waveRelease.CantInr,
-                            familia = waveRelease.Familia,
-                            numOrden = waveRelease.NumOrden,
-                            codProducto = waveRelease.CodProducto,
-                            onda = waveRelease.Wave,
-                            numSalida = familyMaster.numSalida,
-                            numTanda = familyMaster.numTanda,
-                            dtlNumber = loadDtlSeg.SUBNUM_SEG?.FirstOrDefault()?.dtlnum ?? string.Empty,
-                            tienda = waveRelease.Tienda
-                        };
-
-                        // ENVÍO DE JSON A LUCA
-                        var jsonContent = JsonConvert.SerializeObject(lucaRequest);
-
-                        Console.WriteLine("JSON LUCA:");
-                        Console.WriteLine(jsonContent);
-
-                        var httpClient = _httpClientFactory.CreateClient("apiLuca");
-                        var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-                        var urlLucaBase = _configuration["ServiceUrls:luca"];
-                        var urlLuca = $"{urlLucaBase}/api/sort/LpnSorter?sorterId={familyMaster.numSalida}";
-
-                        try
-                        {
-                            var response = await httpClient.PostAsync(urlLuca, httpContent);
-                            if (response.IsSuccessStatusCode)
+                            if (cantidadLPN > waveRelease.Cantidad)
                             {
-                                Console.WriteLine("El JSON fue enviado correctamente a LpnSorter.");
+                                var errorMessage = $"La cantidad a procesar ({cantidadLPN}) excede la cantidad total ({waveRelease.Cantidad}) de la orden {waveRelease.NumOrden} y producto {waveRelease.CodProducto}.";
+                                Console.WriteLine(errorMessage);
+                                return BadRequest(errorMessage);
                             }
-                            else
+                            // Guardar la orden en proceso (si no existe, crearla)
+                            var ordenEnProceso = new OrdenEnProceso
                             {
-                                Console.WriteLine("Error al enviar el JSON a LpnSorter.");
+                                codMastr = waveRelease.CodMastr,
+                                codInr = waveRelease.CodInr,
+                                cantidad = waveRelease.Cantidad,
+                                cantidadLPN = cantidadLPN,
+                                cantInr = waveRelease.CantInr,
+                                cantMastr = waveRelease.CantMastr,
+                                cantidadProcesada = 0,
+                                codProducto = loadDtlSeg.prtnum,
+                                dtlNumber = subnumSeg.dtlnum,
+                                subnum = subnumSeg.subnum,
+                                estado = true,
+                                familia = waveRelease.Familia,
+                                numOrden = waveRelease.NumOrden,
+                                wave = waveRelease.Wave,
+                                tienda = waveRelease.Tienda,
+                                numTanda = familyMaster.numTanda,
+                                numSalida = familyMaster.numSalida,
+                                estadoLuca = true
+                            };
+
+                            _context.ordenesEnProceso.Add(ordenEnProceso);
+
+                            await _context.SaveChangesAsync();
+
+
+                            // Guardar LPNSorting
+                            var lpnSorting = new LPNSorting
+                            {
+                                Wave = waveRelease.Wave,
+                                IdOrdenTrabajo = waveRelease.NumOrden,
+                                CantidadUnidades = cantidadLPN,
+                                CodProducto = loadDtlSeg.prtnum,
+                                DtlNumber = subnumSeg.dtlnum,
+                                subnum = subnumSeg.subnum
+                            };
+
+                            _context.LPNSorting.Add(lpnSorting);
+                            await _context.SaveChangesAsync();
+
+                            Console.WriteLine("Datos almacenados correctamente en la tabla LpnSorting.");
+
+
+                            // CREACIÓN OBJETO JSON PARA ENVIO A LUCA
+                            var lucaRequest = new LucaRequest
+                            {
+                                codMastr = waveRelease.CodMastr,
+                                codInr = waveRelease.CodInr,
+                                cantMastr = waveRelease.CantMastr,
+                                cantInr = waveRelease.CantInr,
+                                familia = waveRelease.Familia,
+                                numOrden = waveRelease.NumOrden,
+                                codProducto = waveRelease.CodProducto,
+                                onda = waveRelease.Wave,
+                                numSalida = familyMaster.numSalida,
+                                numTanda = familyMaster.numTanda,
+                                dtlNumber = subnumSeg.dtlnum,
+                               // subnum = subnumSeg.subnum,
+                                tienda = waveRelease.Tienda
+                            };
+
+                            // ENVÍO DE JSON A LUCA
+                            var jsonContent = JsonConvert.SerializeObject(lucaRequest);
+
+                            Console.WriteLine("JSON LUCA:");
+                            Console.WriteLine(jsonContent);
+
+                            var httpClient = _httpClientFactory.CreateClient("apiLuca");
+                            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                            var urlLucaBase = _configuration["ServiceUrls:luca"];
+                            var urlLuca = $"{urlLucaBase}/api/sort/LpnSorter?sorterId={familyMaster.numSalida}";
+
+                            try
+                            {
+                                var response = await httpClient.PostAsync(urlLuca, httpContent);
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    Console.WriteLine("El JSON fue enviado correctamente a LpnSorter.");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Error al enviar el JSON a LpnSorter.");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error al enviar datos a LpnSorter: {ex.Message}");
+                                return StatusCode(500, $"Error al enviar datos a LpnSorter: {ex.Message}");
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error al enviar datos a LpnSorter: {ex.Message}");
-                            return StatusCode(500, $"Error al enviar datos a LpnSorter: {ex.Message}");
-                        }
+
                     }
                     catch (Exception ex)
                     {
