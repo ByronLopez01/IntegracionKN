@@ -46,8 +46,9 @@ namespace APISenad.controllers
             }
 
             // Busca el código en los campos codMastr, codInr y codProducto en la tabla ordenesEnProceso
+            // Selecciona solamente las ordenes No Procesadas.
             var ordenesEncontradas = await _context.ordenesEnProceso
-                .Where(o => o.codMastr == codItem || o.codInr == codItem || o.codProducto == codItem)
+                .Where(o => (o.codMastr == codItem || o.codInr == codItem || o.codProducto == codItem) && o.estado == true)
                 .ToListAsync();
 
             if (ordenesEncontradas.Count == 0)
@@ -98,7 +99,8 @@ namespace APISenad.controllers
 
                 Console.WriteLine($"Buscando familia activa para la orden {orden.numOrden}, Familia: {orden.familia}");
                 var familiasActivas = await _context.familias
-                    .FirstOrDefaultAsync(f => f.Familia == orden.familia && f.estado == true &&                                                     (f.Tienda1 != null || f.Tienda2 != null || f.Tienda3 != null || 
+                    .FirstOrDefaultAsync(f => f.Familia == orden.familia && f.estado == true &&                                                     
+                                (f.Tienda1 != null || f.Tienda2 != null || f.Tienda3 != null || 
                                 f.Tienda4 != null || f.Tienda5 != null || f.Tienda6 != null || 
                                 f.Tienda7 != null || f.Tienda8 != null || f.Tienda9 != null || 
                                 f.Tienda10 != null || f.Tienda11 != null || f.Tienda12 != null));
@@ -142,14 +144,41 @@ namespace APISenad.controllers
                 // Verifica si la cantidad procesada supera la cantidad total permitida
                 if (cantidadProcesada > orden.cantidadLPN)
                 {
+                    /*
+                    // Si el código ingresado es de Tipo Master se envía a la salida 2!
+                    if (tipoCodigo == "Master")
+                    {
+                        var response = new
+                        {
+                            CodigoEscaneado = codItem,
+                            NumeroOrden = "Cantidad procesada de tipo MASTER supera limite",
+                            Salida = 2
+                        };
+                        Console.WriteLine("La cantidad de tipo MASTER supera la cantidad limite.");
+                        return Ok(response);
+                    }
+                    // En cualquier otro caso se envía a la salida 9!
+                    else
+                    {
+                        var response = new
+                        {
+                            CodigoEscaneado = codItem,
+                            NumeroOrden = "Cantidad procesada de tipo INNER/PRODUCTO supera limite",
+                            Salida = 9 // Salida de error
+                            //Error = "La cantidad a procesar supera la cantidad permitida."
+                        };
+                        Console.WriteLine("La cantidad de tipo INNER/PRODUCTO a procesar de supera la cantidad.");
+                        return Ok(response);
+                    }
+                    */
+
                     var response = new
                     {
                         CodigoEscaneado = codItem,
-                        NumeroOrden = "Cantidad procesada supera limite",
-                        Salida = 9, // Salida de error
-                        //Error = "La cantidad a procesar supera la cantidad permitida."
+                        NumeroOrden = "Cantidad a procesar supera limite",
+                        Salida = 9 // Salida de error
                     };
-                    Console.WriteLine("La cantidad a procesar supera la cantidad.");
+                    Console.WriteLine("La cantidad a procesar supera el limite.");
                     return Ok(response);
                 }
 
