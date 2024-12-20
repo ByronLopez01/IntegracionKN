@@ -47,11 +47,12 @@ namespace APISenad.controllers
 
             // Busca el código en los campos codMastr, codInr y codProducto en la tabla ordenesEnProceso
             // Selecciona solamente las ordenes No Procesadas.
-            var ordenesEncontradas = await _context.ordenesEnProceso
+            var ordenEncontrada = await _context.ordenesEnProceso
                 .Where(o => (o.codMastr == codItem || o.codInr == codItem || o.codProducto == codItem) && o.estado == true)
-                .ToListAsync();
+                .OrderBy(o => o.id)
+                .FirstOrDefaultAsync();
 
-            if (ordenesEncontradas.Count == 0)
+            if (ordenEncontrada == null)
             {
                 // Verificar si el código pertenece a una familia con tanda activa en FamilyMaster
                 var familiaActiva = await _context.familias
@@ -90,16 +91,18 @@ namespace APISenad.controllers
             }
 
 
-            
+
             // Procesar orden encontrada
-            foreach (var orden in ordenesEncontradas)
-            {
+            //foreach (var orden in ordenEncontrada)
+            //{
+
+                // Procesar orden encontrada
                 string tipoCodigo = "Desconocido";
                 int cantidadProcesada = 0;
 
-                Console.WriteLine($"Buscando familia activa para la orden {orden.numOrden}, Familia: {orden.familia}");
+                Console.WriteLine($"Buscando familia activa para la orden {ordenEncontrada.numOrden}, Familia: {ordenEncontrada.familia}");
                 var familiasActivas = await _context.familias
-                    .FirstOrDefaultAsync(f => f.Familia == orden.familia && f.estado == true &&                                                     
+                    .FirstOrDefaultAsync(f => f.Familia == ordenEncontrada.familia && f.estado == true &&
                                 (f.Tienda1 != null || f.Tienda2 != null || f.Tienda3 != null || 
                                 f.Tienda4 != null || f.Tienda5 != null || f.Tienda6 != null || 
                                 f.Tienda7 != null || f.Tienda8 != null || f.Tienda9 != null || 
@@ -111,7 +114,7 @@ namespace APISenad.controllers
                 if (familiasActivas == null)
                 {
                     // Retornar la salida de error
-                    Console.WriteLine($"No se encontró una familia para la orden: {orden.numOrden}, Familia: {orden.familia}");
+                    Console.WriteLine($"No se encontró una familia para la orden: {ordenEncontrada.numOrden}, Familia: {ordenEncontrada.familia}");
                     var repuestaError = new
                     {
                         codigoIngresado = codItem,
@@ -125,24 +128,24 @@ namespace APISenad.controllers
 
                 Console.WriteLine($"Familia activa: {familiasActivas.Familia}");
 
-                if (orden.codMastr == codItem)
+                if (ordenEncontrada.codMastr == codItem)
                 {
                     tipoCodigo = "Master";
-                    cantidadProcesada = orden.cantMastr + orden.cantidadProcesada;
+                    cantidadProcesada = ordenEncontrada.cantMastr + ordenEncontrada.cantidadProcesada;
                 }
-                else if (orden.codInr == codItem)
+                else if (ordenEncontrada.codInr == codItem)
                 {
                     tipoCodigo = "Inner";
-                    cantidadProcesada = orden.cantInr + orden.cantidadProcesada;
+                    cantidadProcesada = ordenEncontrada.cantInr + ordenEncontrada.cantidadProcesada;
                 }
-                else if (orden.codProducto == codItem)
+                else if (ordenEncontrada.codProducto == codItem)
                 {
                     tipoCodigo = "Producto";
-                    cantidadProcesada = orden.cantidad + orden.cantidadProcesada;
+                    cantidadProcesada = ordenEncontrada.cantidad + ordenEncontrada.cantidadProcesada;
                 }
 
                 // Verifica si la cantidad procesada supera la cantidad total permitida
-                if (cantidadProcesada > orden.cantidadLPN)
+                if (cantidadProcesada > ordenEncontrada.cantidadLPN)
                 {
                     /*
                     // Si el código ingresado es de Tipo Master se envía a la salida 2!
@@ -183,23 +186,23 @@ namespace APISenad.controllers
                 }
 
                 // Actualiza la cantidad procesada solo si no supera la cantidad total
-                orden.cantidadProcesada = cantidadProcesada;
+                ordenEncontrada.cantidadProcesada = cantidadProcesada;
                 
                 // Verificar si se completó la orden entera
-                if (cantidadProcesada == orden.cantidadLPN)
+                if (cantidadProcesada == ordenEncontrada.cantidadLPN)
                 {
-                    orden.estado = false;
+                    ordenEncontrada.estado = false;
                 }
 
-                _context.ordenesEnProceso.Update(orden);
-            }
+                _context.ordenesEnProceso.Update(ordenEncontrada);
+            //}
 
             await _context.SaveChangesAsync();
 
 
             
             // Verificar si todas las órdenes de la familia han sido completadas
-            var familiaOrden = ordenesEncontradas.First().familia;
+            var familiaOrden = ordenEncontrada.familia;
             var ordenesFamilia = await _context.ordenesEnProceso
                 .Where(o => o.familia == familiaOrden)
                 .ToListAsync();
@@ -255,8 +258,8 @@ namespace APISenad.controllers
             var respuestaSorter = new RespuestaEscaneo
             {
                 codigoIngresado = codItem,
-                numeroOrden = ordenesEncontradas.First().numOrden,
-                salida = ordenesEncontradas.First().numSalida
+                numeroOrden = ordenEncontrada.numOrden,
+                salida = ordenEncontrada.numSalida
             };
 
             Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
