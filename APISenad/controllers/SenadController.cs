@@ -239,7 +239,7 @@ namespace APISenad.controllers
                     var responseError = new
                     {
                         CodigoEscaneado = codItem,
-                        NumeroOrden = "No se encontró una orden disponible para la cantidad solicitada",
+                        NumeroOrden = "No se encontro enviando a Reinsercion",
                         Salida = 2 // Salida de reinsercion
                     };
 
