@@ -1,4 +1,4 @@
-﻿using APILPNPicking.data;
+using APILPNPicking.data;
 using APILPNPicking.models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -262,6 +262,7 @@ namespace APILPNPicking.controllers
 
                         await _context.SaveChangesAsync();
                         Console.WriteLine("Datos almacenados correctamente en la tabla LPNSorting.");
+
                     }
                     catch (Exception ex)
                     {
