@@ -17,19 +17,30 @@ namespace APIOrderConfirmation.controllers
     public class OrderConfirmationController : ControllerBase
     {
 
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly HttpClient _apiWaveReleaseClient;
         private readonly IOrderConfirmationService _orderConfirmationService;
         private readonly OrderConfirmationContext _context;
         private readonly IConfiguration _configuration;
         //Variable secuencial para generar el subnum 
         private static int _numSubNum = 1;
 
-        public OrderConfirmationController(IOrderConfirmationService orderConfirmationService, OrderConfirmationContext context, IConfiguration configuration)
+        public OrderConfirmationController(IOrderConfirmationService orderConfirmationService, OrderConfirmationContext context, IConfiguration configuration, IHttpClientFactory httpClientFactory, HttpClient httpClient)
         {
+            _httpClientFactory = httpClientFactory;
+            _apiWaveReleaseClient = httpClientFactory.CreateClient("apiWaveRelease");
             _orderConfirmationService = orderConfirmationService;
             _context = context;
             _configuration = configuration;
         }
-
+        private void SetAuthorizationHeader(HttpClient client)
+        {
+            var username = _configuration["BasicAuth:Username"];
+            var password = _configuration["BasicAuth:Password"];
+            var credentials = $"{username}:{password}";
+            var encodedCredentials = Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials));
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encodedCredentials);
+        }
 
         [HttpPost("")]
         public async Task<IActionResult> ProcessOrders()
@@ -91,7 +102,6 @@ namespace APIOrderConfirmation.controllers
             {
                 return BadRequest("Datos en formato incorrecto.");
             }
-
             try
             {
                 foreach (var loadDtl in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
@@ -122,16 +132,54 @@ namespace APIOrderConfirmation.controllers
                     {
                         // Actualizar el estadoLuca a false
                         orden.estadoLuca = false;
-                    }
-                        _context.ordenesEnProceso.Update(orden);
 
+                        try
+                        {
+                            // Llamar al endpoint "DesactivarWave"
+                            var DesactivarWave = "http://apiwaverelease:8080/api/WaveRelease/DesactivarWave";
+
+                            //SetAuthorizationHeader(_apiWaveReleaseClient);
+                            var httpClient = _httpClientFactory.CreateClient("apiWaveRelease");
+                            SetAuthorizationHeader(httpClient);
+
+                            var numOrden = orden.numOrden;
+                            Console.WriteLine($"Desactivando wave para la orden: {numOrden}");
+
+                            var waveURL = $"{DesactivarWave}/{numOrden}";
+                            Console.WriteLine("URL: " + waveURL);
+
+                            var response = await httpClient.PostAsync(waveURL, null);
+
+                            if (!response.IsSuccessStatusCode)
+                            {
+                                Console.WriteLine($"Error al desactivar la wave de la orden {numOrden}. StatusCode: {response.StatusCode}");
+                                return StatusCode((int)response.StatusCode, $"Error al desactivar la wave de la orden {numOrden}.");
+                                
+                            }
+
+                            Console.WriteLine($"Wave de la orden {numOrden} desactivada correctamente.");
+                        }
+                        //Exception HTTP
+                        catch (HttpRequestException httpEx)
+                        {
+                            Console.WriteLine($"Ocurrió un error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
+                            return StatusCode(500, $"Ocurrió un error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
+                        }
+                        //Exception general
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
+                            return StatusCode(500, $"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
+                        }
+                    }
+                    _context.ordenesEnProceso.Update(orden);
                 }
 
                 // Guardar cambios a BD
                 await _context.SaveChangesAsync();
 
                 Console.WriteLine("EstadoLuca actualizado correctamente.");
-                //return Ok("EstadoLuca actualizado correctamente.");
+                return Ok("EstadoLuca actualizado correctamente.");
             }
             catch (Exception ex)
             {
@@ -139,6 +187,7 @@ namespace APIOrderConfirmation.controllers
                 return StatusCode(500, $"Ocurrió un error al procesar las órdenes: {ex.Message}");
             }
 
+            /*
             //ENVIO DE DATOS A LA URL DE KN
             try
             {
@@ -184,6 +233,7 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
+            */
         }
     }
 }

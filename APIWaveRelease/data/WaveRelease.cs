@@ -15,6 +15,7 @@ namespace APIWaveRelease.data
         public string CodProducto { get; set; }
         public string Wave { get; set; }
         public string tienda { get; set; }
+        public bool estadoWave { get; set; }
 
     }
 }

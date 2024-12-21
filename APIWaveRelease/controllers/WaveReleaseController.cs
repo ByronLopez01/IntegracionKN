@@ -90,7 +90,8 @@ namespace APIWaveRelease.controllers
                             NumOrden = orderSeg.ordnum,
                             CodProducto = pickDtlSeg.prtnum,
                             Wave = waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat,
-                            tienda = orderSeg.rtcust
+                            tienda = orderSeg.rtcust,
+                            estadoWave = true
                         };
                         
                         waveReleases.Add(newWaveRelease);
@@ -207,6 +208,25 @@ namespace APIWaveRelease.controllers
 
             return Ok(waveReleases);
         }
+
+        // POST DesactivarWave
+        [HttpPost("DesactivarWave/{numOrden}")]
+        public async Task<IActionResult> DesactivarWave(string numOrden)
+        {
+            var waveRelease = await _context.WaveRelease.FirstOrDefaultAsync(wr => wr.NumOrden == numOrden);
+
+            if (waveRelease == null)
+            {
+                return NotFound($"No se encontró una wave asociada a la orden {numOrden}.");
+            }
+
+            waveRelease.estadoWave = false; // Cambiar el estado a procesado
+            _context.WaveRelease.Update(waveRelease);
+            await _context.SaveChangesAsync();
+
+            return Ok($"El estado de la wave asociada a la orden {numOrden} ha sido actualizado a procesado.");
+        }
+
 
         // PUT api/<WaveReleaseController>/5
         [HttpPut("{id}")]

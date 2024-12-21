@@ -14,6 +14,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 
+builder.Services.AddHttpClient("apiWaveRelease", client =>
+{
+    client.BaseAddress = new Uri("http://apiwaverelease:8080");
+});
+
 // Configuraci�n de JWT
 //var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
 //builder.Services.AddAuthentication(x =>
@@ -77,6 +82,8 @@ builder.Services.AddScoped<IOrderConfirmationService, OrderConfirmationService>(
 //builder.Services.AddHostedService<OrderConfirmationBackgroundService>();
 
 builder.Services.AddAuthorization();
+
+
 
 var app = builder.Build();
 
