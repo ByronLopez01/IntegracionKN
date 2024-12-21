@@ -64,6 +64,63 @@ namespace APIFamilyMaster.controllers
             return Ok("Datos guardados correctamente.");
         }
 
+        [HttpPost("test")]
+        public async Task<IActionResult> TestPostFamilyMaster([FromBody] List<FamilyMaster> familyMasters)
+        {
+            if (familyMasters == null || familyMasters.Count == 0)
+            {
+                return BadRequest("Datos invalidos.");
+            }
+
+            try
+            {
+                var datosExistentes = _context.Familias.ToList();
+                if (datosExistentes.Any())
+                {
+                    _context.Familias.RemoveRange(datosExistentes);
+                }
+
+                var familyMasterEntities = new List<FamilyMaster>();
+
+                foreach (var dto in familyMasters)
+                {
+                    var familyMaster = new FamilyMaster
+                    {
+                        Familia = dto.Familia,
+                        NumSalida = dto.NumSalida,
+                        NumTanda = dto.NumTanda,
+                        Tienda1 = dto.Tienda1,
+                        Tienda2 = dto.Tienda2,
+                        Tienda3 = dto.Tienda3,
+                        Tienda4 = dto.Tienda4,
+                        Tienda5 = dto.Tienda5,
+                        Tienda6 = dto.Tienda6,
+                        Tienda7 = dto.Tienda7,
+                        Tienda8 = dto.Tienda8,
+                        Tienda9 = dto.Tienda9,
+                        Tienda10 = dto.Tienda10,
+                        Tienda11 = dto.Tienda11,
+                        Tienda12 = dto.Tienda12,
+
+
+
+                    };
+
+                    familyMasterEntities.Add(familyMaster);
+                }
+
+                _context.Familias.AddRange(familyMasterEntities);
+                await _context.SaveChangesAsync();
+
+                return Ok("Datos guardados correctamente.");
+            }
+            catch
+            {
+                return BadRequest("Error al procesar familymaster");
+            }
+            
+        }
+
         // GET: api/FamilyMaster
         [HttpGet]
         public async Task<IActionResult> GetFamilyMasters([FromQuery] string tienda, [FromQuery] string familia)
