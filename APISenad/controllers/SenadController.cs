@@ -92,6 +92,7 @@ namespace APISenad.controllers
 
 
 
+
             // Procesar orden encontrada
             //foreach (var orden in ordenEncontrada)
             //{
@@ -126,7 +127,9 @@ namespace APISenad.controllers
                 return Ok(repuestaError);
             }
 
+
             Console.WriteLine($"Familia activa: {familiasActivas.Familia}");
+
 
             if (ordenEncontrada.codMastr == codItem)
             {
@@ -172,11 +175,13 @@ namespace APISenad.controllers
                     };
                     Console.WriteLine("La cantidad de tipo INNER/PRODUCTO a procesar de supera la cantidad.");
                     return Ok(response);
+
                 }
                 */
 
                 var cantidadExcedente = cantidadProcesada - ordenEncontrada.cantidadLPN;
                 cantidadProcesada = ordenEncontrada.cantidadLPN;  // Establecer la cantidad procesada máxima permitida
+
 
                 var ordenExcedente = await _context.ordenesEnProceso
                     .Where(o => o.estado == true &&
@@ -187,6 +192,7 @@ namespace APISenad.controllers
                     .FirstOrDefaultAsync();
 
                 if (ordenExcedente != null)
+
                 {
                     // Verifica si la nueva orden tiene suficiente capacidad para aceptar toda la cantidad excedente
                     if (ordenExcedente.cantidadLPN - ordenExcedente.cantidadProcesada >= cantidadExcedente)
@@ -243,10 +249,13 @@ namespace APISenad.controllers
                         Salida = 2 // Salida de reinsercion
                     };
 
+
                     Console.WriteLine("No se encontró una orden disponible para procesar la cantidad solicitada.");
                     return Ok(responseError);
+
                 }
             }
+
 
             // Actualiza la cantidad procesada solo si no supera la cantidad total
             ordenEncontrada.cantidadProcesada = cantidadProcesada;
@@ -256,6 +265,7 @@ namespace APISenad.controllers
             {
                 ordenEncontrada.estado = false;
             }
+
 
             _context.ordenesEnProceso.Update(ordenEncontrada);
             //}
