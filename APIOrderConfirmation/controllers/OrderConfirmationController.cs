@@ -179,7 +179,7 @@ namespace APIOrderConfirmation.controllers
                 await _context.SaveChangesAsync();
 
                 Console.WriteLine("EstadoLuca actualizado correctamente.");
-                return Ok("EstadoLuca actualizado correctamente.");
+                //return Ok("EstadoLuca actualizado correctamente.");
             }
             catch (Exception ex)
             {
@@ -187,7 +187,7 @@ namespace APIOrderConfirmation.controllers
                 return StatusCode(500, $"Ocurrió un error al procesar las órdenes: {ex.Message}");
             }
 
-            /*
+            
             //ENVIO DE DATOS A LA URL DE KN
             try
             {
@@ -233,7 +233,7 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
-            */
+            
         }
     }
 }
