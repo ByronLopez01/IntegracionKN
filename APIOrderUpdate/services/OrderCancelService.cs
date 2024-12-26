@@ -16,17 +16,36 @@ namespace APIOrderUpdate.services
             _context = context;
         }
 
-        public async Task<OrderCancelResult> HandleOrderCancelAsync(OrderCancelKN orderCancelKn)
+        public async Task<(OrderCancelResult, List<string>)> HandleOrderCancelAsync(OrderCancelKN orderCancelKn)
         {
             if (orderCancelKn.ORDER_CANCEL.ORDER_CANCEL_SEG is not IEnumerable<OrderCancelSeg> orderCancelSegs)
             {
-                return OrderCancelResult.NotFound; //Ordenes no encontradas
+                return (OrderCancelResult.NotFound, new List<string>()); //Ordenes no encontradas
             }
+
+            bool anyOrderCancelled = false;
+            bool anyOrderNotCancelled = false;
+            bool allOrdersInProcess = true;
+            var ordersNotCancelled = new List<string>();
 
             foreach (var orderCancelSeg in orderCancelSegs)
             {
                 var waveId = orderCancelSeg.schbat;
                 var ordnum = orderCancelSeg.ordnum;
+
+                var existingOrderInProcess = await _context.OrdenEnProceso
+                    .Where(o => o.numOrden == ordnum)
+                    .FirstOrDefaultAsync();
+
+                if (existingOrderInProcess != null && existingOrderInProcess.estado)
+                {
+                    // Si la orden está en proceso, no se puede cancelar
+                    anyOrderNotCancelled = true;
+                    ordersNotCancelled.Add(ordnum);
+                    continue;
+                }
+
+                allOrdersInProcess = false; // Al menos una orden no está en proceso
 
                 var existingWaveRelease = await _context.WaveReleases
                     .Where(w => w.Wave == waveId && w.NumOrden == ordnum)
@@ -35,6 +54,11 @@ namespace APIOrderUpdate.services
                 if (existingWaveRelease != null)
                 {
                     _context.WaveReleases.Remove(existingWaveRelease);
+
+                    if (existingOrderInProcess != null)
+                    {
+                        _context.OrdenEnProceso.Remove(existingOrderInProcess);
+                    }
 
                     var newOrderCancel = new OrderCancelEntity
                     {
@@ -49,9 +73,14 @@ namespace APIOrderUpdate.services
                     };
 
                     _context.ordenes.Add(newOrderCancel);
+                    anyOrderCancelled = true;
                 }
                 else
                 {
+                    // La orden no se encontró o no está en la Wave especificada
+                    anyOrderNotCancelled = true;
+                    ordersNotCancelled.Add(ordnum);
+
                     // Buscar si la orden existe en la base de datos en otras Waves
                     var anyOrderExists = await _context.WaveReleases
                         .Where(w => w.NumOrden == ordnum)
@@ -75,7 +104,21 @@ namespace APIOrderUpdate.services
 
             await _context.SaveChangesAsync();
 
-            return OrderCancelResult.Cancelled; //Ordenes canceladas
+            // Si todas las ordenes están en proceso, retornar AllOrdersInProcess
+            if (allOrdersInProcess)
+            {
+                return (OrderCancelResult.AllOrdersInProcess, ordersNotCancelled);
+            }
+
+            // Si alguna orden fue cancelada, retornar Cancelled, de lo contrario NotFound
+            if (anyOrderCancelled) 
+            {
+                return (anyOrderNotCancelled ? OrderCancelResult.PartiallyCancelled : OrderCancelResult.Cancelled, ordersNotCancelled);
+            }
+            else
+            {
+                return (OrderCancelResult.NotFound, ordersNotCancelled);
+            }
         }
     }
 }
