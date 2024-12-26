@@ -6,7 +6,7 @@
         public string wh_id { get; set; }
         public string msg_id { get; set; }
         public string trandt {  get; set; }
-        public OrderCancelSeg ORDER_CANCEL_SEG {  get; set; }
+        public List<OrderCancelSeg> ORDER_CANCEL_SEG {  get; set; }
 
     }
 }

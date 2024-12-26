@@ -5,6 +5,6 @@ namespace APIOrderUpdate.services
 {
     public interface IOrderCancelService
     {
-        Task<OrderCancelResult> HandleOrderCancelAsync(OrderCancelKN orderCancelKn);
+        Task<(OrderCancelResult, List<string>)> HandleOrderCancelAsync(OrderCancelKN orderCancelKn);
     }
 }

@@ -16,61 +16,109 @@ namespace APIOrderUpdate.services
             _context = context;
         }
 
-        public async Task<OrderCancelResult> HandleOrderCancelAsync(OrderCancelKN orderCancelKn)
+        public async Task<(OrderCancelResult, List<string>)> HandleOrderCancelAsync(OrderCancelKN orderCancelKn)
         {
-            var waveId = orderCancelKn.ORDER_CANCEL.ORDER_CANCEL_SEG.schbat;
-            var ordnum = orderCancelKn.ORDER_CANCEL.ORDER_CANCEL_SEG.ordnum;
+            if (orderCancelKn.ORDER_CANCEL.ORDER_CANCEL_SEG is not IEnumerable<OrderCancelSeg> orderCancelSegs)
+            {
+                return (OrderCancelResult.NotFound, new List<string>()); //Ordenes no encontradas
+            }
 
-            var existingWaveRelease = await _context.WaveReleases
-                .Where(w => w.Wave == waveId && w.NumOrden == ordnum)
-                .FirstOrDefaultAsync();
+            bool anyOrderCancelled = false;
+            bool anyOrderNotCancelled = false;
+            bool allOrdersInProcess = true;
+            var ordersNotCancelled = new List<string>();
 
-            if (existingWaveRelease != null)
-            { 
-                _context.WaveReleases.Remove(existingWaveRelease);
+            foreach (var orderCancelSeg in orderCancelSegs)
+            {
+                var waveId = orderCancelSeg.schbat;
+                var ordnum = orderCancelSeg.ordnum;
 
-               var newOrderCancel = new OrderCancelEntity
+                var existingOrderInProcess = await _context.OrdenEnProceso
+                    .Where(o => o.numOrden == ordnum)
+                    .FirstOrDefaultAsync();
+
+                if (existingOrderInProcess != null && existingOrderInProcess.estado)
                 {
-                    Wave = waveId,
-                    WhId = orderCancelKn.ORDER_CANCEL.wh_id,
-                    MsgId = orderCancelKn.ORDER_CANCEL.msg_id,
-                    Trandt = orderCancelKn.ORDER_CANCEL.trandt,
-                    Ordnum = ordnum,
-                    Schbat = orderCancelKn.ORDER_CANCEL.ORDER_CANCEL_SEG.schbat,
-                    Cancod = orderCancelKn.ORDER_CANCEL.ORDER_CANCEL_SEG.cancod,
-                    Accion = "Cancelación"
-                };
+                    // Si la orden está en proceso, no se puede cancelar
+                    anyOrderNotCancelled = true;
+                    ordersNotCancelled.Add(ordnum);
+                    continue;
+                }
 
-                _context.ordenes.Add(newOrderCancel);
-                await _context.SaveChangesAsync();
+                allOrdersInProcess = false; // Al menos una orden no está en proceso
 
-                return OrderCancelResult.Cancelled;
+                var existingWaveRelease = await _context.WaveReleases
+                    .Where(w => w.Wave == waveId && w.NumOrden == ordnum)
+                    .FirstOrDefaultAsync();
+
+                if (existingWaveRelease != null)
+                {
+                    _context.WaveReleases.Remove(existingWaveRelease);
+
+                    if (existingOrderInProcess != null)
+                    {
+                        _context.OrdenEnProceso.Remove(existingOrderInProcess);
+                    }
+
+                    var newOrderCancel = new OrderCancelEntity
+                    {
+                        Wave = waveId,
+                        WhId = orderCancelKn.ORDER_CANCEL.wh_id,
+                        MsgId = orderCancelKn.ORDER_CANCEL.msg_id,
+                        Trandt = orderCancelKn.ORDER_CANCEL.trandt,
+                        Ordnum = ordnum,
+                        Schbat = orderCancelSeg.schbat,
+                        Cancod = orderCancelSeg.cancod,
+                        Accion = "Cancelación"
+                    };
+
+                    _context.ordenes.Add(newOrderCancel);
+                    anyOrderCancelled = true;
+                }
+                else
+                {
+                    // La orden no se encontró o no está en la Wave especificada
+                    anyOrderNotCancelled = true;
+                    ordersNotCancelled.Add(ordnum);
+
+                    // Buscar si la orden existe en la base de datos en otras Waves
+                    var anyOrderExists = await _context.WaveReleases
+                        .Where(w => w.NumOrden == ordnum)
+                        .AnyAsync();
+
+                    var newOrderCancel = new OrderCancelEntity
+                    {
+                        Wave = waveId,
+                        WhId = orderCancelKn.ORDER_CANCEL.wh_id,
+                        MsgId = orderCancelKn.ORDER_CANCEL.msg_id,
+                        Trandt = orderCancelKn.ORDER_CANCEL.trandt,
+                        Ordnum = ordnum,
+                        Schbat = orderCancelSeg.schbat,
+                        Cancod = orderCancelSeg.cancod,
+                        Accion = anyOrderExists ? "Orden no encontrada en la Wave" : "Orden no encontrada"
+                    };
+
+                    _context.ordenes.Add(newOrderCancel);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Si todas las ordenes están en proceso, retornar AllOrdersInProcess
+            if (allOrdersInProcess)
+            {
+                return (OrderCancelResult.AllOrdersInProcess, ordersNotCancelled);
+            }
+
+            // Si alguna orden fue cancelada, retornar Cancelled, de lo contrario NotFound
+            if (anyOrderCancelled) 
+            {
+                return (anyOrderNotCancelled ? OrderCancelResult.PartiallyCancelled : OrderCancelResult.Cancelled, ordersNotCancelled);
             }
             else
             {
-                // Buscar si la orden existe en la base de datos en otras Waves
-                var anyOrderExists = await _context.WaveReleases
-                    .Where(w => w.NumOrden == ordnum)
-                    .AnyAsync();
-
-                var newOrderCancel = new OrderCancelEntity
-                {
-                    Wave = waveId,
-                    WhId = orderCancelKn.ORDER_CANCEL.wh_id,
-                    MsgId = orderCancelKn.ORDER_CANCEL.msg_id,
-                    Trandt = orderCancelKn.ORDER_CANCEL.trandt,
-                    Ordnum = ordnum,
-                    Schbat = orderCancelKn.ORDER_CANCEL.ORDER_CANCEL_SEG.schbat,
-                    Cancod = orderCancelKn.ORDER_CANCEL.ORDER_CANCEL_SEG.cancod,
-                    Accion = anyOrderExists ? "Orden no encontrada en la Wave" : "Orden no encontrada"
-                };
-
-                _context.ordenes.Add(newOrderCancel);
-                await _context.SaveChangesAsync();
-
-                return anyOrderExists ? OrderCancelResult.NotFound : OrderCancelResult.NotFound;
+                return (OrderCancelResult.NotFound, ordersNotCancelled);
             }
         }
-
     }
 }
