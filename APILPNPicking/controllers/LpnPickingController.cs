@@ -223,7 +223,7 @@ namespace APILPNPicking.controllers
                                 numSalida = familyMaster.numSalida,
                                 numTanda = familyMaster.numTanda,
                                 dtlNumber = subnumSeg.dtlnum ?? string.Empty,
-                                //subnum = subnumSeg.subnum ?? string.Empty,
+                                subnum = subnumSeg.subnum ?? string.Empty,
                                 tienda = waveRelease.Tienda
                             };
 
