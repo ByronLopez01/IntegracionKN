@@ -13,6 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 
+//para hacer la llamada a la api 
+builder.Services.AddHttpClient();
+
+
 // Configuraci�n de JWT
 //var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
 //builder.Services.AddAuthentication(x =>
@@ -94,4 +98,30 @@ app.UseAuthorization();
 app.MapRazorPages();
 app.MapControllers();
 
+await autoLlamado(app.Services);
+
 app.Run();
+
+// metodo que hace el llamado al enpoint 
+async Task autoLlamado(IServiceProvider services)
+{
+    var clientFactory = services.GetRequiredService<IHttpClientFactory>();
+    var client = clientFactory.CreateClient();
+
+    try
+    {
+        var response = await client.GetAsync("http://localhost:8080/api/senad/123"); 
+        if (response.IsSuccessStatusCode)
+        {
+            Console.WriteLine("Llamado API Senad exitoso");
+        }
+        else
+        {
+            Console.WriteLine($"Error al llamar al API Senad: {response.StatusCode}");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error al llamar al API Senad : {ex.Message}");
+    }
+}
