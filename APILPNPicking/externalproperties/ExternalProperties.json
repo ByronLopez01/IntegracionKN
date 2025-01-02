@@ -1,6 +1,6 @@
 {
     "ServiceUrls": {
-        "luca": "https://10.28.136.32:9500",
+        "luca": "http://10.28.136.32:9500",
         "senad": "http://senad.com/api",
         "kn": "http://kn.com/api"
     }
