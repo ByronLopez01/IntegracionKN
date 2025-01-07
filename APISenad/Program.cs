@@ -115,23 +115,30 @@ await app.RunAsync();
 async Task autoLlamado()
 {
     using var client = new HttpClient();
-    try
+    var url = "http://apisenad:8080/api/Senad/123";
+    Console.WriteLine($"Llamando a {url}...");
 
+    for (int i = 0; i < 10; i++) // Intentar hasta 10 veces
     {
-        var url = "http://localhost:8080/api/Senad/123"; 
-        Console.WriteLine($"Llamando a {url}...");
-        var response = await client.GetAsync(url);
-        if (response.IsSuccessStatusCode)
+        try
         {
-            Console.WriteLine("Autollamado exitoso");
+            var response = await client.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Autollamado exitoso");
+                return;
+            }
+            else
+            {
+                Console.WriteLine($"Error en la llamada: {response.StatusCode}. Reintentando...");
+            }
         }
-        else
+        catch (HttpRequestException ex)
         {
-            Console.WriteLine($"Error en la llamada: {response.StatusCode}");
+            Console.WriteLine($"Servicio no disponible: {ex.Message}. Reintentando...");
         }
+        await Task.Delay(5000); // Esperar 5 segundos antes de reintentar
     }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error al llamar al API Senad: {ex.Message}");
-    }
+
+    Console.WriteLine("El servicio no está disponible después de múltiples intentos.");
 }
