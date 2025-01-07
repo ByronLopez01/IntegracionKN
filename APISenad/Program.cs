@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Net.Http.Headers;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -114,11 +115,22 @@ await app.RunAsync();
 // metodo que hace el llamado al enpoint 
 async Task autoLlamado()
 {
+    Console.WriteLine("Inicio Autollamado");
+    Console.WriteLine("Inicio Autollamado");
+    Console.WriteLine("Inicio Autollamado");
+    Console.WriteLine("Inicio Autollamado");
+
     using var client = new HttpClient();
     var url = "http://apisenad:8080/api/Senad/123";
     Console.WriteLine($"Llamando a {url}...");
 
-    for (int i = 0; i < 10; i++) // Intentar hasta 10 veces
+    var usuario = "senad";
+    var contrasena = "S3nad";
+    var basicAuth = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{usuario}:{contrasena}"));
+    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuth);
+
+
+    for (int i = 0; i < 10; i++) 
     {
         try
         {
@@ -137,7 +149,7 @@ async Task autoLlamado()
         {
             Console.WriteLine($"Servicio no disponible: {ex.Message}. Reintentando...");
         }
-        await Task.Delay(5000); // Esperar 5 segundos antes de reintentar
+        await Task.Delay(5000); 
     }
 
     Console.WriteLine("El servicio no está disponible después de múltiples intentos.");
