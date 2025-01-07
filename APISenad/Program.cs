@@ -98,30 +98,40 @@ app.UseAuthorization();
 app.MapRazorPages();
 app.MapControllers();
 
-await autoLlamado(app.Services);
 
-app.Run();
+app.MapGet("/", () => "API Senad funcionando!");
+
+
+_ = Task.Run(async () =>
+{
+
+    await Task.Delay(5000);
+    await autoLlamado(); 
+});
+
+await app.RunAsync();
 
 // metodo que hace el llamado al enpoint 
-async Task autoLlamado(IServiceProvider services)
+async Task autoLlamado()
 {
-    var clientFactory = services.GetRequiredService<IHttpClientFactory>();
-    var client = clientFactory.CreateClient();
-
+    using var client = new HttpClient();
     try
+
     {
-        var response = await client.GetAsync("http://localhost:8080/api/senad/123"); 
+        var url = "http://localhost:8080/api/Senad/123"; 
+        Console.WriteLine($"Llamando a {url}...");
+        var response = await client.GetAsync(url);
         if (response.IsSuccessStatusCode)
         {
-            Console.WriteLine("Llamado API Senad exitoso");
+            Console.WriteLine("Autollamado exitoso");
         }
         else
         {
-            Console.WriteLine($"Error al llamar al API Senad: {response.StatusCode}");
+            Console.WriteLine($"Error en la llamada: {response.StatusCode}");
         }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Error al llamar al API Senad : {ex.Message}");
+        Console.WriteLine($"Error al llamar al API Senad: {ex.Message}");
     }
 }
