@@ -143,9 +143,10 @@ namespace APIOrderConfirmation.controllers
                             SetAuthorizationHeader(httpClient);
 
                             var numOrden = orden.numOrden;
-                            Console.WriteLine($"Desactivando wave para la orden: {numOrden}");
+                            var codProducto = orden.codProducto;
+                            Console.WriteLine($"Desactivando wave para la orden: {numOrden} y codProducto: {codProducto}");
 
-                            var waveURL = $"{DesactivarWave}/{numOrden}";
+                            var waveURL = $"{DesactivarWave}/{numOrden}/{codProducto}";
                             Console.WriteLine("URL: " + waveURL);
 
                             var response = await httpClient.PostAsync(waveURL, null);
