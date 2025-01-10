@@ -210,21 +210,22 @@ namespace APIWaveRelease.controllers
         }
 
         // POST DesactivarWave
-        [HttpPost("DesactivarWave/{numOrden}")]
-        public async Task<IActionResult> DesactivarWave(string numOrden)
+        [HttpPost("DesactivarWave/{numOrden}/{codProducto}")]
+        public async Task<IActionResult> DesactivarWave(string numOrden, string codProducto)
         {
-            var waveRelease = await _context.WaveRelease.FirstOrDefaultAsync(wr => wr.NumOrden == numOrden);
+            var waveRelease = await _context.WaveRelease
+                .FirstOrDefaultAsync(wr => wr.NumOrden == numOrden && wr.CodProducto == codProducto && wr.estadoWave == true);
 
             if (waveRelease == null)
             {
-                return NotFound($"No se encontró una wave asociada a la orden {numOrden}.");
+                return NotFound($"No se encontró una wave asociada a la orden {numOrden} y producto {codProducto}");
             }
 
             waveRelease.estadoWave = false; // Cambiar el estado a procesado
             _context.WaveRelease.Update(waveRelease);
             await _context.SaveChangesAsync();
 
-            return Ok($"El estado de la wave asociada a la orden {numOrden} ha sido actualizado a procesado.");
+            return Ok($"El estado de la wave asociada a la orden {numOrden} y producto {codProducto} ha sido actualizado a procesado.");
         }
 
 
