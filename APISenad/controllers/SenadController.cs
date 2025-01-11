@@ -144,40 +144,13 @@ namespace APISenad.controllers
             else if (ordenEncontrada.codProducto == codItem)
             {
                 tipoCodigo = "Producto";
-                cantidadProcesada = ordenEncontrada.cantidad + ordenEncontrada.cantidadProcesada;
+                //cantidadProcesada = ordenEncontrada.cantidad + ordenEncontrada.cantidadProcesada;
+                cantidadProcesada = ordenEncontrada.cantInr + ordenEncontrada.cantidadProcesada;
             }
 
             // Verifica si la cantidad procesada supera la cantidad total permitida
             if (cantidadProcesada > ordenEncontrada.cantidadLPN)
             {
-                /*
-                // Si el código ingresado es de Tipo Master se envía a la salida 2!
-                if (tipoCodigo == "Master")
-                {
-                    var response = new
-                    {
-                        CodigoEscaneado = codItem,
-                        NumeroOrden = "Cantidad procesada de tipo MASTER supera limite",
-                        Salida = 2
-                    };
-                    Console.WriteLine("La cantidad de tipo MASTER supera la cantidad limite.");
-                    return Ok(response);
-                }
-                // En cualquier otro caso se envía a la salida 9!
-                else
-                {
-                    var response = new
-                    {
-                        CodigoEscaneado = codItem,
-                        NumeroOrden = "Cantidad procesada de tipo INNER/PRODUCTO supera limite",
-                        Salida = 9 // Salida de error
-                        //Error = "La cantidad a procesar supera la cantidad permitida."
-                    };
-                    Console.WriteLine("La cantidad de tipo INNER/PRODUCTO a procesar de supera la cantidad.");
-                    return Ok(response);
-
-                }
-                */
 
                 var cantidadExcedente = cantidadProcesada - ordenEncontrada.cantidadLPN;
                 cantidadProcesada = ordenEncontrada.cantidadLPN;  // Establecer la cantidad procesada máxima permitida
