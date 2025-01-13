@@ -203,6 +203,7 @@ namespace APISenad.controllers
                         // Verifica si la nueva orden se ha completado
                         if (ordenExcedente.cantidadProcesada == ordenExcedente.cantidadLPN)
                         {
+                            ordenExcedente.fechaProceso = DateTime.Now;
                             ordenExcedente.estado = false; // Marca la nueva orden como completada
                         }
 
@@ -263,6 +264,7 @@ namespace APISenad.controllers
             // Verificar si se completó la orden entera
             if (cantidadProcesada == ordenEncontrada.cantidadLPN)
             {
+                ordenEncontrada.fechaProceso = DateTime.Now;
                 ordenEncontrada.estado = false;
             }
 

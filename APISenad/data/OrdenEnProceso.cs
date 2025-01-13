@@ -20,6 +20,8 @@
         public string dtlNumber {  get; set; }
         public bool estado { get; set; }
         public string tienda { get; set; }
+        public DateTime fechaProceso { get; set; }
+
 
     }
 }

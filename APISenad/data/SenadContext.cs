@@ -85,6 +85,9 @@ namespace APISenad.data
                     .HasMaxLength(50)
                     .HasColumnName("cantidad");
 
+                entity.Property(e => e.fechaProceso)
+                    .HasMaxLength(50)
+                    .HasColumnName("fechaProceso");
 
             });
 
