@@ -35,10 +35,16 @@ namespace APISenad.controllers
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encodedCredentials);
         }
 
-        // TEST!!
         [HttpGet("{codItem}")]
         public async Task<ActionResult> CodigoEscaneado(string codItem)
         {
+            // !!!!!!!!!!!!!!!!!!!!!!!!
+            // VARIABLES DE SALIDA!!!!!
+            // !!!!!!!!!!!!!!!!!!!!!!!!
+            int Error = 17;
+            int Reinsercion = 2;
+            // Cambiar esto si se quiere cambiar la salida de error / reinsercion
+
             // Verifica que el código de ítem no esté vacío
             if (string.IsNullOrEmpty(codItem))
             {
@@ -83,19 +89,12 @@ namespace APISenad.controllers
                     {
                         CodigoEscaneado = codItem,
                         NumeroOrden = "Código sin familia con tanda activa",
-                        Salida = 9, // Salida de error
+                        Salida = Error, // Salida de error
                         //Error = "El código no pertenece a una familia con tanda activa."
                     };
                     return Ok(responseError);
                 }
             }
-
-
-
-
-            // Procesar orden encontrada
-            //foreach (var orden in ordenEncontrada)
-            //{
 
             // Procesar orden encontrada
             string tipoCodigo = "Desconocido";
@@ -120,8 +119,7 @@ namespace APISenad.controllers
                 {
                     codigoIngresado = codItem,
                     numeroOrden = "No hay FAMILIA activa",
-                    salida = 9, // Salida de error
-                                //error = "No se encontró una familia ACTIVADA para la orden."
+                    salida = Error, // Salida de error
                 };
                 Console.WriteLine("No se encontró una familia ACTIVADA para la orden");
                 return Ok(repuestaError);
@@ -144,40 +142,27 @@ namespace APISenad.controllers
             else if (ordenEncontrada.codProducto == codItem)
             {
                 tipoCodigo = "Producto";
-                cantidadProcesada = ordenEncontrada.cantidad + ordenEncontrada.cantidadProcesada;
+                //cantidadProcesada = ordenEncontrada.cantidad + ordenEncontrada.cantidadProcesada;
+            }
+
+            // Si el tipo de Codigo es Producto, se envía a la salida de ERROR
+            if (tipoCodigo == "Producto")
+            {
+                var responseError = new
+                {
+                    CodigoEscaneado = codItem,
+                    NumeroOrden = "Codigo de Producto. Enviando a Error",
+                    Salida = Error // Salida de error
+                };
+
+
+                Console.WriteLine("Codigo de Producto detectado. Enviando a ERROR ");
+                return Ok(responseError);
             }
 
             // Verifica si la cantidad procesada supera la cantidad total permitida
             if (cantidadProcesada > ordenEncontrada.cantidadLPN)
             {
-                /*
-                // Si el código ingresado es de Tipo Master se envía a la salida 2!
-                if (tipoCodigo == "Master")
-                {
-                    var response = new
-                    {
-                        CodigoEscaneado = codItem,
-                        NumeroOrden = "Cantidad procesada de tipo MASTER supera limite",
-                        Salida = 2
-                    };
-                    Console.WriteLine("La cantidad de tipo MASTER supera la cantidad limite.");
-                    return Ok(response);
-                }
-                // En cualquier otro caso se envía a la salida 9!
-                else
-                {
-                    var response = new
-                    {
-                        CodigoEscaneado = codItem,
-                        NumeroOrden = "Cantidad procesada de tipo INNER/PRODUCTO supera limite",
-                        Salida = 9 // Salida de error
-                        //Error = "La cantidad a procesar supera la cantidad permitida."
-                    };
-                    Console.WriteLine("La cantidad de tipo INNER/PRODUCTO a procesar de supera la cantidad.");
-                    return Ok(response);
-
-                }
-                */
 
                 var cantidadExcedente = cantidadProcesada - ordenEncontrada.cantidadLPN;
                 cantidadProcesada = ordenEncontrada.cantidadLPN;  // Establecer la cantidad procesada máxima permitida
@@ -228,12 +213,12 @@ namespace APISenad.controllers
 
                     else
                     {
-                        // Si no cabe la cantidad excedente en la otra orden, se envía a la salida de error
+                        // Si no cabe la cantidad excedente en la otra orden, se envía a la salida de REINSERCIÓN
                         var responseError = new
                         {
                             CodigoEscaneado = codItem,
                             NumeroOrden = "Cantidad solicitada no puede ser procesada",
-                            Salida = 2 // Salida de reinsercion
+                            Salida = Reinsercion // Salida de reinsercion
                         };
 
                         Console.WriteLine("La cantidad solicitada no puede ser procesada en ninguna orden.");
@@ -247,16 +232,13 @@ namespace APISenad.controllers
                     {
                         CodigoEscaneado = codItem,
                         NumeroOrden = "No se encontro enviando a Reinsercion",
-                        Salida = 2 // Salida de reinsercion
+                        Salida = Reinsercion // Salida de reinsercion
                     };
-
 
                     Console.WriteLine("No se encontró una orden disponible para procesar la cantidad solicitada.");
                     return Ok(responseError);
-
                 }
             }
-
 
             // Actualiza la cantidad procesada solo si no supera la cantidad total
             ordenEncontrada.cantidadProcesada = cantidadProcesada;
@@ -268,12 +250,9 @@ namespace APISenad.controllers
                 ordenEncontrada.estado = false;
             }
 
-
             _context.ordenesEnProceso.Update(ordenEncontrada);
-            //}
 
             await _context.SaveChangesAsync();
-
 
 
             // Verificar si todas las órdenes de la familia han sido completadas

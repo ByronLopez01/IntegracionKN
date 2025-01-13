@@ -216,6 +216,7 @@ namespace APILPNPicking.controllers
                                 codInr = waveRelease.CodInr,
                                 cantMastr = waveRelease.CantMastr,
                                 cantInr = waveRelease.CantInr,
+                                cantidad = waveRelease.Cantidad,
                                 familia = waveRelease.Familia,
                                 numOrden = waveRelease.NumOrden,
                                 codProducto = waveRelease.CodProducto,
