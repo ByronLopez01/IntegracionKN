@@ -14,6 +14,16 @@ namespace APIFamilyMaster.services
 
         }
 
+        public async Task<int> ObtenerTotalSalidasAsync()
+        {
+            var totalSalidas = await _context.Familias
+                .Select(f => f.NumSalida)
+                .Distinct()
+                .CountAsync();
+
+            return totalSalidas;
+        }
+
         public async Task<List<int>> ActivarTandasAsync(int salidasDisponibles)
         {
             // Obtener todas las tandas ordenadas por número de tanda
@@ -84,7 +94,7 @@ namespace APIFamilyMaster.services
 
             // Obtener todas las posibles tandas siguientes
             var posiblesTandas = await _context.Set<FamilyMaster>()
-                .Where(f => f.NumTanda > numTandaActual !=null) // Solo tandas posteriores
+                .Where(f => f.NumTanda > numTandaActual) // Solo tandas posteriores
                 .ToListAsync(); // Trae todas las tandas siguientes
 
             // Buscar la siguiente tanda con todas las salidas
