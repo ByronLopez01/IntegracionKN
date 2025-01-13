@@ -44,7 +44,55 @@ namespace APIWaveRelease.controllers
         [HttpPost]
         public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveReleaseKn)
         {
-            int salidasDisponibles = 15;
+            //int salidasDisponibles = 15;
+            int salidasDisponibles = 0;
+
+            var url = "http://apifamilymaster:8080/api/FamilyMaster/obtener-total-salidas";
+            var httpClientFam = _httpClientFactory.CreateClient("apiFamilyMaster");
+            SetAuthorizationHeader(httpClientFam);
+
+            var respuesta = await httpClientFam.GetAsync(url);
+
+            if (respuesta.IsSuccessStatusCode)
+            {
+                var content = await respuesta.Content.ReadAsStringAsync();
+                try
+                {
+                    var jsonDocument = JsonDocument.Parse(content);
+                    if (jsonDocument.RootElement.TryGetProperty("totalSalidas", out JsonElement totalSalidasElement) && totalSalidasElement.TryGetInt32(out int totalSalidas))
+                    {
+                        if (totalSalidas == 0)
+                        {
+                            return StatusCode((int)respuesta.StatusCode, "No hay FamilyMaster cargado o hubo un error al llamar a la API.");
+                        }
+
+                        if (totalSalidas > 0)
+                        {
+                            salidasDisponibles = totalSalidas;
+                            Console.WriteLine($"Salidas disponibles: {salidasDisponibles}");
+                            Console.WriteLine($"Salidas disponibles: {salidasDisponibles}");
+                            Console.WriteLine($"Salidas disponibles: {salidasDisponibles}");
+                            Console.WriteLine($"Salidas disponibles: {salidasDisponibles}");
+                        }
+                    }
+                    else
+                    {
+                        return StatusCode((int)respuesta.StatusCode, "El formato de la respuesta no es válido.");
+                    }
+                }
+                catch (JsonException ex)
+                {
+                    Console.WriteLine($"Error al deserializar el JSON: {ex.Message}");
+                    return StatusCode(500, "Error al deserializar el JSON.");
+                }
+
+            }
+            else
+            {
+                return StatusCode((int)respuesta.StatusCode, "No hay FamilyMaster cargado o hubo un error al llamar a la API.");
+            }
+
+
             if (waveReleaseKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null || string.IsNullOrEmpty(waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat))
             {
                 return BadRequest("Datos en formato no válido.");
@@ -74,7 +122,7 @@ namespace APIWaveRelease.controllers
                         existingWaveRelease.Cantidad += pickDtlSeg.qty;
 
                         // Mensaje de depuración para indicar que se ha encontrado y actualizado un registro existente
-                        Debug.WriteLine($"Cantidad actualizada para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
+                        Console.WriteLine($"Cantidad actualizada para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
                     }
                     else
                     {
@@ -97,7 +145,7 @@ namespace APIWaveRelease.controllers
                         waveReleases.Add(newWaveRelease);
 
                         // Mensaje de depuración para indicar que se ha creado un nuevo registro
-                        Debug.WriteLine($"Nuevo registro creado para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
+                        Console.WriteLine($"Nuevo registro creado para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
                     }
                 }
             }
@@ -116,6 +164,7 @@ namespace APIWaveRelease.controllers
             var urlLucaBase = _configuration["ServiceUrls:luca"];
             var urlLuca = $"{urlLucaBase}/api/sort/waveRelease";
 
+            
             try
             {
                 var response = await httpClient.PostAsync(urlLuca, httpContent);
@@ -141,8 +190,6 @@ namespace APIWaveRelease.controllers
                 return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
             }
 
-            // TEST!!
-            //var urlActivarTandas = "http://host.docker.internal:5002/api/FamilyMaster/activar-tandas";
 
             // Llamar al endpoint "activar-tandas"
             var urlActivarTandas = "http://apifamilymaster:8080/api/FamilyMaster/activar-tandas";

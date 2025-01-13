@@ -6,6 +6,7 @@
         public string codInr { get; set; }
         public int cantMastr { get; set; }
         public int cantInr { get; set; }
+        public int cantidad { get; set; }
         public string familia { get; set; }
         public string numOrden { get; set; }
         public string codProducto { get; set; }

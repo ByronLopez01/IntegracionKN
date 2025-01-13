@@ -21,6 +21,13 @@ namespace APIFamilyMaster.controllers
             _familyMasterService = familyMasterService;
         }
 
+        [HttpGet("obtener-total-salidas")]
+        public async Task<IActionResult> ObtenerTotalSalidas()
+        {
+            var totalSalidas = await _familyMasterService.ObtenerTotalSalidasAsync();
+            return Ok(new { TotalSalidas = totalSalidas });
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> PostFamilyMaster([FromBody] List<FamilyMaster> familyMasters)
