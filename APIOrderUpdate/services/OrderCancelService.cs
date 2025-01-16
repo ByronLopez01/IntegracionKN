@@ -49,11 +49,11 @@ namespace APIOrderUpdate.services
 
                 var existingWaveRelease = await _context.WaveReleases
                     .Where(w => w.Wave == waveId && w.NumOrden == ordnum)
-                    .FirstOrDefaultAsync();
+                    .ToListAsync();
 
                 if (existingWaveRelease != null)
                 {
-                    _context.WaveReleases.Remove(existingWaveRelease);
+                    _context.WaveReleases.RemoveRange(existingWaveRelease);
 
                     if (existingOrderInProcess != null)
                     {
