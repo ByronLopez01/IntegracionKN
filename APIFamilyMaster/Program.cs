@@ -7,6 +7,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using APIFamilyMaster.services;
+using System.Net.Http.Headers;
+using System.Net.Http;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -111,4 +113,61 @@ app.UseAuthorization(); // Autorizaciï¿½n
 app.MapRazorPages();
 app.MapControllers();
 
-app.Run();
+app.MapGet("/", () => "API FamilyMaster funcionando!");
+
+_ = Task.Run(async () =>
+{
+
+    await Task.Delay(5000);
+    await autoLlamado();
+});
+
+await app.RunAsync();
+
+// metodo que hace el llamado al enpoint 
+async Task autoLlamado()
+{
+    Console.WriteLine("Inicio Autollamado");
+    Console.WriteLine("Inicio Autollamado");
+    Console.WriteLine("Inicio Autollamado");
+    Console.WriteLine("Inicio Autollamado");
+
+    using var client = new HttpClient();
+
+    var url = "http://apifamilymaster:8080/api/FamilyMaster/activarSiguienteTanda?numTandaActual=0";
+
+    
+
+    Console.WriteLine($"Llamando a {url}...");
+
+    var usuario = "senad";
+    var contrasena = "S3nad";
+    var basicAuth = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{usuario}:{contrasena}"));
+    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuth);
+
+
+    for (int i = 0; i < 10; i++)
+    {
+        try
+        {
+            var response = await client.PostAsync(url,null);
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Autollamado exitoso");
+                return;
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error en la llamada: {response.StatusCode}. Detalles: {errorContent}");
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Servicio no disponible: {ex.Message}. Reintentando...");
+        }
+        await Task.Delay(5000);
+    }
+
+    Console.WriteLine("El servicio no está disponible después de múltiples intentos.");
+}
