@@ -3,6 +3,10 @@ using APIFamilyMaster.services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Net.Http;
+using System.Text;
+using System.Net.Http.Headers;
 
 
 namespace APIFamilyMaster.controllers
@@ -14,11 +18,24 @@ namespace APIFamilyMaster.controllers
     {
         private readonly FamilyMasterContext _context;
         private readonly FamilyMasterService _familyMasterService;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
 
-        public FamilyMasterController(FamilyMasterContext context, FamilyMasterService familyMasterService)
+        public FamilyMasterController(FamilyMasterContext context, FamilyMasterService familyMasterService, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _context = context;
             _familyMasterService = familyMasterService;
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
+
+        }
+        private void SetAuthorizationHeader(HttpClient client)
+        {
+            var username = _configuration["BasicAuth:Username"];
+            var password = _configuration["BasicAuth:Password"];
+            var credentials = $"{username}:{password}";
+            var encodedCredentials = Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials));
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encodedCredentials);
         }
 
         [HttpGet("obtener-total-salidas")]
@@ -27,7 +44,6 @@ namespace APIFamilyMaster.controllers
             var totalSalidas = await _familyMasterService.ObtenerTotalSalidasAsync();
             return Ok(new { TotalSalidas = totalSalidas });
         }
-
 
         [HttpPost]
         public async Task<IActionResult> PostFamilyMaster([FromBody] List<FamilyMaster> familyMasters)
@@ -67,8 +83,6 @@ namespace APIFamilyMaster.controllers
                         Tienda11 = dto.Tienda11,
                         Tienda12 = dto.Tienda12,
 
-
-
                     };
 
                     familyMasterEntities.Add(familyMaster);
@@ -77,7 +91,52 @@ namespace APIFamilyMaster.controllers
                 _context.Familias.AddRange(familyMasterEntities);
                 await _context.SaveChangesAsync();
 
+
+                // ENVIO DE JSON A LUCA!!
+                var jsonContent = JsonSerializer.Serialize(familyMasters);
+                var httpClient = _httpClientFactory.CreateClient("apiLuca");
+                var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                SetAuthorizationHeader(httpClient);
+
+                var urlLucaBase = _configuration["ServiceUrls:luca"];
+                var urlLuca = $"{urlLucaBase}/api/sort/FamilyMaster";
+
+                Console.WriteLine($"Enviando JSON a Luca en la URL: {urlLuca}");
+
+                // Mostrar el JSON que se enviará a Luca
+                Console.WriteLine(jsonContent);
+
+                
+                try
+                {
+
+                    var response = await httpClient.PostAsync(urlLuca, httpContent);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine("Error al enviar el JSON a Luca.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("El JSON fue enviado correctamente a Luca.");
+                    }
+                    
+                }
+                catch (HttpRequestException ex)
+                {
+                    Console.WriteLine($"Error en la solicitud HTTP: {ex.Message}");
+                    return StatusCode(500, $"Error en la solicitud HTTP: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
+                    return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
+                }
+                
+
+
                 return Ok("Datos guardados correctamente.");
+
             }
             catch
             {
