@@ -53,7 +53,17 @@ namespace APIFamilyMaster.controllers
                 return BadRequest("Datos invalidos.");
             }
 
-            try
+            var familiasAgrupadas = familyMasters.GroupBy(fm => fm.Familia);
+            foreach (var grupo in familiasAgrupadas)
+            {
+                var tandasDistintas = grupo.Select(fm => fm.NumTanda).Distinct().Count();
+                if (tandasDistintas > 1)
+                {
+                    return BadRequest($"La familia '{grupo.Key}' tiene diferentes numeros de tandas. Esto no esta permitido!");
+                }
+            }
+
+                try
             {
                 var datosExistentes = _context.Familias.ToList();
                 if (datosExistentes.Any())
