@@ -13,9 +13,12 @@ namespace APIOrderConfirmation.services
     {
         private readonly OrderConfirmationContext _context;
         private readonly HttpClient _httpClient;
-        private readonly string _urlKN = "https://scl02i1.int.kn:8010/ws/mconductor/inb/CLPUD01/Senad/SORT_COMPLETE";
+        //QA
+        //private readonly string _urlKN = "https://scl02i1.int.kn:8010/ws/mconductor/inb/CLPUD01/Senad/SORT_COMPLETE";
         private static int _numSubNum = 1;
-
+        //Prod
+        private readonly string _urlKN = "https://scl02p1.int.kn:8010/ws/mconductor/inb/CLPUD01/Senad/SORT_COMPLETE";
+        
         public OrderConfirmationBackgroundService(OrderConfirmationContext context, HttpClient httpClient)
         {
             _context = context;
