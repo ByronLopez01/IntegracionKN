@@ -281,31 +281,34 @@ namespace APISenad.controllers
 
                 Console.WriteLine("Número de tanda actual: " + numTandaActual);
 
-                try
-                {
-                    SetAuthorizationHeader(_apiFamilyMasterClient);
 
-                    var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster/activarSiguienteTanda?numTandaActual={numTandaActual}";
-                    Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
+                var resultado = await ActivarSiguienteTanda(numTandaActual);
+               
+                //  try
+                {
+                //    SetAuthorizationHeader(_apiFamilyMasterClient);
+
+                  //  var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster/activarSiguienteTanda?numTandaActual={numTandaActual}";
+                   // Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
 
                     // Llamamos con un POST el endpoint de FamilyMaster para activar la siguiente tanda
-                    var familyMasterResponse = await _apiFamilyMasterClient.PostAsync(urlFamilyMaster, null);
-                    Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
-                    Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
-                    Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
+                    //var familyMasterResponse = await _apiFamilyMasterClient.PostAsync(urlFamilyMaster, null);
+                    //Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
+                    //Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
+                    //Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
 
 
-                }
-                catch (HttpRequestException ex)
-                {
-                    Console.WriteLine($"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                    return StatusCode(500, $"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                    return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                }
+//                }
+  //              catch (HttpRequestException ex)
+    //            {
+      //              Console.WriteLine($"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+        //            return StatusCode(500, $"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+          //      }
+            //    catch (Exception ex)
+              //  {
+                //    Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                 //   return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+               // }
 
             }
 
@@ -325,5 +328,43 @@ namespace APISenad.controllers
             return Ok(respuestaSorter);
 
         }
+
+         async Task<IActionResult> ActivarSiguienteTanda(int numTandaActual)
+        {
+            try
+            {
+                // Construimos la URL para el endpoint de FamilyMaster
+                var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster/activarSiguienteTanda?numTandaActual={numTandaActual}";
+                Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
+
+                // Realizamos la llamada POST al endpoint
+                using var response = await _apiFamilyMasterClient.PostAsync(urlFamilyMaster, null);
+
+                // Validamos la respuesta del endpoint
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"Respuesta de FamilyMaster: {response.StatusCode}");
+                    return Ok($"Tanda activada correctamente. Respuesta: {response.StatusCode}");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Error en la respuesta de FamilyMaster: {response.StatusCode}, Detalle: {errorContent}");
+                    return StatusCode((int)response.StatusCode, $"Error al activar la tanda: {errorContent}");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                return StatusCode(500, $"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error general al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+            }
+        }
+
     }
+
 }
