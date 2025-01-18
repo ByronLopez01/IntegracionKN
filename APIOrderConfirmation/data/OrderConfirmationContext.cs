@@ -125,6 +125,12 @@ namespace APIOrderConfirmation.data
 
                 entity.Property(e => e.estadoLuca)
                     .HasColumnName("estadoLuca");
+
+                entity.Property(e => e.fechaCreacion)
+                    .HasColumnName("fechaCreacion");
+
+                entity.Property(e => e.fechaProceso)
+                    .HasColumnName("fechaProceso");
             });
         }
 
