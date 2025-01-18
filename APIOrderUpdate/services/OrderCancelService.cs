@@ -37,9 +37,9 @@ namespace APIOrderUpdate.services
                     .Where(o => o.numOrden == ordnum)
                     .FirstOrDefaultAsync();
 
-                if (existingOrderInProcess != null && existingOrderInProcess.estado)
+                if (existingOrderInProcess != null && existingOrderInProcess.cantidadProcesada > 0)
                 {
-                    // Si la orden está en proceso, no se puede cancelar
+                    // Si la orden tiene producto procesados, no se puede cancelar
                     anyOrderNotCancelled = true;
                     ordersNotCancelled.Add(ordnum);
                     continue;
