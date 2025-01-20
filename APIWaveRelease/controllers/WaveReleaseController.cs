@@ -190,53 +190,64 @@ namespace APIWaveRelease.controllers
                 return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
             }
 
+            var haytandasActivas = await _context.FamilyMaster.AnyAsync(fm => fm.estado == true);
 
-            // Llamar al endpoint "activar-tandas"
-            var urlActivarTandas = "http://apifamilymaster:8080/api/FamilyMaster/activar-tandas";
-            var responseTandas = await httpClient.PostAsync($"{urlActivarTandas}?salidasDisponibles={salidasDisponibles}", null);
-
-
-            try
+            if (!haytandasActivas)
             {
-                var responseContent = await responseTandas.Content.ReadAsStringAsync();
-                Console.WriteLine("Respuesta JSON recibida: " + responseContent);
 
-                // Deserializa el JSON a la clase ActivarTandasResponse
-                var tandaResponse = JsonSerializer.Deserialize<ActivarTandasResponse>(responseContent, new JsonSerializerOptions
+
+                // Llamar al endpoint "activar-tandas"
+                var urlActivarTandas = "http://apifamilymaster:8080/api/FamilyMaster/activar-tandas";
+                var responseTandas = await httpClient.PostAsync($"{urlActivarTandas}?salidasDisponibles={salidasDisponibles}", null);
+
+
+                try
                 {
-                    PropertyNameCaseInsensitive = true // Por si las propiedades tienen diferente casing
-                });
+                    var responseContent = await responseTandas.Content.ReadAsStringAsync();
+                    Console.WriteLine("Respuesta JSON recibida: " + responseContent);
 
-                if (tandaResponse != null && tandaResponse.TandasActivadas != null)
-                {
-                    Console.WriteLine($"Mensaje: {tandaResponse.Message}");
-                    Console.WriteLine($"Tandas activadas: {string.Join(", ", tandaResponse.TandasActivadas)}");
+                    // Deserializa el JSON a la clase ActivarTandasResponse
+                    var tandaResponse = JsonSerializer.Deserialize<ActivarTandasResponse>(responseContent, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true // Por si las propiedades tienen diferente casing
+                    });
 
-                    // Devuelve el mensaje y las tandas activadas en la respuesta
-                    return Ok(new { tandaResponse.Message, tandaResponse.TandasActivadas });
+                    if (tandaResponse != null && tandaResponse.TandasActivadas != null)
+                    {
+                        Console.WriteLine($"Mensaje: {tandaResponse.Message}");
+                        Console.WriteLine($"Tandas activadas: {string.Join(", ", tandaResponse.TandasActivadas)}");
 
+                        // Devuelve el mensaje y las tandas activadas en la respuesta
+                        return Ok(new { tandaResponse.Message, tandaResponse.TandasActivadas });
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("La respuesta no contiene las propiedades esperadas.");
+
+                        return Ok(new { Message = "La respuesta no contiene las propiedades esperadas.", TandasActivadas = new List<int>() });
+                    }
                 }
-                else
+                catch (JsonException ex)
                 {
-                    Console.WriteLine("La respuesta no contiene las propiedades esperadas.");
-
-                    return Ok(new { Message = "La respuesta no contiene las propiedades esperadas.", TandasActivadas = new List<int>() });
+                    Console.WriteLine("Error al deserializar el JSON: " + ex.Message);
+                    return StatusCode(500, "Error al deserializar el JSON.");
+                }
+                catch (HttpRequestException ex)
+                {
+                    Console.WriteLine("Error en la solicitud HTTP: " + ex.Message);
+                    return StatusCode(500, "Error en la solicitud HTTP.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Ocurrió un error inesperado: " + ex.Message);
+                    return StatusCode(500, "Ocurrió un error inesperado.");
                 }
             }
-            catch (JsonException ex)
+            else
             {
-                Console.WriteLine("Error al deserializar el JSON: " + ex.Message);
-                return StatusCode(500, "Error al deserializar el JSON.");
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine("Error en la solicitud HTTP: " + ex.Message);
-                return StatusCode(500, "Error en la solicitud HTTP.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Ocurrió un error inesperado: " + ex.Message);
-                return StatusCode(500, "Ocurrió un error inesperado.");
+
+                return Ok("Ya existen tandas activas. No se volvieron a activar ");
             }
         }
 

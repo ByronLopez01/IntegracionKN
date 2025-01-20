@@ -67,6 +67,80 @@ namespace APIFamilyMaster.services
             return tandasActivadas;
         }
 
+        //test
+        public async Task<int?> ActivarSiguienteTandaAsync(int numTandaActual)
+        {
+            // Obtener las salidas asociadas a la tanda actual
+            var salidasAsociadas = await _context.Set<FamilyMaster>()
+                .Where(f => f.NumTanda == numTandaActual)
+                .Select(f => f.NumSalida)
+                .Distinct()
+                .ToListAsync();
+
+            if (!salidasAsociadas.Any())
+            {
+                // No hay salidas asociadas a la tanda actual
+                return null;
+            }
+
+            // Desactivar la tanda actual
+            var tandaActual = await _context.Set<FamilyMaster>()
+                .Where(f => f.NumTanda == numTandaActual)
+                .ToListAsync();
+
+            foreach (var registro in tandaActual)
+            {
+                registro.estado = false; // Desactivar la tanda actual
+            }
+
+            // Obtener todas las posibles tandas posteriores
+            var posiblesTandas = await _context.Set<FamilyMaster>()
+                .Where(f => f.NumTanda > numTandaActual) // Solo tandas posteriores
+                .ToListAsync(); // Trae todas las tandas siguientes
+
+            // Buscar la siguiente tanda con todas las salidas
+            var siguienteTanda = posiblesTandas
+                .GroupBy(f => f.NumTanda) // Agrupa por número de tanda
+                .OrderBy(g => g.Key) // Ordena las tandas por número
+                .FirstOrDefault(g =>
+                    g.Select(f => f.NumSalida).Distinct() // Selecciona las salidas de cada tanda
+                    .All(salida => salidasAsociadas.Contains(salida))); // Verifica si todas las salidas coinciden
+
+            if (siguienteTanda == null)
+            {
+                
+                var primerasTandas = await _context.Set<FamilyMaster>()
+                    .Where(f => f.NumTanda > 0) 
+                    .ToListAsync(); 
+
+                siguienteTanda = primerasTandas
+                    .GroupBy(f => f.NumTanda) 
+                    .OrderBy(g => g.Key) 
+                    .FirstOrDefault(g =>
+                        g.Select(f => f.NumSalida).Distinct() 
+                        .All(salida => salidasAsociadas.Contains(salida))); 
+            }
+
+            if (siguienteTanda == null)
+            {
+                
+                await _context.SaveChangesAsync();
+                return null;
+            }
+
+            
+            foreach (var registro in siguienteTanda)
+            {
+                registro.estado = true; 
+            }
+
+            await _context.SaveChangesAsync();
+
+            return siguienteTanda.Key; 
+        }
+
+        /*
+
         public async Task<int?> ActivarSiguienteTandaAsync(int numTandaActual)
         {
             // Obtener las salidas asociadas a la tanda actual
@@ -123,7 +197,7 @@ namespace APIFamilyMaster.services
 
             return siguienteTanda.Key; // Devuelve la tanda activada
         }
-
+        */
 
     }
 }
