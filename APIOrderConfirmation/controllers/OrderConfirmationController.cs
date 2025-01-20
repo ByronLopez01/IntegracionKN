@@ -152,15 +152,16 @@ namespace APIOrderConfirmation.controllers
                            
                             var nuevaOrden = new Ordenes
                             {
-                                // Asignar los valores correspondientes a la nueva orden
+                               
                                 Wave = orden.wave,
-                                WhId = request.SORT_COMPLETE.wh_id, // Asigna los valores que correspondan
-                                MsgId = request.SORT_COMPLETE.msg_id, // Asigna los valores que correspondan
-                                Trandt = DateTime.Now.ToString("yyyyMMdd"), // Asigna la fecha
-                                Ordnum = orden.numOrden, // Aquí debes colocar el número de orden adecuado
-                                Schbat = orden.wave, // Asigna los valores que correspondan
-                                Cancod = orden.codProducto, // Asigna los valores que correspondan
-                                Accion = "Confirmada", // Asigna los valores que correspondan
+                                WhId = request.SORT_COMPLETE.wh_id,
+                                MsgId = request.SORT_COMPLETE.msg_id, 
+                                Trandt = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                                Ordnum = orden.numOrden, 
+                                Schbat = orden.wave, 
+                                Cancod = orden.codProducto,
+                                Accion = "Confirmada", 
+
                             };
 
                             await _context.ordenes.AddAsync(nuevaOrden);
