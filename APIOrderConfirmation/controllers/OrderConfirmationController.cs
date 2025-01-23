@@ -111,7 +111,7 @@ namespace APIOrderConfirmation.controllers
                     // Buscar la orden segun su dtlnum
                     var orden = await _context.ordenesEnProceso
                         .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
-
+                    var ordenes = _context.ordenes;
                     if (orden == null)
                     {
                         // Not found si no encuentra la orden
@@ -149,6 +149,24 @@ namespace APIOrderConfirmation.controllers
                             Console.WriteLine("URL: " + waveURL);
 
                             var response = await httpClient.PostAsync(waveURL, null);
+                           
+                            var nuevaOrden = new Ordenes
+                            {
+                                // Asignar los valores correspondientes a la nueva orden
+                                Wave = orden.wave,
+                                WhId = request.SORT_COMPLETE.wh_id, // Asigna los valores que correspondan
+                                MsgId = request.SORT_COMPLETE.msg_id, // Asigna los valores que correspondan
+                                Trandt = DateTime.Now.ToString("yyyyMMdd"), // Asigna la fecha
+                                Ordnum = orden.numOrden, // Aquí debes colocar el número de orden adecuado
+                                Schbat = orden.wave, // Asigna los valores que correspondan
+                                Cancod = orden.codProducto, // Asigna los valores que correspondan
+                                Accion = "Confirmada", // Asigna los valores que correspondan
+                            };
+
+                            await _context.ordenes.AddAsync(nuevaOrden);
+                            await _context.SaveChangesAsync();
+
+
 
                             if (!response.IsSuccessStatusCode)
                             {
@@ -230,6 +248,7 @@ namespace APIOrderConfirmation.controllers
                     await _context.SaveChangesAsync();
 
                     Console.WriteLine("EstadoLuca actualizado correctamente.");
+                    
                     //return Ok("EstadoLuca actualizado correctamente.");
                 }
 
