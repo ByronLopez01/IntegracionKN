@@ -112,6 +112,7 @@ namespace APIOrderConfirmation.controllers
                     var orden = await _context.ordenesEnProceso
                         .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
                     var ordenes = _context.ordenes;
+
                     if (orden == null)
                     {
                         // Not found si no encuentra la orden
@@ -133,7 +134,6 @@ namespace APIOrderConfirmation.controllers
                         // Actualizar el estadoLuca a false
                         orden.estadoLuca = false;
                         
-
                             try
                             {
 
@@ -151,10 +151,6 @@ namespace APIOrderConfirmation.controllers
                                 Console.WriteLine("URL: " + waveURL);
 
                                 var response = await httpClient.PostAsync(waveURL, null);
-
-
-
-
 
                                 if (!response.IsSuccessStatusCode)
                                 {
@@ -178,59 +174,6 @@ namespace APIOrderConfirmation.controllers
                                 return StatusCode(500, $"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
                             }
                         
-                        
-                    }
-
-                    else if (orden.cantidadProcesada != orden.cantidadLPN)
-                    {
-                        Console.WriteLine("ENTRANDO AL IF DE SHORTTTT!!!!!!");
-
-                        // Actualizar estadoLuca (Confirmar a KN)
-                        orden.estadoLuca = false;
-                        // Actualizar estado(Confirmacion Senad)
-                        orden.estado = false;
-                        orden.fechaProceso = DateTime.Now.AddHours(-2);
-
-                        // Verificar si todas las órdenes de la familia han sido completadas
-                        var familia = orden.familia;
-                        var ordenesFamilia = await _context.ordenesEnProceso
-                            .Where(o => o.familia == familia)
-                            .ToListAsync();
-
-                        bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
-
-                        if (todasOrdenesCompletadas)
-                        {
-
-                            int numTandaActual = orden.numTanda;
-
-                            Console.WriteLine($"Número de tanda actual: {numTandaActual}");
-
-                            try
-                            {
-                                SetAuthorizationHeader(_apiWaveReleaseClient);
-
-                                var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster/activarSiguienteTanda?numTandaActual={numTandaActual}";
-                                Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
-
-                                // Llamamos con un POST el endpoint de FamilyMaster para activar la siguiente tanda
-                                var familyMasterResponse = await _apiWaveReleaseClient.PostAsync(urlFamilyMaster, null);
-
-                                Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
-
-                            }
-                            catch (HttpRequestException ex)
-                            {
-                                Console.WriteLine($"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                                return StatusCode(500, $"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                                return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                            }
-
-                        }
                         _context.ordenesEnProceso.Update(orden);
                     }
 
@@ -249,7 +192,7 @@ namespace APIOrderConfirmation.controllers
                     };
 
                     await _context.ordenes.AddAsync(nuevaOrden);
-                   // await _context.SaveChangesAsync();
+                   
                     // Guardar cambios a BD
                     await _context.SaveChangesAsync();
 
@@ -352,11 +295,6 @@ namespace APIOrderConfirmation.controllers
                     }
 
 
-                    // Si la cantidad procesada es igual a la cantidad LPN, actualizar el estadoLuca a false
-                    // if (orden.cantidadProcesada == orden.cantidadLPN)
-                    //{
-
-
                     // Actualizar estadoLuca (Confirmar a KN)
                     orden.estadoLuca = false;
                     // Actualizar estado(Confirmacion Senad)
@@ -433,7 +371,7 @@ namespace APIOrderConfirmation.controllers
                             Ordnum = orden.numOrden,
                             Schbat = orden.wave,
                             Cancod = orden.codProducto,
-                            Accion = "Confirmada con Short Pick ",
+                            Accion = "Confirmada con Short Pick",
 
                         };
 
@@ -581,17 +519,14 @@ namespace APIOrderConfirmation.controllers
                             Ordnum = orden.numOrden,
                             Schbat = orden.wave,
                             Cancod = orden.codProducto,
-                            Accion = "Confirmada con Split ",
+                            Accion = "Confirmada con Split",
 
                         };
 
                         await _context.ordenes.AddAsync(nuevaOrden);
                         await _context.SaveChangesAsync();
 
-                    
-                    //Exception HTTP
-                    
-                    //}
+                   
                     // Guardar cambios a BD
                     await _context.SaveChangesAsync();
 
