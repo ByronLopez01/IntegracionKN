@@ -21,6 +21,7 @@ RUN dotnet publish "APIOrderConfirmation.csproj" -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN mkdir -p /app/logs
 EXPOSE 8080
 EXPOSE 8081
 ENTRYPOINT ["dotnet", "APIOrderConfirmation.dll"]

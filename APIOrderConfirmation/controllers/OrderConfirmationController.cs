@@ -33,6 +33,23 @@ namespace APIOrderConfirmation.controllers
             _context = context;
             _configuration = configuration;
         }
+        private void LogJsonToFile(string jsonContent, string endpoint)
+        {
+            var logFilePath = "/app/logs/confirm_log.txt"; // Ruta del archivo de log en el contenedor Docker
+            var logEntry = $"{DateTime.UtcNow}: {endpoint} - {jsonContent}{Environment.NewLine}";
+
+            try
+            {
+                using (var writer = new StreamWriter(logFilePath, true))
+                {
+                    writer.WriteLine(logEntry);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al escribir en el archivo de log: {ex.Message}");
+            }
+        }
         private void SetAuthorizationHeader(HttpClient client)
         {
             var username = _configuration["BasicAuth:Username"];
@@ -97,6 +114,9 @@ namespace APIOrderConfirmation.controllers
         [HttpPost("Procesado")]
         public async Task<IActionResult> Procesado([FromBody] SortCompleteKN request)
         {
+            var jsonLog = JsonConvert.SerializeObject(request);
+            LogJsonToFile(jsonLog, "Procesado");
+
             if (request?.SORT_COMPLETE?.SORT_COMP_SEG?.LOAD_HDR_SEG?.LOAD_DTL_SEG == null ||
                 !request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Any())
             {
@@ -120,12 +140,13 @@ namespace APIOrderConfirmation.controllers
                         return NotFound($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
                     }
 
-                    if (!orden.estadoLuca)
+                    /*if (!orden.estadoLuca)
                     {
                         // Si la orden ya fue procesada, retornar un error
                         Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
                         return BadRequest($"La orden con dtlnum {dtlnum} ya fue procesada.");
                     }
+                    */
 
 
                     // Si la cantidad procesada es igual a la cantidad LPN, actualizar el estadoLuca a false
@@ -155,7 +176,7 @@ namespace APIOrderConfirmation.controllers
                                 if (!response.IsSuccessStatusCode)
                                 {
                                     Console.WriteLine($"Error al desactivar la wave de la orden {numOrden}. StatusCode: {response.StatusCode}");
-                                    return StatusCode((int)response.StatusCode, $"Error al desactivar la wave de la orden {numOrden}.");
+                                    //return StatusCode((int)response.StatusCode, $"Error al desactivar la wave de la orden {numOrden}.");
 
                                 }
 
@@ -173,9 +194,62 @@ namespace APIOrderConfirmation.controllers
                                 Console.WriteLine($"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
                                 return StatusCode(500, $"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
                             }
-                        
-                        _context.ordenesEnProceso.Update(orden);
+                       
                     }
+
+                    else if (orden.cantidadProcesada != orden.cantidadLPN)
+                    {
+                        Console.WriteLine("ENTRANDO AL IF DE SHORTTTT!!!!!!");
+
+                        // Actualizar estadoLuca (Confirmar a KN)
+                        orden.estadoLuca = false;
+                        // Actualizar estado(Confirmacion Senad)
+                        orden.estado = false;
+                        orden.fechaProceso = DateTime.Now.AddHours(-2);
+
+                        // Verificar si todas las órdenes de la familia han sido completadas
+                        var familia = orden.familia;
+                        var ordenesFamilia = await _context.ordenesEnProceso
+                            .Where(o => o.familia == familia)
+                            .ToListAsync();
+
+                        bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
+
+                        if (todasOrdenesCompletadas)
+                        {
+
+                            int numTandaActual = orden.numTanda;
+
+                            Console.WriteLine($"Número de tanda actual: {numTandaActual}");
+
+                            try
+                            {
+                                SetAuthorizationHeader(_apiWaveReleaseClient);
+
+                                var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster/activarSiguienteTanda?numTandaActual={numTandaActual}";
+                                Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
+
+                                // Llamamos con un POST el endpoint de FamilyMaster para activar la siguiente tanda
+                                var familyMasterResponse = await _apiWaveReleaseClient.PostAsync(urlFamilyMaster, null);
+
+                                Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
+
+                            }
+                            catch (HttpRequestException ex)
+                            {
+                                Console.WriteLine($"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                                return StatusCode(500, $"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                                return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                            }
+
+                        }
+                    }
+
+                    _context.ordenesEnProceso.Update(orden);
 
                     var nuevaOrden = new Ordenes
                     {
@@ -261,9 +335,10 @@ namespace APIOrderConfirmation.controllers
         [HttpPost("Short")]
         public async Task<IActionResult> shortPick([FromBody] SortCompleteKN request)
         {
-
             Console.WriteLine("------ SHORT PICK !!!!!! ----------");
 
+            var jsonLog = JsonConvert.SerializeObject(request);
+            LogJsonToFile(jsonLog, "Short");
 
             if (request?.SORT_COMPLETE?.SORT_COMP_SEG?.LOAD_HDR_SEG?.LOAD_DTL_SEG == null ||
                 !request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Any())
@@ -383,7 +458,7 @@ namespace APIOrderConfirmation.controllers
                         if (!response.IsSuccessStatusCode)
                         {
                             Console.WriteLine($"Error al desactivar la wave de la orden {numOrden}. StatusCode: {response.StatusCode}");
-                            return StatusCode((int)response.StatusCode, $"Error al desactivar la wave de la orden {numOrden}.");
+                            //return StatusCode((int)response.StatusCode, $"Error al desactivar la wave de la orden {numOrden}.");
 
                         }
 
@@ -470,6 +545,8 @@ namespace APIOrderConfirmation.controllers
         {
             Console.WriteLine("------ SPLIT PICK !!!!!! ----------");
 
+            var jsonLog = JsonConvert.SerializeObject(request);
+            LogJsonToFile(jsonLog, "Split");
 
             if (request?.SORT_COMPLETE?.SORT_COMP_SEG?.LOAD_HDR_SEG?.LOAD_DTL_SEG == null ||
                 !request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Any())
@@ -493,21 +570,9 @@ namespace APIOrderConfirmation.controllers
                         return NotFound($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
                     }
 
-                    if (!orden.estadoLuca)
-                    {
-                        // Si la orden ya fue procesada, retornar un error
-                        Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
-                        return BadRequest($"La orden con dtlnum {dtlnum} ya fue procesada.");
-                    }
-
-
                     orden.fechaProceso = DateTime.UtcNow.AddHours(-2);
-
-
                     
                     _context.ordenesEnProceso.Update(orden);
-
-                    
 
                         var nuevaOrden = new Ordenes
                         {
@@ -590,5 +655,6 @@ namespace APIOrderConfirmation.controllers
             }
 
         }
+
     }
 }
