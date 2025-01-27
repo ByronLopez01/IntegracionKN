@@ -249,25 +249,24 @@ namespace APIOrderConfirmation.controllers
                         }
                     }
 
-                    _context.ordenesEnProceso.Update(orden);
+                    foreach (var detail in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
 
-                    var nuevaOrden = new Ordenes
                     {
+                        var nuevaConfirmada = new Confirmada
+                        {
+                            WcsId = request.SORT_COMPLETE.wcs_id,
+                            WhId = request.SORT_COMPLETE.wh_id,
+                            MsgId = request.SORT_COMPLETE.msg_id,
+                            TranDt = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                            LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
+                            SubNum = detail.subnum,
+                            DtlNum = detail.dtlnum,
+                            StoLoc = detail.stoloc,
+                            Qty = detail.qty
+                        };
 
-                        Wave = orden.wave,
-                        WhId = request.SORT_COMPLETE.wh_id,
-                        MsgId = request.SORT_COMPLETE.msg_id,
-                        Trandt = DateTime.Now.ToString("yyyyMMddHHmmss"),
-                        Ordnum = orden.numOrden,
-                        Schbat = orden.wave,
-                        Cancod = orden.codProducto,
-                        Accion = "Confirmada",
-
-                    };
-
-                    await _context.ordenes.AddAsync(nuevaOrden);
-                   
-                    // Guardar cambios a BD
+                        await _context.Confirmada.AddAsync(nuevaConfirmada);
+                    }
                     await _context.SaveChangesAsync();
 
                     Console.WriteLine("EstadoLuca actualizado correctamente.");
@@ -436,21 +435,26 @@ namespace APIOrderConfirmation.controllers
 
                         var response = await httpClient.PostAsync(waveURL, null);
 
-                        var nuevaOrden = new Ordenes
+                        foreach (var detail in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
                         {
+                            var nuevaConfirmada = new Confirmada
+                            {
+                                WcsId = request.SORT_COMPLETE.wcs_id,
+                                WhId = request.SORT_COMPLETE.wh_id,
+                                MsgId = request.SORT_COMPLETE.msg_id,
+                                TranDt = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                                LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
+                                SubNum = detail.subnum,
+                                DtlNum = detail.dtlnum,
+                                StoLoc = detail.stoloc,
+                                Qty = detail.qty
+                            };
 
-                            Wave = orden.wave,
-                            WhId = request.SORT_COMPLETE.wh_id,
-                            MsgId = request.SORT_COMPLETE.msg_id,
-                            Trandt = DateTime.Now.ToString("yyyyMMddHHmmss"),
-                            Ordnum = orden.numOrden,
-                            Schbat = orden.wave,
-                            Cancod = orden.codProducto,
-                            Accion = "Confirmada con Short Pick",
+                            await _context.Confirmada.AddAsync(nuevaConfirmada);
+                        }
 
-                        };
 
-                        await _context.ordenes.AddAsync(nuevaOrden);
+                        // Guardar cambios en la base de datos
                         await _context.SaveChangesAsync();
 
 
@@ -574,24 +578,32 @@ namespace APIOrderConfirmation.controllers
                     
                     _context.ordenesEnProceso.Update(orden);
 
-                        var nuevaOrden = new Ordenes
-                        {
 
-                            Wave = orden.wave,
+
+
+                    foreach (var detail in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
+                    {
+                        var nuevaConfirmada = new Confirmada
+
+                        {
+                            WcsId = request.SORT_COMPLETE.wcs_id,
                             WhId = request.SORT_COMPLETE.wh_id,
                             MsgId = request.SORT_COMPLETE.msg_id,
-                            Trandt = DateTime.Now.ToString("yyyyMMddHHmmss"),
-                            Ordnum = orden.numOrden,
-                            Schbat = orden.wave,
-                            Cancod = orden.codProducto,
-                            Accion = "Confirmada con Split",
+                            TranDt = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                            LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
+                            SubNum = detail.subnum,
+                            DtlNum = detail.dtlnum,
+                            StoLoc = detail.stoloc,
+                            Qty = detail.qty
 
                         };
 
-                        await _context.ordenes.AddAsync(nuevaOrden);
-                        await _context.SaveChangesAsync();
+                        await _context.Confirmada.AddAsync(nuevaConfirmada);
+                    }
 
-                   
+                    // Guardar cambios en la base de datos
+                    await _context.SaveChangesAsync();
+
                     // Guardar cambios a BD
                     await _context.SaveChangesAsync();
 
