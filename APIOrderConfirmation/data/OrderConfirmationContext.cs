@@ -10,7 +10,8 @@ namespace APIOrderConfirmation.data
         }
         public DbSet<OrdenEnProceso> ordenesEnProceso { get; set; }
         public DbSet<Ordenes> ordenes { get; set; }
-        
+        public DbSet<Confirmada> Confirmada { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -131,6 +132,21 @@ namespace APIOrderConfirmation.data
 
                 entity.Property(e => e.fechaProceso)
                     .HasColumnName("fechaProceso");
+            });
+
+            modelBuilder.Entity<Confirmada>(entity =>
+            {
+                entity.ToTable("Confirmada");
+
+                entity.Property(e => e.WcsId).HasMaxLength(50).IsRequired();
+                entity.Property(e => e.WhId).HasMaxLength(50).IsRequired();
+                entity.Property(e => e.MsgId).HasMaxLength(50).IsRequired();
+                entity.Property(e => e.TranDt).IsRequired();
+                entity.Property(e => e.LodNum).HasMaxLength(50).IsRequired();
+                entity.Property(e => e.SubNum).HasMaxLength(50).IsRequired();
+                entity.Property(e => e.DtlNum).HasMaxLength(50).IsRequired();
+                entity.Property(e => e.StoLoc).HasMaxLength(50).IsRequired();
+                entity.Property(e => e.Qty).IsRequired();
             });
         }
 
