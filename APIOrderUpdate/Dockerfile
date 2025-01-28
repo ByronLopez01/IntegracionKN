@@ -10,6 +10,8 @@ COPY APIOrderUpdate.csproj ./
 
 RUN dotnet restore "APIOrderUpdate.csproj"
 
+COPY externalproperties/ExternalProperties.json /app/externalproperties/
+
 # Copia el resto de los archivos y construye el proyecto
 COPY . ./
 WORKDIR /src
