@@ -110,19 +110,24 @@ namespace APIWaveRelease.controllers
 
                 foreach (var pickDtlSeg in orderSeg.SHIP_SEG.PICK_DTL_SEG)
                 {
-                    // Busca si ya existe un WaveRelease con el mismo número de orden y producto
-                    var existingWaveRelease = waveReleases
-                        .FirstOrDefault(wr => wr.NumOrden == orderSeg.ordnum && wr.CodProducto == pickDtlSeg.prtnum);
 
-                    if (existingWaveRelease != null)
+                    // Busca si ya existe un WaveRelease con el mismo número de orden y producto
+                    //var existingWaveRelease = waveReleases.FirstOrDefault(wr => wr.NumOrden == orderSeg.ordnum && wr.CodProducto == pickDtlSeg.prtnum);
+
+                    // Buscar si ya existe al menos un registro en la tabla WaveRelease
+                    bool existingWaveRelease = await _context.WaveRelease.AnyAsync();
+
+                    if (existingWaveRelease)
                     {
-                       
-                       // existingWaveRelease.CantMastr = pickDtlSeg.qty_mscs;
+                        // Si existe
+                        return BadRequest("Ya existen registros en la tabla WaveRelease.\n No se puede agregar otro");
+
+                        //existingWaveRelease.CantMastr = pickDtlSeg.qty_mscs;
                         //existingWaveRelease.CantInr = pickDtlSeg.qty_incs;
-                        existingWaveRelease.Cantidad += pickDtlSeg.qty;
+                        //existingWaveRelease.Cantidad += pickDtlSeg.qty;
 
                         // Mensaje de depuración para indicar que se ha encontrado y actualizado un registro existente
-                        Console.WriteLine($"Cantidad actualizada para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
+                        //Console.WriteLine($"Cantidad actualizada para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
                     }
                     else
                     {
@@ -189,6 +194,7 @@ namespace APIWaveRelease.controllers
                 Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
                 return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
             }
+            
 
             var haytandasActivas = await _context.FamilyMaster.AnyAsync(fm => fm.estado == true);
 
@@ -247,7 +253,7 @@ namespace APIWaveRelease.controllers
             else
             {
 
-                return Ok("Ya existen tandas activas. No se volvieron a activar ");
+                return Ok("Se recibió correctamente la Wave.\n Existian tandas activas y no se volvieron a activar.");
             }
         }
 
