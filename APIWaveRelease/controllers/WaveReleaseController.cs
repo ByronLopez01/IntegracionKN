@@ -114,13 +114,13 @@ namespace APIWaveRelease.controllers
                     // Busca si ya existe un WaveRelease con el mismo número de orden y producto
                     //var existingWaveRelease = waveReleases.FirstOrDefault(wr => wr.NumOrden == orderSeg.ordnum && wr.CodProducto == pickDtlSeg.prtnum);
 
-                    // Buscar si ya existe al menos un registro en la tabla WaveRelease
-                    bool existingWaveRelease = await _context.WaveRelease.AnyAsync();
+                    // Buscar si existen Waves activas en la tabla
+                    var ordenesActivas = await _context.WaveRelease.AnyAsync(wr => wr.estadoWave == true);
 
-                    if (existingWaveRelease)
+                    if (ordenesActivas)
                     {
                         // Si existe
-                        return BadRequest("Ya existen registros en la tabla WaveRelease.\n No se puede agregar otro");
+                        return StatusCode(407, "Existen órdenes en proceso en estado activo (1)");
 
                         //existingWaveRelease.CantMastr = pickDtlSeg.qty_mscs;
                         //existingWaveRelease.CantInr = pickDtlSeg.qty_incs;
@@ -168,7 +168,6 @@ namespace APIWaveRelease.controllers
 
             var urlLucaBase = _configuration["ServiceUrls:luca"];
             var urlLuca = $"{urlLucaBase}/api/sort/waveRelease";
-
             
             try
             {
@@ -194,7 +193,6 @@ namespace APIWaveRelease.controllers
                 Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
                 return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
             }
-            
 
             var haytandasActivas = await _context.FamilyMaster.AnyAsync(fm => fm.estado == true);
 
