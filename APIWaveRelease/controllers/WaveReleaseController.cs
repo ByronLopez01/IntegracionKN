@@ -44,6 +44,16 @@ namespace APIWaveRelease.controllers
         [HttpPost]
         public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveReleaseKn)
         {
+
+            // Buscar si existen Waves activas en la tabla
+            var ordenesActivas = await _context.WaveRelease.AnyAsync(wr => wr.estadoWave == true);
+
+            if (ordenesActivas)
+            {
+                // Si existe
+                return StatusCode(407, "Existen órdenes en proceso en estado activo (1)\n No se puede agregar otra Wave");
+            }
+
             //int salidasDisponibles = 15;
             int salidasDisponibles = 0;
 
@@ -112,22 +122,18 @@ namespace APIWaveRelease.controllers
                 {
 
                     // Busca si ya existe un WaveRelease con el mismo número de orden y producto
-                    //var existingWaveRelease = waveReleases.FirstOrDefault(wr => wr.NumOrden == orderSeg.ordnum && wr.CodProducto == pickDtlSeg.prtnum);
+                    var existingWaveRelease = waveReleases
+                        .FirstOrDefault(wr => wr.NumOrden == orderSeg.ordnum && wr.CodProducto == pickDtlSeg.prtnum);
 
-                    // Buscar si existen Waves activas en la tabla
-                    var ordenesActivas = await _context.WaveRelease.AnyAsync(wr => wr.estadoWave == true);
-
-                    if (ordenesActivas)
+                    if (existingWaveRelease != null)
                     {
-                        // Si existe
-                        return StatusCode(407, "Existen órdenes en proceso en estado activo (1)");
 
                         //existingWaveRelease.CantMastr = pickDtlSeg.qty_mscs;
                         //existingWaveRelease.CantInr = pickDtlSeg.qty_incs;
-                        //existingWaveRelease.Cantidad += pickDtlSeg.qty;
+                        existingWaveRelease.Cantidad += pickDtlSeg.qty;
 
                         // Mensaje de depuración para indicar que se ha encontrado y actualizado un registro existente
-                        //Console.WriteLine($"Cantidad actualizada para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
+                        Console.WriteLine($"Cantidad actualizada para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
                     }
                     else
                     {
