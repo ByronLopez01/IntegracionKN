@@ -262,7 +262,8 @@ namespace APIOrderConfirmation.controllers
                             SubNum = detail.subnum,
                             DtlNum = detail.dtlnum,
                             StoLoc = detail.stoloc,
-                            Qty = detail.qty
+                            Qty = detail.qty,
+                            accion = "Completada"
                         };
 
                         await _context.Confirmada.AddAsync(nuevaConfirmada);
@@ -447,7 +448,8 @@ namespace APIOrderConfirmation.controllers
                                 SubNum = detail.subnum,
                                 DtlNum = detail.dtlnum,
                                 StoLoc = detail.stoloc,
-                                Qty = detail.qty
+                                Qty = detail.qty,
+                                accion = "Short-pick"
                             };
 
                             await _context.Confirmada.AddAsync(nuevaConfirmada);
@@ -594,7 +596,8 @@ namespace APIOrderConfirmation.controllers
                             SubNum = detail.subnum,
                             DtlNum = detail.dtlnum,
                             StoLoc = detail.stoloc,
-                            Qty = detail.qty
+                            Qty = detail.qty,
+                            accion = "Split-short"
 
                         };
 
