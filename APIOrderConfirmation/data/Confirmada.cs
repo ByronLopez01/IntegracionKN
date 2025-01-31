@@ -15,5 +15,6 @@ namespace APIOrderConfirmation.data
         public string DtlNum { get; set; }
         public string StoLoc { get; set; }
         public int Qty { get; set; } 
+        public string accion { get; set; }
     }
 }
