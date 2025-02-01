@@ -4,6 +4,7 @@ using APISenad.data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace APISenad.controllers
 {
@@ -17,13 +18,16 @@ namespace APISenad.controllers
         private readonly IConfiguration _configuration;
         private readonly HttpClient _apiFamilyMasterClient;
 
-        public SenadController(SenadContext context, HttpClient httpClient, IConfiguration configuration, IHttpClientFactory httpClientFactory)
+        private readonly ILogger<SenadController> _logger;
+        
+
+        public SenadController(SenadContext context, HttpClient httpClient, IConfiguration configuration, IHttpClientFactory httpClientFactory, ILogger<SenadController> logger)
         {
             _context = context;
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _apiFamilyMasterClient = _httpClientFactory.CreateClient();
-
+            _logger = logger;
         }
 
         private void SetAuthorizationHeader(HttpClient client)
@@ -38,6 +42,8 @@ namespace APISenad.controllers
         [HttpGet("{codItem}")]
         public async Task<ActionResult> CodigoEscaneado(string codItem)
         {
+
+            _logger.LogInformation("Ininio del Proceso....");
             // !!!!!!!!!!!!!!!!!!!!!!!!
             // VARIABLES DE SALIDA!!!!!
             // !!!!!!!!!!!!!!!!!!!!!!!!
@@ -48,9 +54,11 @@ namespace APISenad.controllers
             // Verifica que el código de ítem no esté vacío
             if (string.IsNullOrEmpty(codItem))
             {
+                _logger.LogError("El codigo de item no puede estar vacío");
                 return BadRequest("El código del ítem no puede estar vacío.");
             }
 
+            _logger.LogInformation("Buscando orden...");
             // Busca el código en los campos codMastr, codInr y codProducto en la tabla ordenesEnProceso
             // Selecciona solamente las ordenes No Procesadas.
             var ordenEncontrada = await _context.ordenesEnProceso
@@ -58,8 +66,13 @@ namespace APISenad.controllers
                 .OrderBy(o => o.id)
                 .FirstOrDefaultAsync();
 
+            
+
             if (ordenEncontrada == null)
             {
+                _logger.LogInformation("Orden encontrada {ordenEncontrada}", ordenEncontrada.numOrden);
+
+                _logger.LogInformation("Buscando Familia Activa");
                 // Verificar si el código pertenece a una familia con tanda activa en FamilyMaster
                 var familiaActiva = await _context.familias
                     .Where(f => (f.Tienda1 == codItem || f.Tienda2 == codItem || f.Tienda3 == codItem ||
@@ -68,6 +81,7 @@ namespace APISenad.controllers
                                  f.Tienda10 == codItem || f.Tienda11 == codItem || f.Tienda12 == codItem) &&
                                  f.estado == true)
                     .FirstOrDefaultAsync();
+                _logger.LogInformation("Familia Activa: " + familiaActiva);
 
                 if (familiaActiva != null)
                 {
@@ -84,6 +98,7 @@ namespace APISenad.controllers
                 }
                 else
                 {
+                    _logger.LogError("La orden no pertenece a una familia activa");
                     // Si no pertenece a una familia activa
                     var responseError = new
                     {
@@ -100,7 +115,7 @@ namespace APISenad.controllers
             string tipoCodigo = "Desconocido";
             int cantidadProcesada = 0;
 
-            Console.WriteLine($"Buscando familia activa para la orden {ordenEncontrada.numOrden}, Familia: {ordenEncontrada.familia}");
+            _logger.LogInformation("Buscando familia activa para la orden: {numOrden}, Familia: {Familia}", ordenEncontrada.numOrden, ordenEncontrada.familia);
             var familiasActivas = await _context.familias
                 .FirstOrDefaultAsync(f => f.Familia == ordenEncontrada.familia && f.estado == true &&
                             (f.Tienda1 != null || f.Tienda2 != null || f.Tienda3 != null ||
@@ -114,33 +129,39 @@ namespace APISenad.controllers
             if (familiasActivas == null)
             {
                 // Retornar la salida de error
-                Console.WriteLine($"No se encontró una familia para la orden: {ordenEncontrada.numOrden}, Familia: {ordenEncontrada.familia}");
+                _logger.LogWarning("No se encontro familia activa para la orden: {NumOrden}, Familia: {Familia}", ordenEncontrada.numOrden, ordenEncontrada.familia);
+               // Console.WriteLine($"No se encontró una familia para la orden: {ordenEncontrada.numOrden}, Familia: {ordenEncontrada.familia}");
                 var repuestaError = new
                 {
                     codigoIngresado = codItem,
                     numeroOrden = "No hay FAMILIA activa",
                     salida = Error, // Salida de error
                 };
-                Console.WriteLine("No se encontró una familia ACTIVADA para la orden");
+                _logger.LogWarning("No se encontró una familia ACTIVADA para la orden");
                 return Ok(repuestaError);
             }
 
 
-            Console.WriteLine($"Familia activa: {familiasActivas.Familia}");
+            _logger.LogInformation("Familia activa: {familiasActivas.Familia}", familiasActivas.Familia);
 
 
             if (ordenEncontrada.codMastr == codItem)
             {
+                _logger.LogInformation("Orden: {ordenEncontrada.numOrder} con codigo de producto: {codItem} es Master", ordenEncontrada.numOrden, codItem);
                 tipoCodigo = "Master";
                 cantidadProcesada = ordenEncontrada.cantMastr + ordenEncontrada.cantidadProcesada;
             }
             else if (ordenEncontrada.codInr == codItem)
             {
+                _logger.LogInformation("Orden: {ordenEncontrada.numOrder} con codigo de producto: {codItem} es Inner", ordenEncontrada.numOrden, codItem);
+
                 tipoCodigo = "Inner";
                 cantidadProcesada = ordenEncontrada.cantInr + ordenEncontrada.cantidadProcesada;
             }
             else if (ordenEncontrada.codProducto == codItem)
             {
+                _logger.LogInformation("Orden: {ordenEncontrada.numOrder} con codigo de producto: {codItem} es Codigo de producto", ordenEncontrada.numOrden, codItem);
+
                 tipoCodigo = "Producto";
                 //cantidadProcesada = ordenEncontrada.cantidad + ordenEncontrada.cantidadProcesada;
             }
@@ -148,6 +169,9 @@ namespace APISenad.controllers
             // Si el tipo de Codigo es Producto, se envía a la salida de ERROR
             if (tipoCodigo == "Producto")
             {
+
+                _logger.LogInformation("Orden: {ordenEncontrada.numOrder} con codigo de producto: {tipoCodigo} es Codigo un codigo Producto", ordenEncontrada.numOrden, tipoCodigo);
+
                 var responseError = new
                 {
                     CodigoEscaneado = codItem,
@@ -155,7 +179,7 @@ namespace APISenad.controllers
                     Salida = Error // Salida de error
                 };
 
-
+                _logger.LogInformation("Codigo de producto detectado enviando a Salida de ERROR");
                 Console.WriteLine("Codigo de Producto detectado. Enviando a ERROR ");
                 return Ok(responseError);
             }
@@ -163,10 +187,16 @@ namespace APISenad.controllers
             // Verifica si la cantidad procesada supera la cantidad total permitida
             if (cantidadProcesada > ordenEncontrada.cantidadLPN)
             {
+                _logger.LogInformation("La cantidad procesada supera la cantidad en el lpn ");
 
                 var cantidadExcedente = cantidadProcesada - ordenEncontrada.cantidadLPN;
+
+                _logger.LogInformation("Cantidad Excedente: {cantidadExcedente} ", cantidadExcedente) ;
+
                 cantidadProcesada = ordenEncontrada.cantidadLPN;  // Establecer la cantidad procesada máxima permitida
 
+
+                _logger.LogInformation("Buscando Orden excedente...");
 
                 var ordenExcedente = await _context.ordenesEnProceso
                     .Where(o => o.estado == true &&
@@ -176,27 +206,36 @@ namespace APISenad.controllers
                     .OrderBy(o => o.id)
                     .FirstOrDefaultAsync();
 
+                _logger.LogInformation("Orden excedente: {ordenExcedente}", ordenExcedente);
+
                 if (ordenExcedente != null)
 
                 {
+                    _logger.LogInformation("Orden excedente encontrada: {ordenExcedente.numOrden} ", ordenExcedente.numOrden);
+
                     // Verifica si la nueva orden tiene suficiente capacidad para aceptar toda la cantidad excedente
                     if (ordenExcedente.cantidadLPN - ordenExcedente.cantidadProcesada >= cantidadExcedente)
                     {
+                        _logger.LogInformation("Orden excedente: {ordeExcedente.numOrden} Cantidad excedente: {cantidadExcedente} cantidad procesada: {ordenExcedente.cantidadProcesada}", ordenExcedente.numOrden,cantidadExcedente,ordenExcedente.cantidadProcesada);
                         // Solo se transfiere el excedente a la nueva orden
                         ordenExcedente.cantidadProcesada = ordenExcedente.cantMastr + ordenExcedente.cantidadProcesada;
 
                         // Verifica si la nueva orden se ha completado
                         if (ordenExcedente.cantidadProcesada == ordenExcedente.cantidadLPN)
                         {
-                            ordenExcedente.fechaProceso = DateTime.Now;
+
+                            _logger.LogInformation("Orden Excedente: {ordenExcedente.numOrden} Se cumplio la cantidad Solicitada: {ordenExcedente.cantidadLPN} ", ordenExcedente.numOrden, ordenExcedente.cantidadLPN);
+                            ordenExcedente.fechaProceso = DateTime.Now.AddHours(-2);
                             ordenExcedente.estado = false; // Marca la nueva orden como completada
                         }
 
                         // La orden original no se modifica, sigue con su cantidad procesada original
 
                         // Actualiza la nueva orden en la base de datos
+                        
                         _context.ordenesEnProceso.Update(ordenExcedente);  // Asegúrate de actualizar la nueva orden
 
+                        _logger.LogInformation("Guardando datos en la BD...");
                         // Guarda los cambios en la base de datos
                         await _context.SaveChangesAsync();
 
@@ -213,6 +252,7 @@ namespace APISenad.controllers
 
                     else
                     {
+                        
                         // Si no cabe la cantidad excedente en la otra orden, se envía a la salida de REINSERCIÓN
                         var responseError = new
                         {
@@ -220,7 +260,8 @@ namespace APISenad.controllers
                             NumeroOrden = "Cantidad solicitada no puede ser procesada",
                             Salida = Reinsercion // Salida de reinsercion
                         };
-
+                        _logger.LogInformation("No se encuentra orden que acepte la cantidad ");
+                        _logger.LogInformation("Enviando a reinsercíon...");
                         Console.WriteLine("La cantidad solicitada no puede ser procesada en ninguna orden.");
                         return Ok(responseError);
                     }
@@ -234,27 +275,38 @@ namespace APISenad.controllers
                         NumeroOrden = "No se encontro enviando a Reinsercion",
                         Salida = Reinsercion // Salida de reinsercion
                     };
-
+                    _logger.LogInformation("No se encuentra orden que acepte la cantidad ");
+                    _logger.LogInformation("Enviando a reinsercíon...");
                     Console.WriteLine("No se encontró una orden disponible para procesar la cantidad solicitada.");
                     return Ok(responseError);
                 }
             }
 
+            _logger.LogInformation("Procesando Cantidad: {cantidadProcesada} ", cantidadProcesada);
             // Actualiza la cantidad procesada solo si no supera la cantidad total
             ordenEncontrada.cantidadProcesada = cantidadProcesada;
 
             // Verificar si se completó la orden entera
             if (cantidadProcesada == ordenEncontrada.cantidadLPN)
             {
-                ordenEncontrada.fechaProceso = DateTime.Now;
+
+                _logger.LogInformation("Orden: {ordenEncontrada.numOrden} con cantidad Procesada: {CantidadProcesada} " +
+                    "es igual a la cantidad procesada: {ordenEncontrada.cantidadLPN} "
+                    ,ordenEncontrada.numOrden, cantidadProcesada, ordenEncontrada.cantidadLPN);
+
+                ordenEncontrada.fechaProceso = DateTime.Now.AddHours(-2);
                 ordenEncontrada.estado = false;
             }
 
+
+            _logger.LogInformation("Guardando datos en la BD...");
             _context.ordenesEnProceso.Update(ordenEncontrada);
 
             await _context.SaveChangesAsync();
 
 
+
+            
             // Verificar si todas las órdenes de la familia han sido completadas
             var familiaOrden = ordenEncontrada.familia;
             var ordenesFamilia = await _context.ordenesEnProceso
@@ -262,6 +314,8 @@ namespace APISenad.controllers
                 .ToListAsync();
 
             bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
+
+            _logger.LogInformation("Verificando que todas las ordenes de la familia: {familiaOrden} esten completadas ", familiaOrden);
 
             // Si todas las órdenes de la familia han sido completadas
             if (todasOrdenesCompletadas)
@@ -271,15 +325,17 @@ namespace APISenad.controllers
                     .Where(f => f.Familia == familiaOrden)
                     .FirstOrDefaultAsync();
 
-                Console.WriteLine($"Todas las órdenes de la familia {familiaOrden} han sido completadas.");
+               // Console.WriteLine($"Todas las órdenes de la familia {familiaOrden} han sido completadas.");
+                _logger.LogInformation("Todas las órdenes de la familia: {familiaOrden} fueron completadas " ,familiaOrden);
+                // Console.WriteLine($"Familia actual: {familyMasterActual.Familia}");
 
-                Console.WriteLine($"Familia actual: {familyMasterActual.Familia}");
-
+                _logger.LogInformation(" Familia En proceso {FamilyMasterActual.Familia} ", familyMasterActual.Familia);
 
                 // OBTENEMOS EL NÚMERO DE TANDA ACTUAL
                 int numTandaActual = familyMasterActual.NumTanda;
 
-                Console.WriteLine("Número de tanda actual: " + numTandaActual);
+               // Console.WriteLine("Número de tanda actual: " + numTandaActual);
+                _logger.LogInformation(" Número de tanda actual: {numTandaActual} ", numTandaActual);
 
                 await ActivatSiguienteTanda(numTandaActual);
 
@@ -317,12 +373,13 @@ namespace APISenad.controllers
                 numeroOrden = ordenEncontrada.numOrden,
                 salida = ordenEncontrada.numSalida
             };
-
-            Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
-            Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
-            Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
-            Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
-            Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
+            _logger.LogInformation("codItem: {respuestaSorter.codigoIngresado} numOrden: {respuestaSorter.numeroOrden} salida: {respuestaSorter.salida}"
+                , respuestaSorter.codigoIngresado,respuestaSorter.numeroOrden,respuestaSorter.salida);
+         //   Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
+          //  Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
+            //Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
+            //Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
+            //Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
 
             return Ok(respuestaSorter);
 
@@ -331,18 +388,25 @@ namespace APISenad.controllers
 
         public async Task<IActionResult> ActivatSiguienteTanda(int numTandaActual)
         {
+
+            _logger.LogInformation("Activando Siguiente Tanda...");
+
             try
             {
                 SetAuthorizationHeader(_apiFamilyMasterClient);
 
                 var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster/activarSiguienteTanda?numTandaActual={numTandaActual}";
                 Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
+                _logger.LogInformation("URL FamilyMaster: {urlFamilyMaster} ", urlFamilyMaster);
 
                 // Llamamos con un POST el endpoint de FamilyMaster para activar la siguiente tanda
                 var familyMasterResponse = await _apiFamilyMasterClient.PostAsync(urlFamilyMaster, null);
-                Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
-                Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
-                Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
+
+                _logger.LogInformation("Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}",familyMasterResponse.StatusCode);
+
+              //  Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
+               // Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
+               // Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
 
                 return StatusCode(200, "TandaActivada");
 
@@ -350,12 +414,15 @@ namespace APISenad.controllers
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine($"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                _logger.LogError("Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message} ", ex.Message);
+
+                //Console.WriteLine($"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
                 return StatusCode(500, $"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                _logger.LogError("Error al activar la siguiente tanda en FamilyMaster: {ex.Message}",ex.Message);
+           //     Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
                 return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
             }
 

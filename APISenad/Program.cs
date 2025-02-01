@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Events;
+
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -43,6 +46,17 @@ builder.Services.AddHttpClient();
 builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 builder.Services.AddHttpClient();
+
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .WriteTo.Console()  // Corregido: antes no tenías el paquete `Serilog.Sinks.Console`
+    .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Day)  // Corregido
+    .CreateLogger();
+
+// Agregar Serilog al host
+builder.Host.UseSerilog();
+
 
 // Configuraci�n Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -89,6 +103,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseSerilogRequestLogging();
 // Configurar middleware
 app.UseHttpsRedirection();
 app.UseStaticFiles();

@@ -14,6 +14,8 @@ namespace APIWaveRelease.data
 
         public DbSet<FamilyMaster> FamilyMaster { get; set; }
 
+        public DbSet<WaveReleaseCache> WaveReleaseCache { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -136,6 +138,39 @@ namespace APIWaveRelease.data
             });
 
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<WaveReleaseCache>(entity =>
+            {
+                entity.ToTable("WaveReleaseCache");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.WcsId).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.WhId).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.MsgId).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Trandt).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Schbat).HasMaxLength(50);
+                entity.Property(e => e.Ordnum).HasMaxLength(50);
+                entity.Property(e => e.Cponum).HasMaxLength(50);
+                entity.Property(e => e.Rtcust).HasMaxLength(50);
+                entity.Property(e => e.Stcust).HasMaxLength(50);
+                entity.Property(e => e.Ordtyp).HasMaxLength(50);
+                entity.Property(e => e.Adrpsz).HasMaxLength(50);
+                entity.Property(e => e.State).HasMaxLength(50);
+                entity.Property(e => e.ShipId).HasMaxLength(50);
+                entity.Property(e => e.Carcod).HasMaxLength(50);
+                entity.Property(e => e.Srvlvl).HasMaxLength(50);
+                entity.Property(e => e.Wrkref).HasMaxLength(50);
+                entity.Property(e => e.Prtnum).HasMaxLength(50);
+                entity.Property(e => e.Prtfam).HasMaxLength(50);
+                entity.Property(e => e.AltPrtnum).HasMaxLength(50);
+                entity.Property(e => e.MscsEan).HasMaxLength(50);
+                entity.Property(e => e.IncsEan).HasMaxLength(50);
+                entity.Property(e => e.Stgloc).HasMaxLength(50);
+                entity.Property(e => e.MovZoneCode).HasMaxLength(50);
+                entity.Property(e => e.Conveyable).HasMaxLength(50);
+                entity.Property(e => e.CubicVol).HasColumnType("decimal(18,2)");
+            });
+
         }
     }
 }

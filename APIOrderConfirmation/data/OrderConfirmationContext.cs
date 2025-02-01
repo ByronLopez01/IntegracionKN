@@ -147,7 +147,7 @@ namespace APIOrderConfirmation.data
                 entity.Property(e => e.DtlNum).HasMaxLength(50).IsRequired();
                 entity.Property(e => e.StoLoc).HasMaxLength(50).IsRequired();
                 entity.Property(e => e.Qty).IsRequired();
-                entity.Property(e => e.accion).HasMaxLength(50).IsRequired();
+                entity.Property(e => e.accion).HasMaxLength(50);
             });
         }
 
