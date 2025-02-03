@@ -349,6 +349,12 @@ namespace APIOrderConfirmation.controllers
             {
                 foreach (var loadDtl in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
                 {
+
+                    if (loadDtl.qty ==0 )
+                    {
+                        Console.WriteLine($"Se ignora dtlnum {loadDtl.dtlnum} porque tiene qty 0.");
+                        continue;
+                    }
                     var dtlnum = loadDtl.dtlnum;
 
                     // Buscar la orden segun su dtlnum
@@ -473,6 +479,7 @@ namespace APIOrderConfirmation.controllers
                     //Exception HTTP
                     catch (HttpRequestException httpEx)
                     {
+
                         Console.WriteLine($"Ocurrió un error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
                         return StatusCode(500, $"Ocurrió un error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
                     }
@@ -498,52 +505,66 @@ namespace APIOrderConfirmation.controllers
                 return StatusCode(500, $"Ocurrió un error al procesar las órdenes: {ex.Message}");
             }
 
+            var detallesConCantidad = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG
+            .Where(detail => detail.qty > 0)
+            .ToList();
 
             //ENVIO DE DATOS A LA URL DE KN
-            try
+            if (detallesConCantidad.Any())
             {
-                var urlKN = _configuration["ExternalService:UrlKN"];
-                Console.WriteLine("URL KN:" + urlKN);
-
-                using (var client = new HttpClient())
+                Console.WriteLine("Short pick Con QTY > 0. Enviando datos a kn");
+                try
                 {
-                    // Basic Auth
-                    var username = _configuration["BasicAuth:Username"];
-                    var password = _configuration["BasicAuth:Password"];
+                    var urlKN = _configuration["ExternalService:UrlKN"];
+                    Console.WriteLine("URL KN:" + urlKN);
 
-                    var array = Encoding.ASCII.GetBytes($"{username}:{password}");
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(array));
-
-                    //Serializar el JSON.
-                    var jsonContent = JsonConvert.SerializeObject(request);
-                    var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-                    //POST
-                    var response = await client.PostAsync(urlKN, httpContent);
-
-                    if (response.IsSuccessStatusCode)
+                    using (var client = new HttpClient())
                     {
-                        Console.WriteLine("Datos enviados correctamente a KN.");
-                        return Ok("Datos enviados correctamente a KN.");
+                        // Basic Auth
+                        var username = _configuration["BasicAuth:Username"];
+                        var password = _configuration["BasicAuth:Password"];
+
+                        var array = Encoding.ASCII.GetBytes($"{username}:{password}");
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(array));
+
+                        //Serializar el JSON.
+                        var jsonContent = JsonConvert.SerializeObject(request);
+                        var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                        //POST
+                        var response = await client.PostAsync(urlKN, httpContent);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            Console.WriteLine("Datos enviados correctamente a KN.");
+                            return Ok("Datos enviados correctamente a KN.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Error al enviar datos a KN.");
+                            return StatusCode((int)response.StatusCode, "Error al enviar datos a KN.");
+                        }
                     }
-                    else
-                    {
-                        Console.WriteLine("Error al enviar datos a KN.");
-                        return StatusCode((int)response.StatusCode, "Error al enviar datos a KN.");
-                    }
+
                 }
+                catch (HttpRequestException httpEx)
+                {
+                    Console.WriteLine("Ocurrió un error HTTP al enviar los datos a KN: " + httpEx.Message);
+                    return StatusCode(500, $"Ocurrió un error HTTP al enviar los datos a KN: {httpEx.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
+                    return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Short pick con QTY = 0 No se envia confirmacion a kn");
 
+                return Ok();
             }
-            catch (HttpRequestException httpEx)
-            {
-                Console.WriteLine("Ocurrió un error HTTP al enviar los datos a KN: " + httpEx.Message);
-                return StatusCode(500, $"Ocurrió un error HTTP al enviar los datos a KN: {httpEx.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
-                return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
-            }
+               
         }
 
         [HttpPost("Split")]
