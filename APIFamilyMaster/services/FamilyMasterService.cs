@@ -68,7 +68,7 @@ namespace APIFamilyMaster.services
         }
 
         //test
-        public async Task<int?> ActivarSiguienteTandaAsync(int numTandaActual)
+      /*  public async Task<int?> ActivarSiguienteTandaAsync(int numTandaActual)
         {
             // Obtener las salidas asociadas a la tanda actual
             var salidasAsociadas = await _context.Set<FamilyMaster>()
@@ -138,8 +138,8 @@ namespace APIFamilyMaster.services
 
             return siguienteTanda.Key; 
         }
-
-        /*
+      */
+        
 
         public async Task<int?> ActivarSiguienteTandaAsync(int numTandaActual)
         {
@@ -171,6 +171,9 @@ namespace APIFamilyMaster.services
                 .Where(f => f.NumTanda > numTandaActual) // Solo tandas posteriores
                 .ToListAsync(); // Trae todas las tandas siguientes
 
+            
+
+
             // Buscar la siguiente tanda con todas las salidas
             var siguienteTanda = posiblesTandas
                 .GroupBy(f => f.NumTanda) // Agrupa por número de tanda
@@ -197,7 +200,8 @@ namespace APIFamilyMaster.services
 
             return siguienteTanda.Key; // Devuelve la tanda activada
         }
-        */
+        
+        
 
     }
 }
