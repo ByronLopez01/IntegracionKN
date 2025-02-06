@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace APIOrderConfirmation.controllers
 {
@@ -137,16 +138,17 @@ namespace APIOrderConfirmation.controllers
                     {
                         // Not found si no encuentra la orden
                         Console.WriteLine($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
-                        return NotFound($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
+                        //return NotFound($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
+                        continue;
                     }
 
-                    /*if (!orden.estadoLuca)
+                    if (!orden.estadoLuca)
                     {
                         // Si la orden ya fue procesada, retornar un error
                         Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
-                        return BadRequest($"La orden con dtlnum {dtlnum} ya fue procesada.");
+                        //return BadRequest($"La orden con dtlnum {dtlnum} ya fue procesada.");
+                        continue;
                     }
-                    */
 
 
                     // Si la cantidad procesada es igual a la cantidad LPN, actualizar el estadoLuca a false
@@ -177,7 +179,6 @@ namespace APIOrderConfirmation.controllers
                                 {
                                     Console.WriteLine($"Error al desactivar la wave de la orden {numOrden}. StatusCode: {response.StatusCode}");
                                     //return StatusCode((int)response.StatusCode, $"Error al desactivar la wave de la orden {numOrden}.");
-
                                 }
 
                                 Console.WriteLine($"Wave de la orden {numOrden} desactivada correctamente.");
@@ -186,20 +187,20 @@ namespace APIOrderConfirmation.controllers
                             catch (HttpRequestException httpEx)
                             {
                                 Console.WriteLine($"Ocurrió un error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
-                                return StatusCode(500, $"Ocurrió un error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
+                                //return StatusCode(500, $"Ocurrió un error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
                             }
                             //Exception general
                             catch (Exception ex)
                             {
                                 Console.WriteLine($"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
-                                return StatusCode(500, $"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
+                                //return StatusCode(500, $"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
                             }
                        
                     }
 
                     else if (orden.cantidadProcesada != orden.cantidadLPN)
                     {
-                        Console.WriteLine("ENTRANDO AL IF DE SHORTTTT!!!!!!");
+                        Console.WriteLine("PROCESADO SIN SORTER!!!!!!!!");
 
                         // Actualizar estadoLuca (Confirmar a KN)
                         orden.estadoLuca = false;
@@ -355,18 +356,21 @@ namespace APIOrderConfirmation.controllers
                     var orden = await _context.ordenesEnProceso
                         .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
                     var ordenes = _context.ordenes;
+
                     if (orden == null)
                     {
                         // Not found si no encuentra la orden
                         Console.WriteLine($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
-                        return NotFound($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
+                        //return NotFound($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
+                        continue;
                     }
 
                     if (!orden.estadoLuca)
                     {
                         // Si la orden ya fue procesada, retornar un error
                         Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
-                        return BadRequest($"La orden con dtlnum {dtlnum} ya fue procesada.");
+                        //return BadRequest($"La orden con dtlnum {dtlnum} ya fue procesada.");
+                        continue;
                     }
 
 
@@ -417,6 +421,7 @@ namespace APIOrderConfirmation.controllers
 
                     }
                     _context.ordenesEnProceso.Update(orden);
+
 
                     try
                     {
@@ -474,13 +479,14 @@ namespace APIOrderConfirmation.controllers
                     catch (HttpRequestException httpEx)
                     {
                         Console.WriteLine($"Ocurrió un error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
-                        return StatusCode(500, $"Ocurrió un error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
+                        //return StatusCode(500, $"Ocurrió un error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
                     }
                     //Exception general
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
-                        return StatusCode(500, $"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
+                        //Console.WriteLine($"Inner exception: {ex.InnerException}");
+                        //return StatusCode(500, $"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
                     }
                     //}
                     // Guardar cambios a BD
@@ -499,6 +505,44 @@ namespace APIOrderConfirmation.controllers
             }
 
 
+            // Filtrar los detalles con qty > 0 antes de enviar a KN
+            var detallesFiltrados = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG
+                .Where(d => d.qty > 0)
+                .ToList();
+
+            var requestFiltrado = new SortCompleteKN
+            {
+                SORT_COMPLETE = new SortComplete
+                {
+                    wcs_id = request.SORT_COMPLETE.wcs_id,
+                    wh_id = request.SORT_COMPLETE.wh_id,
+                    msg_id = request.SORT_COMPLETE.msg_id,
+                    trandt = request.SORT_COMPLETE.trandt,
+                    SORT_COMP_SEG = new SortCompSeg
+                    {
+                        LOAD_HDR_SEG = new LoadHdrSeg
+                        {
+                            LODNUM = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
+                            LOAD_DTL_SEG = detallesFiltrados
+                        }
+                    }
+                }
+            };
+
+            /*
+            // MOSTRAR JSON FILTRADO EN CONSOLA
+            var jsonFiltrado = JsonConvert.SerializeObject(requestFiltrado);
+            Console.WriteLine("JSON FILTRADO: " + jsonFiltrado);
+            Console.WriteLine("\n");
+            Console.WriteLine("JSON FILTRADO: " + jsonFiltrado);
+            Console.WriteLine("\n");
+            Console.WriteLine("JSON FILTRADO: " + jsonFiltrado);
+            Console.WriteLine("\n");
+            */
+
+            //return Ok("Datos enviados correctamente a KN.");
+
+
             //ENVIO DE DATOS A LA URL DE KN
             try
             {
@@ -515,7 +559,7 @@ namespace APIOrderConfirmation.controllers
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(array));
 
                     //Serializar el JSON.
-                    var jsonContent = JsonConvert.SerializeObject(request);
+                    var jsonContent = JsonConvert.SerializeObject(requestFiltrado);
                     var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
                     //POST
