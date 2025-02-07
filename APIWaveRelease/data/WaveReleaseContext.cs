@@ -16,7 +16,7 @@ namespace APIWaveRelease.data
 
         public DbSet<WaveReleaseCache> WaveReleaseCache { get; set; }
 
-        public DbSet<WaveActiva> WaveActiva { get; set; }
+       // public DbSet<WaveActiva> WaveActiva { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -139,7 +139,7 @@ namespace APIWaveRelease.data
                 entity.Property(e => e.IdFamilyMaster)
                     .ValueGeneratedOnAdd();
             });
-
+            /*
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<WaveActiva>(entity => {
 
@@ -148,7 +148,7 @@ namespace APIWaveRelease.data
                 entity.Property(e => e.Familia);
                 entity.Property(e => e.estado);
             
-            });
+            });*/
 
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<WaveReleaseCache>(entity =>

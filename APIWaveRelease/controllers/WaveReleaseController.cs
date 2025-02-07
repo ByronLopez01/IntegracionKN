@@ -322,7 +322,7 @@ namespace APIWaveRelease.controllers
 
 
             //int salidasDisponibles = 15;
-
+/*
             var schbat = waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat;
             var ptrfamList = waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG
                                 .SelectMany(order => order.SHIP_SEG.PICK_DTL_SEG)
@@ -349,7 +349,7 @@ namespace APIWaveRelease.controllers
                 _context.WaveActiva.AddRange(nuevosRegistros);
                 await _context.SaveChangesAsync();
             }
-
+            */
             int salidasDisponibles = 0;
 
             var url = "http://apifamilymaster:8080/api/FamilyMaster/obtener-total-salidas";
@@ -544,7 +544,7 @@ namespace APIWaveRelease.controllers
                 Console.WriteLine("Ocurrió un error inesperado: " + ex.Message);
                 return StatusCode(500, "Ocurrió un error inesperado.");
             }
-    }
+        }
 
 
         [HttpGet("{idOrdenTrabajo}")]
