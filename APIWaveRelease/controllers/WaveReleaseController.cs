@@ -69,7 +69,7 @@ namespace APIWaveRelease.controllers
             return Ok();
         }
         */
-
+        /*
         [HttpPost("PostCache")]
         public async Task<IActionResult> PostOrderCache([FromBody] WaveReleaseKN waveReleaseKn)
         {
@@ -287,6 +287,8 @@ namespace APIWaveRelease.controllers
                 }
            
         }
+        */
+
 
 
         [HttpPost]
@@ -303,23 +305,51 @@ namespace APIWaveRelease.controllers
 
                 return StatusCode(407, "Existen órdenes en proceso en estado activo (1). enviando al cache.");
             }
-          /*  else
-            {
-                
+            /*  else
+              {
 
-                    var resultado = await EnviarPostEndpoint();
 
-                    if (resultado is OkObjectResult)
-                    {
-                        Console.WriteLine("OK. Cargando datos desde el cache ");
-                        await GuardarWaveCache(waveReleaseKn);
-                        return Ok("se cargo desde el cache."); // Retornar un OK si la llamada fue exitosa
-                    }
+                      var resultado = await EnviarPostEndpoint();
 
-            }*/
+                      if (resultado is OkObjectResult)
+                      {
+                          Console.WriteLine("OK. Cargando datos desde el cache ");
+                          await GuardarWaveCache(waveReleaseKn);
+                          return Ok("se cargo desde el cache."); // Retornar un OK si la llamada fue exitosa
+                      }
+
+              }*/
 
 
             //int salidasDisponibles = 15;
+
+            var schbat = waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat;
+            var ptrfamList = waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG
+                                .SelectMany(order => order.SHIP_SEG.PICK_DTL_SEG)
+                                .Select(pick => pick.prtfam)
+                                .Distinct()
+                                .ToList();
+
+            var registrosExistentes = await _context.WaveActiva
+                .Where(wc => wc.Wave == schbat && ptrfamList.Contains(wc.Familia))
+                .ToListAsync();
+
+            // Insertar solo si no existen registros duplicados
+            var nuevosRegistros = ptrfamList
+                .Where(ptrfam => !registrosExistentes.Any(wc => wc.Familia == ptrfam))
+                .Select(ptrfam => new WaveActiva
+                {
+                    Wave = schbat,
+                    Familia = ptrfam
+                })
+                .ToList();
+
+            if (nuevosRegistros.Any())
+            {
+                _context.WaveActiva.AddRange(nuevosRegistros);
+                await _context.SaveChangesAsync();
+            }
+
             int salidasDisponibles = 0;
 
             var url = "http://apifamilymaster:8080/api/FamilyMaster/obtener-total-salidas";
@@ -566,7 +596,9 @@ namespace APIWaveRelease.controllers
         }
 
 
-        public async Task<IActionResult> GuardarWaveCache(WaveReleaseKN waveReleaseKn)
+        /*
+        [NonAction]
+        async Task<IActionResult> GuardarWaveCache(WaveReleaseKN waveReleaseKn)
         {
 
             
@@ -626,7 +658,8 @@ namespace APIWaveRelease.controllers
 
             return Ok("Datos Guardados correctamente en el cache.");
         }
-
+        */
+        /*
         public async Task<IActionResult> EnviarPostEndpoint()
         {
             
@@ -721,6 +754,6 @@ namespace APIWaveRelease.controllers
                 return StatusCode((int)response.StatusCode, "Error al enviar los datos.");
             }
         }
-    
+    */
     }
 }
