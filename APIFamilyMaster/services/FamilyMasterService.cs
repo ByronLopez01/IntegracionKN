@@ -26,6 +26,13 @@ namespace APIFamilyMaster.services
 
         public async Task<List<int>> ActivarTandasAsync(int salidasDisponibles)
         {
+            //desactivar tandas  
+            await _context.Set<FamilyMaster>()
+            .Where(f => f.estado == true) 
+            .ForEachAsync(f => f.estado = false); 
+
+            await _context.SaveChangesAsync(); 
+
             // Obtener todas las tandas ordenadas por número de tanda
             var tandas = await _context.Set<FamilyMaster>()
                 .GroupBy(f => f.NumTanda)
@@ -36,6 +43,8 @@ namespace APIFamilyMaster.services
                 })
                 .OrderBy(t => t.NumTanda)
                 .ToListAsync();
+
+            
 
             var tandasActivadas = new List<int>();
             var salidasRestantes = salidasDisponibles;
