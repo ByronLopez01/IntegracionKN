@@ -146,6 +146,7 @@ namespace APIOrderConfirmation.controllers
             {
                 foreach (var loadDtl in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
                 {
+                    Console.WriteLine("DENTRO DEL FOR!!!");
                     var dtlnum = loadDtl.dtlnum;
 
                     // Buscar la orden segun su dtlnum
@@ -174,14 +175,14 @@ namespace APIOrderConfirmation.controllers
                     // Si la cantidad procesada es igual a la cantidad LPN, actualizar el estadoLuca a false
                     if (orden.cantidadProcesada == orden.cantidadLPN)
                     {
+                        Console.WriteLine("PROCESADO CON SORTER!!!!!");
                         // Actualizar el estadoLuca a false
                         orden.estadoLuca = false;
-
 
                         // COMIENZO DE DESACTIVAR WAVE !!!!!!!!
                         try
                         {
-
+                            Console.WriteLine("COMIENZO DE DESACTIVAR WAVE!!!");
                             var numOrden = orden.numOrden;
                             var codProducto = orden.codProducto;
                             SetAuthorizationHeader(_apiWaveReleaseClient);
@@ -330,30 +331,45 @@ namespace APIOrderConfirmation.controllers
 
                             foreach (var detail in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
                             {
-                                var nuevaConfirmada = new Confirmada
-                                {
-                                    WcsId = request.SORT_COMPLETE.wcs_id,
-                                    WhId = request.SORT_COMPLETE.wh_id,
-                                    MsgId = request.SORT_COMPLETE.msg_id,
-                                    TranDt = DateTime.Now.ToString("yyyyMMddHHmmss"),
-                                    LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
-                                    SubNum = detail.subnum,
-                                    DtlNum = detail.dtlnum,
-                                    StoLoc = detail.stoloc,
-                                    Qty = detail.qty,
-                                    accion = "Completada"
-                                };
 
-                                await _context.Confirmada.AddAsync(nuevaConfirmada);
+                                // Verificar si ya existe un registro con los mismos valores clave
+                                var existeEnConfirmada = await _context.Confirmada
+                                    .AnyAsync(c => c.WcsId == request.SORT_COMPLETE.wcs_id &&
+                                                   c.WhId == request.SORT_COMPLETE.wh_id &&
+                                                   c.MsgId == request.SORT_COMPLETE.msg_id &&
+                                                   c.LodNum == request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM &&
+                                                   c.SubNum == detail.subnum &&
+                                                   c.DtlNum == detail.dtlnum);
+
+
+                                if (!existeEnConfirmada)
+                                {
+                                    var nuevaConfirmada = new Confirmada
+                                    {
+                                        WcsId = request.SORT_COMPLETE.wcs_id,
+                                        WhId = request.SORT_COMPLETE.wh_id,
+                                        MsgId = request.SORT_COMPLETE.msg_id,
+                                        TranDt = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                                        LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
+                                        SubNum = detail.subnum,
+                                        DtlNum = detail.dtlnum,
+                                        StoLoc = detail.stoloc,
+                                        Qty = detail.qty,
+                                        accion = "Short-pick"
+                                    };
+
+                                    await _context.Confirmada.AddAsync(nuevaConfirmada);
+                                }
                             }
                             await _context.SaveChangesAsync();
 
-                            Console.WriteLine("EstadoLuca actualizado correctamente.");
-
-                            //return Ok("EstadoLuca actualizado correctamente.");
                         }
                     }
+
+                    _context.ordenesEnProceso.Update(orden);
                 }
+
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -387,8 +403,59 @@ namespace APIOrderConfirmation.controllers
                 }
             };
 
+            var detallesAEliminar = new List<LoadDtlSeg>();
+
+            // Recorrer el JSON filtrado y verificar si el dtlnum tiene estadoLuca 0 en la BD
+            // Si tiene estadoLuca 0, agregarlo a la lista de detalles a eliminar
+            foreach (var detail in requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
+            {
+                var dtlnum = detail.dtlnum;
+                // Buscar la orden segun su dtlnum
+                var orden = await _context.ordenesEnProceso
+                    .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
+
+                if (orden == null)
+                {
+                    // Si no encuentra la orden o es una orden vacía.
+                    Console.WriteLine($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
+
+                    // Se pasa al siguiente detalle en la lista.
+                    continue;
+                }
+
+                if (!orden.estadoLuca)
+                {
+                    // Si la orden ya fue procesada.
+                    Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
+
+                    // Se agrega a la lista de detalles a eliminar.
+                    detallesAEliminar.Add(detail);
+                }
+            }
+
+            // Eliminar los detalles de la lista de detalles a enviar a KN
+            foreach (var detalle in detallesAEliminar)
+            {
+                requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Remove(detalle);
+            }
+
+            //Si no quedan detalles en la lista, retornar un BadRequest
+            if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
+            { 
+                Console.WriteLine("No hay detalles para enviar a KN.");
+                return BadRequest("No hay detalles para enviar a KN.");
+            }
+
+            // Console WriteLine del json filtrado
+            var jsonFiltrado = JsonConvert.SerializeObject(requestFiltrado);
+            Console.WriteLine("JSON FILTRADO: " + jsonFiltrado);
+
+
+            Console.WriteLine("ENVIADO A KN CORRECTAMENTE");
+            return Ok("ENVIADO A KN CORRECTAMENTE");
 
             //ENVIO DE DATOS A LA URL DE KN
+            /*
             try
             {
 
@@ -434,6 +501,7 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
+            */
 
         }
 
@@ -549,21 +617,51 @@ namespace APIOrderConfirmation.controllers
                             Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
                             return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
                         }
-
                     }
+
+                    foreach (var detail in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
+                    {
+                        // Verificar si ya existe un registro con los mismos valores clave
+                        var existeEnConfirmada = await _context.Confirmada
+                            .AnyAsync(c => c.WcsId == request.SORT_COMPLETE.wcs_id &&
+                                           c.WhId == request.SORT_COMPLETE.wh_id &&
+                                           c.MsgId == request.SORT_COMPLETE.msg_id &&
+                                           c.LodNum == request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM &&
+                                           c.SubNum == detail.subnum &&
+                                           c.DtlNum == detail.dtlnum);
+
+
+                        if (!existeEnConfirmada)
+                        {
+                            var nuevaConfirmada = new Confirmada
+                            {
+                                WcsId = request.SORT_COMPLETE.wcs_id,
+                                WhId = request.SORT_COMPLETE.wh_id,
+                                MsgId = request.SORT_COMPLETE.msg_id,
+                                TranDt = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                                LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
+                                SubNum = detail.subnum,
+                                DtlNum = detail.dtlnum,
+                                StoLoc = detail.stoloc,
+                                Qty = detail.qty,
+                                accion = "Short-pick"
+                            };
+
+                            await _context.Confirmada.AddAsync(nuevaConfirmada);
+                        }
+
+                        _context.ordenesEnProceso.Update(orden);
+                    }
+
+                    // Guardar cambios a BD
+                    await _context.SaveChangesAsync();
+
                 }
-
-                // Guardar cambios a BD
-                await _context.SaveChangesAsync();
-
-                Console.WriteLine("EstadoLuca actualizado correctamente.");
-
-                //return Ok("EstadoLuca actualizado correctamente.");
-
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Ocurrió un error al procesar las órdenes: " + ex.Message);
+                Console.WriteLine("Inner Exception: " + ex.InnerException);
                 return StatusCode(500, $"Ocurrió un error al procesar las órdenes: {ex.Message}");
             }
 
@@ -592,38 +690,22 @@ namespace APIOrderConfirmation.controllers
                 }
             };
 
-            // estadoLuca = 0  =>  Orden procesada
-            // estadoLuca = 1  =>  Orden activa
-            // Recorrer el JSON filtrado y verificar si el dtlnum tiene estadoLuca 0 en la BD
-            // Si tiene estadoLuca 0, eliminarlo de la Lista de detalles
-            foreach (var detail in requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
+            //Si no hay detalles en la lista, retornar un BadRequest
+            if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
             {
-                var dtlnum = detail.dtlnum;
-                // Buscar la orden segun su dtlnum
-                var orden = await _context.ordenesEnProceso
-                    .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
-
-                if (orden == null)
-                {
-                    // Si no encuentra la orden o es una orden vacía.
-                    Console.WriteLine($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
-
-                    // Se pasa al siguiente detalle en la lista.
-                    continue;
-                }
-
-                if (!orden.estadoLuca)
-                {
-                    // Si la orden ya fue procesada.
-                    Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
-
-                    // Se elimina de la lista a enviar.
-                    requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Remove(detail);
-                }
+                Console.WriteLine("No hay detalles para enviar a KN.");
+                return BadRequest("No hay detalles para enviar a KN.");
             }
 
+            // Console WriteLine del json filtrado
+            var jsonFiltrado = JsonConvert.SerializeObject(requestFiltrado);
+            Console.WriteLine("JSON FILTRADO: " + jsonFiltrado);
+
+            Console.WriteLine("ENVIADO A KN CORRECTAMENTE");
+            return Ok("ENVIADO A KN CORRECTAMENTE");
 
             //ENVIO DE DATOS A LA URL DE KN
+            /*
             try
             {
                 var urlKN = _configuration["ExternalService:UrlKN"];
@@ -668,6 +750,8 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
+            */
+
         }
 
         [HttpPost("Split")]
@@ -708,33 +792,42 @@ namespace APIOrderConfirmation.controllers
 
                     foreach (var detail in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
                     {
-                        var nuevaConfirmada = new Confirmada
+                        // Verificar si ya existe un registro con los mismos valores clave
+                        var existeEnConfirmada = await _context.Confirmada
+                            .AnyAsync(c => c.WcsId == request.SORT_COMPLETE.wcs_id &&
+                                           c.WhId == request.SORT_COMPLETE.wh_id &&
+                                           c.MsgId == request.SORT_COMPLETE.msg_id &&
+                                           c.LodNum == request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM &&
+                                           c.SubNum == detail.subnum &&
+                                           c.DtlNum == detail.dtlnum);
 
+
+                        if (!existeEnConfirmada)
                         {
-                            WcsId = request.SORT_COMPLETE.wcs_id,
-                            WhId = request.SORT_COMPLETE.wh_id,
-                            MsgId = request.SORT_COMPLETE.msg_id,
-                            TranDt = DateTime.Now.ToString("yyyyMMddHHmmss"),
-                            LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
-                            SubNum = detail.subnum,
-                            DtlNum = detail.dtlnum,
-                            StoLoc = detail.stoloc,
-                            Qty = detail.qty,
-                            accion = "Split-short"
+                            var nuevaConfirmada = new Confirmada
+                            {
+                                WcsId = request.SORT_COMPLETE.wcs_id,
+                                WhId = request.SORT_COMPLETE.wh_id,
+                                MsgId = request.SORT_COMPLETE.msg_id,
+                                TranDt = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                                LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
+                                SubNum = detail.subnum,
+                                DtlNum = detail.dtlnum,
+                                StoLoc = detail.stoloc,
+                                Qty = detail.qty,
+                                accion = "Split-short"
+                            };
 
-                        };
+                            await _context.Confirmada.AddAsync(nuevaConfirmada);
+                        }
 
-                        await _context.Confirmada.AddAsync(nuevaConfirmada);
+                        _context.ordenesEnProceso.Update(orden);
                     }
+
+                    // Guardar cambios a BD
+                    await _context.SaveChangesAsync();
+
                 }
-
-                // Guardar cambios a BD
-                await _context.SaveChangesAsync();
-
-                Console.WriteLine("EstadoLuca actualizado correctamente.");
-
-                //return Ok("EstadoLuca actualizado correctamente.");
-
             }
             catch (Exception ex)
             {
@@ -769,7 +862,59 @@ namespace APIOrderConfirmation.controllers
                 }
             };
 
+            var detallesAEliminar = new List<LoadDtlSeg>();
+
+            // Recorrer el JSON filtrado y verificar si el dtlnum tiene estadoLuca 0 en la BD
+            // Si tiene estadoLuca 0, agregarlo a la lista de detalles a eliminar
+            foreach (var detail in requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
+            {
+                var dtlnum = detail.dtlnum;
+                // Buscar la orden segun su dtlnum
+                var orden = await _context.ordenesEnProceso
+                    .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
+
+                if (orden == null)
+                {
+                    // Si no encuentra la orden o es una orden vacía.
+                    Console.WriteLine($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
+
+                    // Se pasa al siguiente detalle en la lista.
+                    continue;
+                }
+
+                if (!orden.estadoLuca)
+                {
+                    // Si la orden ya fue procesada.
+                    Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
+
+                    // Se agrega a la lista de detalles a eliminar.
+                    detallesAEliminar.Add(detail);
+                }
+            }
+
+            // Eliminar los detalles de la lista de detalles a enviar a KN
+            foreach (var detalle in detallesAEliminar)
+            {
+                requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Remove(detalle);
+            }
+
+            //Si no quedan detalles en la lista, retornar un BadRequest
+            if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
+            {
+                Console.WriteLine("No hay detalles para enviar a KN.");
+                return BadRequest("No hay detalles para enviar a KN.");
+            }
+
+            // Console WriteLine del json filtrado
+            var jsonFiltrado = JsonConvert.SerializeObject(requestFiltrado);
+            Console.WriteLine("JSON FILTRADO: " + jsonFiltrado);
+
+
+            Console.WriteLine("ENVIADO A KN CORRECTAMENTE");    
+            return Ok("ENVIADO A KN CORRECTAMENTE");
+
             //ENVIO DE DATOS A LA URL DE KN
+            /*
             try
             {
                 var urlKN = _configuration["ExternalService:UrlKN"];
@@ -814,6 +959,7 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
+            */
 
         }
 
