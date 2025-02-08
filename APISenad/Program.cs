@@ -50,8 +50,8 @@ builder.Services.AddHttpClient();
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-    .WriteTo.Console()  // Corregido: antes no tenías el paquete `Serilog.Sinks.Console`
-    .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Day)  // Corregido
+    .WriteTo.Console()  
+    .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Day)  
     .CreateLogger();
 
 // Agregar Serilog al host

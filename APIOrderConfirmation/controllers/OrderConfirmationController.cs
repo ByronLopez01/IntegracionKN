@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace APIOrderConfirmation.controllers
 {
@@ -167,8 +166,7 @@ namespace APIOrderConfirmation.controllers
                     {
                         // Si la orden ya fue procesada, retornar un error
                         Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
-                        //return BadRequest($"La orden con dtlnum {dtlnum} ya fue procesada.");
-                        continue;
+                        return BadRequest($"La orden con dtlnum {dtlnum} ya fue procesada.");
                     }
                     */
 
@@ -255,7 +253,7 @@ namespace APIOrderConfirmation.controllers
 
                     else if (orden.cantidadProcesada != orden.cantidadLPN)
                     {
-                        Console.WriteLine("PROCESADO SIN SORTER!!!!!!!!");
+                        Console.WriteLine("ENTRANDO AL IF DE SHORTTTT!!!!!!");
 
                         // Actualizar estadoLuca (Confirmar a KN)
                         orden.estadoLuca = false;
@@ -521,19 +519,23 @@ namespace APIOrderConfirmation.controllers
             {
                 foreach (var loadDtl in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
                 {
+
+                    if (loadDtl.qty ==0 )
+                    {
+                        Console.WriteLine($"Se ignora dtlnum {loadDtl.dtlnum} porque tiene qty 0.");
+                        continue;
+                    }
                     var dtlnum = loadDtl.dtlnum;
 
                     // Buscar la orden segun su dtlnum
                     var orden = await _context.ordenesEnProceso
                         .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
                     var ordenes = _context.ordenes;
-
                     if (orden == null)
                     {
                         // Not found si no encuentra la orden
                         Console.WriteLine($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
-                        //return NotFound($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
-                        continue;
+                        return NotFound($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
                     }
 
                     /*
@@ -541,8 +543,7 @@ namespace APIOrderConfirmation.controllers
                     {
                         // Si la orden ya fue procesada, retornar un error
                         Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
-                        //return BadRequest($"La orden con dtlnum {dtlnum} ya fue procesada.");
-                        continue;
+                        return BadRequest($"La orden con dtlnum {dtlnum} ya fue procesada.");
                     }
                     */
 
@@ -663,30 +664,24 @@ namespace APIOrderConfirmation.controllers
                 return StatusCode(500, $"Ocurrió un error al procesar las órdenes: {ex.Message}");
             }
 
+            var detallesConCantidad = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG
+            .Where(detail => detail.qty > 0)
+            .ToList();
 
-            // Filtrar los detalles con qty > 0 antes de enviar a KN
-            var detallesFiltrados = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG
-                .Where(d => d.qty > 0)
-                .ToList();
-
-            var requestFiltrado = new SortCompleteKN
+            //ENVIO DE DATOS A LA URL DE KN
+            if (detallesConCantidad.Any())
             {
-                SORT_COMPLETE = new SortComplete
+                Console.WriteLine("Short pick Con QTY > 0. Enviando datos a kn");
+                try
                 {
-                    wcs_id = request.SORT_COMPLETE.wcs_id,
-                    wh_id = request.SORT_COMPLETE.wh_id,
-                    msg_id = request.SORT_COMPLETE.msg_id,
-                    trandt = request.SORT_COMPLETE.trandt,
-                    SORT_COMP_SEG = new SortCompSeg
+                    var urlKN = _configuration["ExternalService:UrlKN"];
+                    Console.WriteLine("URL KN:" + urlKN);
+
+                    using (var client = new HttpClient())
                     {
-                        LOAD_HDR_SEG = new LoadHdrSeg
-                        {
-                            LODNUM = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
-                            LOAD_DTL_SEG = detallesFiltrados
-                        }
-                    }
-                }
-            };
+                        // Basic Auth
+                        var username = _configuration["BasicAuth:Username"];
+                        var password = _configuration["BasicAuth:Password"];
 
             //Si no hay detalles en la lista, retornar un BadRequest
             if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
@@ -702,52 +697,36 @@ namespace APIOrderConfirmation.controllers
             Console.WriteLine("ENVIADO A KN CORRECTAMENTE");
             //return Ok("ENVIADO A KN CORRECTAMENTE");
 
-            //ENVIO DE DATOS A LA URL DE KN
-            try
-            {
-                var urlKN = _configuration["ExternalService:UrlKN"];
-                Console.WriteLine("URL KN:" + urlKN);
-
-                using (var client = new HttpClient())
-                {
-                    // Basic Auth
-                    var username = _configuration["BasicAuth:Username"];
-                    var password = _configuration["BasicAuth:Password"];
-
-                    var array = Encoding.ASCII.GetBytes($"{username}:{password}");
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(array));
-
-                    //Serializar el JSON.
-                    var jsonContent = JsonConvert.SerializeObject(requestFiltrado);
-                    var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-                    //POST
-                    var response = await client.PostAsync(urlKN, httpContent);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        Console.WriteLine("Datos enviados correctamente a KN.");
-                        return Ok("Datos enviados correctamente a KN.");
+                        if (response.IsSuccessStatusCode)
+                        {
+                            Console.WriteLine("Datos enviados correctamente a KN.");
+                            return Ok("Datos enviados correctamente a KN.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Error al enviar datos a KN.");
+                            return StatusCode((int)response.StatusCode, "Error al enviar datos a KN.");
+                        }
                     }
-                    else
-                    {
-                        Console.WriteLine("Error al enviar datos a KN.");
-                        return StatusCode((int)response.StatusCode, "Error al enviar datos a KN.");
-                    }
+
                 }
+                catch (HttpRequestException httpEx)
+                {
+                    Console.WriteLine("Ocurrió un error HTTP al enviar los datos a KN: " + httpEx.Message);
+                    return StatusCode(500, $"Ocurrió un error HTTP al enviar los datos a KN: {httpEx.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
+                    return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Short pick con QTY = 0 No se envia confirmacion a kn");
 
+                return Ok();
             }
-            catch (HttpRequestException httpEx)
-            {
-                Console.WriteLine("Ocurrió un error HTTP al enviar los datos a KN: " + httpEx.Message);
-                return StatusCode(500, $"Ocurrió un error HTTP al enviar los datos a KN: {httpEx.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
-                return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
-            }
-            
 
         }
 

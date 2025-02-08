@@ -70,14 +70,7 @@ namespace APISenad.controllers
 
             if (ordenEncontrada == null)
             {
-                if (ordenEncontrada != null)
-                {
-                    _logger.LogInformation("Orden encontrada {numOrden}", ordenEncontrada.numOrden);
-                }
-                else
-                {
-                    _logger.LogWarning("No se encontró ninguna orden.");
-                }
+                Console.WriteLine($"Orden encontrada {ordenEncontrada.numOrden} ");
 
                 _logger.LogInformation("Buscando Familia Activa");
                 // Verificar si el código pertenece a una familia con tanda activa en FamilyMaster
