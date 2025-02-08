@@ -452,10 +452,9 @@ namespace APIOrderConfirmation.controllers
 
 
             Console.WriteLine("ENVIADO A KN CORRECTAMENTE");
-            return Ok("ENVIADO A KN CORRECTAMENTE");
+            //return Ok("ENVIADO A KN CORRECTAMENTE");
 
             //ENVIO DE DATOS A LA URL DE KN
-            /*
             try
             {
 
@@ -501,7 +500,6 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
-            */
 
         }
 
@@ -702,10 +700,9 @@ namespace APIOrderConfirmation.controllers
             Console.WriteLine("JSON FILTRADO: " + jsonFiltrado);
 
             Console.WriteLine("ENVIADO A KN CORRECTAMENTE");
-            return Ok("ENVIADO A KN CORRECTAMENTE");
+            //return Ok("ENVIADO A KN CORRECTAMENTE");
 
             //ENVIO DE DATOS A LA URL DE KN
-            /*
             try
             {
                 var urlKN = _configuration["ExternalService:UrlKN"];
@@ -750,7 +747,7 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
-            */
+            
 
         }
 
@@ -911,10 +908,9 @@ namespace APIOrderConfirmation.controllers
 
 
             Console.WriteLine("ENVIADO A KN CORRECTAMENTE");    
-            return Ok("ENVIADO A KN CORRECTAMENTE");
+            //return Ok("ENVIADO A KN CORRECTAMENTE");
 
             //ENVIO DE DATOS A LA URL DE KN
-            /*
             try
             {
                 var urlKN = _configuration["ExternalService:UrlKN"];
@@ -959,7 +955,7 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
-            */
+            
 
         }
 
