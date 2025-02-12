@@ -40,6 +40,7 @@ namespace APIWaveRelease.controllers
             var encodedCredentials = Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encodedCredentials);
         }
+
         /*
         [HttpPost("EliminarCache")]
         public async Task<IActionResult> BorrarCache()
@@ -596,9 +597,9 @@ namespace APIWaveRelease.controllers
         }
 
 
-        /*
-        [NonAction]
-        async Task<IActionResult> GuardarWaveCache(WaveReleaseKN waveReleaseKn)
+        
+        
+        private async Task<IActionResult> GuardarWaveCache(WaveReleaseKN waveReleaseKn)
         {
 
             
@@ -658,7 +659,7 @@ namespace APIWaveRelease.controllers
 
             return Ok("Datos Guardados correctamente en el cache.");
         }
-        */
+        
         /*
         public async Task<IActionResult> EnviarPostEndpoint()
         {
