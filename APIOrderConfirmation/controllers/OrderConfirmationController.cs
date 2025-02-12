@@ -401,49 +401,6 @@ namespace APIOrderConfirmation.controllers
                 }
             };
 
-            var detallesAEliminar = new List<LoadDtlSeg>();
-
-            // Recorrer el JSON filtrado y verificar si el dtlnum tiene estadoLuca 0 en la BD
-            // Si tiene estadoLuca 0, agregarlo a la lista de detalles a eliminar
-            foreach (var detail in requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
-            {
-                var dtlnum = detail.dtlnum;
-                // Buscar la orden segun su dtlnum
-                var orden = await _context.ordenesEnProceso
-                    .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
-
-                if (orden == null)
-                {
-                    // Si no encuentra la orden o es una orden vacía.
-                    Console.WriteLine($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
-
-                    // Se pasa al siguiente detalle en la lista.
-                    continue;
-                }
-
-                if (!orden.estadoLuca)
-                {
-                    // Si la orden ya fue procesada.
-                    Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
-
-                    // Se agrega a la lista de detalles a eliminar.
-                    detallesAEliminar.Add(detail);
-                }
-            }
-
-            // Eliminar los detalles de la lista de detalles a enviar a KN
-            foreach (var detalle in detallesAEliminar)
-            {
-                requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Remove(detalle);
-            }
-
-            //Si no quedan detalles en la lista, retornar un BadRequest
-            if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
-            { 
-                Console.WriteLine("No hay detalles para enviar a KN.");
-                return BadRequest("No hay detalles para enviar a KN.");
-            }
-
             // Console WriteLine del json filtrado
             var jsonFiltrado = JsonConvert.SerializeObject(requestFiltrado);
             Console.WriteLine("JSON FILTRADO: " + jsonFiltrado);
@@ -452,6 +409,7 @@ namespace APIOrderConfirmation.controllers
             Console.WriteLine("ENVIADO A KN CORRECTAMENTE");
             //return Ok("ENVIADO A KN CORRECTAMENTE");
 
+            
             //ENVIO DE DATOS A LA URL DE KN
             try
             {
@@ -498,7 +456,7 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
-
+            
         }
 
         [HttpPost("Short")]
@@ -520,11 +478,6 @@ namespace APIOrderConfirmation.controllers
                 foreach (var loadDtl in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
                 {
 
-                    if (loadDtl.qty ==0 )
-                    {
-                        Console.WriteLine($"Se ignora dtlnum {loadDtl.dtlnum} porque tiene qty 0.");
-                        continue;
-                    }
                     var dtlnum = loadDtl.dtlnum;
 
                     // Buscar la orden segun su dtlnum
@@ -534,8 +487,9 @@ namespace APIOrderConfirmation.controllers
                     if (orden == null)
                     {
                         // Not found si no encuentra la orden
-                        Console.WriteLine($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
-                        return NotFound($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
+                        Console.WriteLine($"IF ORDEN NULL!!!!!!!!!!!!!!");
+                        //return NotFound($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
+                        continue;
                     }
 
                     /*
@@ -552,6 +506,7 @@ namespace APIOrderConfirmation.controllers
                     orden.estadoLuca = false;
                     // Actualizar estado(Confirmacion Senad)
                     orden.estado = false;
+
                     orden.fechaProceso = DateTime.UtcNow.AddHours(-2);
 
 
@@ -564,7 +519,7 @@ namespace APIOrderConfirmation.controllers
                         var response = await desactivarWaveAsync(numOrden, codProducto);
                         if (!response.IsSuccessStatusCode)
                         {
-                            Console.WriteLine($"Error al desactivar la wave de la orden {numOrden}. StatusCode: {response.StatusCode}");
+                            Console.WriteLine($"Wave ya desactivada. StatusCode: {response.StatusCode}");
                             //return StatusCode((int)response.StatusCode, $"Error al desactivar la wave de la orden {numOrden}.");
                         }
                         Console.WriteLine($"Wave de la orden {numOrden} desactivada correctamente.");
@@ -600,6 +555,7 @@ namespace APIOrderConfirmation.controllers
                         try
                         {
                             var response = await activarSiguienteTandaAsync(numTandaActual);
+
                             if (!response.IsSuccessStatusCode)
                             {
                                 Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster. StatusCode: {response.StatusCode}");
@@ -618,6 +574,7 @@ namespace APIOrderConfirmation.controllers
                         }
                     }
 
+                    // GUARDAR REGISTRO DE LA CONFIRMACIÓN EN LA BD
                     foreach (var detail in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
                     {
                         // Verificar si ya existe un registro con los mismos valores clave
@@ -664,70 +621,137 @@ namespace APIOrderConfirmation.controllers
                 return StatusCode(500, $"Ocurrió un error al procesar las órdenes: {ex.Message}");
             }
 
+            // INICIO DE FILTRO!!!!!!!!!!!!!!!!
+
+            // Filtrar los detalles con qty > 0 antes de enviar a KN
+            var detallesFiltrados = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG
+                .Where(d => d.qty > 0)
+                .ToList();
+
+            var requestFiltrado = new SortCompleteKN
+            {
+                SORT_COMPLETE = new SortComplete
+                {
+                    wcs_id = request.SORT_COMPLETE.wcs_id,
+                    wh_id = request.SORT_COMPLETE.wh_id,
+                    msg_id = request.SORT_COMPLETE.msg_id,
+                    trandt = request.SORT_COMPLETE.trandt,
+                    SORT_COMP_SEG = new SortCompSeg
+                    {
+                        LOAD_HDR_SEG = new LoadHdrSeg
+                        {
+                            LODNUM = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
+                            LOAD_DTL_SEG = detallesFiltrados
+                        }
+                    }
+                }
+            };
+
             var detallesConCantidad = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG
             .Where(detail => detail.qty > 0)
             .ToList();
 
-            //ENVIO DE DATOS A LA URL DE KN
-            if (detallesConCantidad.Any())
+            /*
+            var detallesAEliminar = new List<LoadDtlSeg>();
+
+            // Recorrer el JSON filtrado y verificar si el dtlnum tiene estadoLuca 0 en la BD
+            // Si tiene estadoLuca 0, agregarlo a la lista de detalles a eliminar
+            foreach (var detail in requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
             {
-                Console.WriteLine("Short pick Con QTY > 0. Enviando datos a kn");
-                try
+                var dtlnum = detail.dtlnum;
+                // Buscar la orden segun su dtlnum
+                var orden = await _context.ordenesEnProceso
+                    .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
+
+                if (orden == null)
                 {
-                    var urlKN = _configuration["ExternalService:UrlKN"];
-                    Console.WriteLine("URL KN:" + urlKN);
+                    // Si no encuentra la orden o es una orden vacía.
+                    Console.WriteLine($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
 
-                    using (var client = new HttpClient())
-                    {
-                        // Basic Auth
-                        var username = _configuration["BasicAuth:Username"];
-                        var password = _configuration["BasicAuth:Password"];
+                    // Se pasa al siguiente detalle en la lista.
+                    continue;
+                }
 
-            //Si no hay detalles en la lista, retornar un BadRequest
+                if (!orden.estadoLuca)
+                {
+                    // Si la orden ya fue procesada.
+                    Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
+
+                    // Se agrega a la lista de detalles a eliminar.
+                    detallesAEliminar.Add(detail);
+                }
+            }
+
+            // Eliminar los detalles de la lista de detalles a enviar a KN
+            foreach (var detalle in detallesAEliminar)
+            {
+                requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Remove(detalle);
+            }
+
+            //Si no quedan detalles en la lista, retornar un BadRequest
             if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
             {
                 Console.WriteLine("No hay detalles para enviar a KN.");
                 return BadRequest("No hay detalles para enviar a KN.");
             }
+            */
 
             // Console WriteLine del json filtrado
             var jsonFiltrado = JsonConvert.SerializeObject(requestFiltrado);
             Console.WriteLine("JSON FILTRADO: " + jsonFiltrado);
 
+
             Console.WriteLine("ENVIADO A KN CORRECTAMENTE");
             //return Ok("ENVIADO A KN CORRECTAMENTE");
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            Console.WriteLine("Datos enviados correctamente a KN.");
-                            return Ok("Datos enviados correctamente a KN.");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Error al enviar datos a KN.");
-                            return StatusCode((int)response.StatusCode, "Error al enviar datos a KN.");
-                        }
-                    }
-
-                }
-                catch (HttpRequestException httpEx)
-                {
-                    Console.WriteLine("Ocurrió un error HTTP al enviar los datos a KN: " + httpEx.Message);
-                    return StatusCode(500, $"Ocurrió un error HTTP al enviar los datos a KN: {httpEx.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
-                    return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
-                }
-            }
-            else
+            
+            
+            //ENVIO DE DATOS A LA URL DE KN
+            try
             {
-                Console.WriteLine("Short pick con QTY = 0 No se envia confirmacion a kn");
 
-                return Ok();
+                var urlKN = _configuration["ExternalService:UrlKN"];
+                Console.WriteLine("URL KN:" + urlKN);
+
+                using (var client = new HttpClient())
+                {
+                    // Basic Auth
+                    var username = _configuration["BasicAuth:Username"];
+                    var password = _configuration["BasicAuth:Password"];
+
+                    var array = Encoding.ASCII.GetBytes($"{username}:{password}");
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(array));
+
+                    //Serializar el JSON.
+                    var jsonContent = JsonConvert.SerializeObject(requestFiltrado);
+                    var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                    //POST
+                    var response = await client.PostAsync(urlKN, httpContent);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine("Datos enviados correctamente a KN.");
+                        return Ok("Datos enviados correctamente a KN.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error al enviar datos a KN.");
+                        return StatusCode((int)response.StatusCode, "Error al enviar datos a KN.");
+                    }
+                }
+
             }
-
+            catch (HttpRequestException httpEx)
+            {
+                Console.WriteLine("Ocurrió un error HTTP al enviar los datos a KN: " + httpEx.Message);
+                return StatusCode(500, $"Ocurrió un error HTTP al enviar los datos a KN: {httpEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
+                return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
+            }
+            
         }
 
         [HttpPost("Split")]
@@ -838,48 +862,6 @@ namespace APIOrderConfirmation.controllers
                 }
             };
 
-            var detallesAEliminar = new List<LoadDtlSeg>();
-
-            // Recorrer el JSON filtrado y verificar si el dtlnum tiene estadoLuca 0 en la BD
-            // Si tiene estadoLuca 0, agregarlo a la lista de detalles a eliminar
-            foreach (var detail in requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
-            {
-                var dtlnum = detail.dtlnum;
-                // Buscar la orden segun su dtlnum
-                var orden = await _context.ordenesEnProceso
-                    .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
-
-                if (orden == null)
-                {
-                    // Si no encuentra la orden o es una orden vacía.
-                    Console.WriteLine($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
-
-                    // Se pasa al siguiente detalle en la lista.
-                    continue;
-                }
-
-                if (!orden.estadoLuca)
-                {
-                    // Si la orden ya fue procesada.
-                    Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
-
-                    // Se agrega a la lista de detalles a eliminar.
-                    detallesAEliminar.Add(detail);
-                }
-            }
-
-            // Eliminar los detalles de la lista de detalles a enviar a KN
-            foreach (var detalle in detallesAEliminar)
-            {
-                requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Remove(detalle);
-            }
-
-            //Si no quedan detalles en la lista, retornar un BadRequest
-            if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
-            {
-                Console.WriteLine("No hay detalles para enviar a KN.");
-                return BadRequest("No hay detalles para enviar a KN.");
-            }
 
             // Console WriteLine del json filtrado
             var jsonFiltrado = JsonConvert.SerializeObject(requestFiltrado);
@@ -889,6 +871,7 @@ namespace APIOrderConfirmation.controllers
             Console.WriteLine("ENVIADO A KN CORRECTAMENTE");    
             //return Ok("ENVIADO A KN CORRECTAMENTE");
 
+            
             //ENVIO DE DATOS A LA URL DE KN
             try
             {
@@ -934,6 +917,7 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
+            
             
 
         }
