@@ -189,11 +189,15 @@ namespace APIOrderConfirmation.controllers
 
                             if (!response.IsSuccessStatusCode)
                             {
-                                Console.WriteLine($"Error al desactivar la wave de la orden {numOrden}. StatusCode: {response.StatusCode}");
+                                Console.WriteLine($"Orden {numOrden} ya desactivada!. StatusCode: {response.StatusCode}");
                                 //return StatusCode((int)response.StatusCode, $"Error al desactivar la wave de la orden {numOrden}.");
                             }
+                            else
+                            {
+                                Console.WriteLine($"Wave de la orden {numOrden} desactivada correctamente.");
+                            }
 
-                            Console.WriteLine($"Wave de la orden {numOrden} desactivada correctamente.");
+                            
                         }
                         //Exception HTTP
                         catch (HttpRequestException httpEx)
@@ -217,12 +221,17 @@ namespace APIOrderConfirmation.controllers
                             .ToListAsync();
 
                         bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
+                        Console.WriteLine($"Todas las Ordenes Completadas: {todasOrdenesCompletadas}");
 
 
                         if (todasOrdenesCompletadas)
                         {
                             int numTandaActual = orden.numTanda;
+
+                            Console.WriteLine($"Tanda actual: {numTandaActual}");
                             SetAuthorizationHeader(_apiWaveReleaseClient);
+                            Console.WriteLine("ACTIVACION DE SIGUIENTE TANDA!!!!!");
+                            Console.WriteLine($"Tanda actual: {numTandaActual}");
 
                             try
                             {
@@ -253,7 +262,7 @@ namespace APIOrderConfirmation.controllers
 
                     else if (orden.cantidadProcesada != orden.cantidadLPN)
                     {
-                        Console.WriteLine("ENTRANDO AL IF DE SHORTTTT!!!!!!");
+                        Console.WriteLine("PROCESADO SIN SORTER!!!!!!");
 
                         // Actualizar estadoLuca (Confirmar a KN)
                         orden.estadoLuca = false;
@@ -273,10 +282,13 @@ namespace APIOrderConfirmation.controllers
 
                             if (!response.IsSuccessStatusCode)
                             {
-                                Console.WriteLine($"Error al desactivar la wave de la orden {numOrden}. StatusCode: {response.StatusCode}");
+                                Console.WriteLine($"Orden {numOrden} ya desactivada!. StatusCode: {response.StatusCode}");
                                 //return StatusCode((int)response.StatusCode, $"Error al desactivar la wave de la orden {numOrden}.");
                             }
-                            Console.WriteLine($"Wave de la orden {numOrden} desactivada correctamente.");
+                            else
+                            {
+                                Console.WriteLine($"Wave de la orden {numOrden} desactivada correctamente.");
+                            }
                         }
                         //Exception HTTP
                         catch (HttpRequestException httpEx)
@@ -326,44 +338,43 @@ namespace APIOrderConfirmation.controllers
                                 return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
                             }
 
-
-                            foreach (var detail in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
-                            {
-
-                                // Verificar si ya existe un registro con los mismos valores clave
-                                var existeEnConfirmada = await _context.Confirmada
-                                    .AnyAsync(c => c.WcsId == request.SORT_COMPLETE.wcs_id &&
-                                                   c.WhId == request.SORT_COMPLETE.wh_id &&
-                                                   c.MsgId == request.SORT_COMPLETE.msg_id &&
-                                                   c.LodNum == request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM &&
-                                                   c.SubNum == detail.subnum &&
-                                                   c.DtlNum == detail.dtlnum);
-
-
-                                if (!existeEnConfirmada)
-                                {
-                                    var nuevaConfirmada = new Confirmada
-                                    {
-                                        WcsId = request.SORT_COMPLETE.wcs_id,
-                                        WhId = request.SORT_COMPLETE.wh_id,
-                                        MsgId = request.SORT_COMPLETE.msg_id,
-                                        TranDt = DateTime.Now.ToString("yyyyMMddHHmmss"),
-                                        LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
-                                        SubNum = detail.subnum,
-                                        DtlNum = detail.dtlnum,
-                                        StoLoc = detail.stoloc,
-                                        Qty = detail.qty,
-                                        accion = "Short-pick"
-                                    };
-
-                                    await _context.Confirmada.AddAsync(nuevaConfirmada);
-                                }
-                            }
-                            await _context.SaveChangesAsync();
-
                         }
                     }
 
+                    foreach (var detail in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
+                    {
+
+                        // Verificar si ya existe un registro con los mismos valores clave
+                        var existeEnConfirmada = await _context.Confirmada
+                            .AnyAsync(c => c.WcsId == request.SORT_COMPLETE.wcs_id &&
+                                           c.WhId == request.SORT_COMPLETE.wh_id &&
+                                           c.MsgId == request.SORT_COMPLETE.msg_id &&
+                                           c.LodNum == request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM &&
+                                           c.SubNum == detail.subnum &&
+                                           c.DtlNum == detail.dtlnum);
+
+
+                        if (!existeEnConfirmada)
+                        {
+                            var nuevaConfirmada = new Confirmada
+                            {
+                                WcsId = request.SORT_COMPLETE.wcs_id,
+                                WhId = request.SORT_COMPLETE.wh_id,
+                                MsgId = request.SORT_COMPLETE.msg_id,
+                                TranDt = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                                LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
+                                SubNum = detail.subnum,
+                                DtlNum = detail.dtlnum,
+                                StoLoc = detail.stoloc,
+                                Qty = detail.qty,
+                                accion = "Procesado"
+                            };
+
+                            await _context.Confirmada.AddAsync(nuevaConfirmada);
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
                     _context.ordenesEnProceso.Update(orden);
                 }
 
@@ -408,6 +419,8 @@ namespace APIOrderConfirmation.controllers
 
             Console.WriteLine("ENVIADO A KN CORRECTAMENTE");
             //return Ok("ENVIADO A KN CORRECTAMENTE");
+
+            
 
             
             //ENVIO DE DATOS A LA URL DE KN
@@ -456,6 +469,7 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
+            
             
         }
 
@@ -517,12 +531,16 @@ namespace APIOrderConfirmation.controllers
                         var codProducto = orden.codProducto;
                         SetAuthorizationHeader(_apiWaveReleaseClient);
                         var response = await desactivarWaveAsync(numOrden, codProducto);
+
                         if (!response.IsSuccessStatusCode)
                         {
-                            Console.WriteLine($"Wave ya desactivada. StatusCode: {response.StatusCode}");
+                            Console.WriteLine($"Orden {numOrden} ya desactivada!. StatusCode: {response.StatusCode}");
                             //return StatusCode((int)response.StatusCode, $"Error al desactivar la wave de la orden {numOrden}.");
                         }
-                        Console.WriteLine($"Wave de la orden {numOrden} desactivada correctamente.");
+                        else
+                        {
+                            Console.WriteLine($"Wave de la orden {numOrden} desactivada correctamente.");
+                        }
                     }
                     //Exception HTTP
                     catch (HttpRequestException httpEx)
@@ -547,6 +565,7 @@ namespace APIOrderConfirmation.controllers
                         .ToListAsync();
 
                     bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
+                    Console.WriteLine($"SHORT - Todas las Ordenes Completadas: {todasOrdenesCompletadas}");
 
                     if (todasOrdenesCompletadas)
                     {
@@ -554,7 +573,10 @@ namespace APIOrderConfirmation.controllers
                         SetAuthorizationHeader(_apiWaveReleaseClient);
                         try
                         {
+                            Console.WriteLine($"Tanda actual: {numTandaActual}");
                             var response = await activarSiguienteTandaAsync(numTandaActual);
+                            Console.WriteLine("ACTIVACION DE SIGUIENTE TANDA!!!!!");
+                            Console.WriteLine($"Tanda actual: {numTandaActual}");
 
                             if (!response.IsSuccessStatusCode)
                             {
@@ -705,6 +727,7 @@ namespace APIOrderConfirmation.controllers
             //return Ok("ENVIADO A KN CORRECTAMENTE");
             
             
+            
             //ENVIO DE DATOS A LA URL DE KN
             try
             {
@@ -751,6 +774,7 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
+            
             
         }
 
@@ -872,6 +896,7 @@ namespace APIOrderConfirmation.controllers
             //return Ok("ENVIADO A KN CORRECTAMENTE");
 
             
+            
             //ENVIO DE DATOS A LA URL DE KN
             try
             {
@@ -916,9 +941,7 @@ namespace APIOrderConfirmation.controllers
             {
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
-            }
-            
-            
+            }  
 
         }
 
