@@ -1,11 +1,12 @@
 {
   "ServiceUrls": {
-    //QA  
-    //"luca": "http://10.28.136.32:9500",
+    //LUCA PROD
+    //"luca": "http://10.28.136.21:9500",
+    "luca": "https://luca-clpud01-prod.int.kn:9500"
 
-    //Prod
-    "luca": "http://10.28.136.21:9500",
-    "senad": "http://senad.com/api",
-    "kn": "http://kn.com/api"
+
+    //LUCA QA
+    //"luca": "http://10.28.136.32:9500"
+    //"luca": "https://luca-clpud01-test.int.kn:9500"
   }
 }
