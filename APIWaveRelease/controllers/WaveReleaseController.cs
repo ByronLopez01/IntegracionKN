@@ -69,7 +69,24 @@ namespace APIWaveRelease.controllers
             return Ok();
         }
         */
+        [HttpPost("GuardarCache")]
+        public async Task<IActionResult> GuardarCache([FromBody] WaveReleaseKN waveReleaseKN) 
+        {
+            await GuardarWaveCache(waveReleaseKN);
 
+            return Ok("Datos Guardados Correctamente");
+
+        }
+
+        [HttpPost("EnviarCache")]
+        public async Task<IActionResult> EnviarCache([FromBody] WaveReleaseKN waveReleaseKN)
+        {
+            await EnviarPostEndpoint();
+
+            return Ok("Datos Guardados Correctamente");
+
+        }
+        /*
         [HttpPost("PostCache")]
         public async Task<IActionResult> PostOrderCache([FromBody] WaveReleaseKN waveReleaseKn)
         {
@@ -287,6 +304,7 @@ namespace APIWaveRelease.controllers
                 }
            
         }
+        */
 
 
         [HttpPost]
@@ -566,17 +584,8 @@ namespace APIWaveRelease.controllers
         }
 
 
-        public async Task<IActionResult> GuardarWaveCache(WaveReleaseKN waveReleaseKn)
+        private async Task<IActionResult> GuardarWaveCache(WaveReleaseKN waveReleaseKn)
         {
-
-            
-            var cacheVacio = !await _context.WaveReleaseCache.AnyAsync();
-
-            if (!cacheVacio)
-            {
-                
-                return BadRequest("Ya existen datos en el cache.");
-            }
 
             foreach (var orden in waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG)
             {
@@ -627,16 +636,12 @@ namespace APIWaveRelease.controllers
             return Ok("Datos Guardados correctamente en el cache.");
         }
 
-        public async Task<IActionResult> EnviarPostEndpoint()
+        private async Task<IActionResult> EnviarPostEndpoint()
         {
             
             var waveCache = await _context.WaveReleaseCache.ToListAsync();
 
-            if (!waveCache.Any())
-            {
-                return BadRequest("No hay datos en la tabla Cache para enviar.");
-            }
-
+          
             // Reconvertir los datos en el formato del JSON esperado
             var waveReleaseKn = new WaveReleaseKN
             {
@@ -703,9 +708,9 @@ namespace APIWaveRelease.controllers
             var jsonContentCache = JsonSerializer.Serialize(waveReleaseKn);
             var httpContentCache = new StringContent(jsonContentCache, Encoding.UTF8, "application/json");
 
-            var urlCache = "http://apiwaverelease:8080/api/Waverelease/postCache";
+            var urlCache = "http://apiwaverelease:8080/api/Waverelease";
 
-            // Enviar datos al endpoint 'postCache'
+            // Enviar datos al endpoint 'post'
             var response = await httpCliente.PostAsync(urlCache, httpContentCache);
 
             if (response.IsSuccessStatusCode)
