@@ -79,7 +79,7 @@ namespace APIWaveRelease.controllers
         }
 
         [HttpPost("EnviarCache")]
-        public async Task<IActionResult> EnviarCache([FromBody] WaveReleaseKN waveReleaseKN)
+        public async Task<IActionResult> EnviarCache()
         {
             await EnviarPostEndpoint();
 
@@ -638,11 +638,14 @@ namespace APIWaveRelease.controllers
 
         private async Task<IActionResult> EnviarPostEndpoint()
         {
-            
             var waveCache = await _context.WaveReleaseCache.ToListAsync();
 
-          
-            // Reconvertir los datos en el formato del JSON esperado
+            if (!waveCache.Any())
+            {
+                return BadRequest("No hay datos en cache para enviar.");
+            }
+
+            // Construcción del JSON esperado
             var waveReleaseKn = new WaveReleaseKN
             {
                 ORDER_TRANSMISSION = new OrderTransmission
@@ -700,9 +703,7 @@ namespace APIWaveRelease.controllers
             var contrasena = "S3nad";
             var basicAuth = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{usuario}:{contrasena}"));
 
-
             var httpCliente = _httpClientFactory.CreateClient();
-
             httpCliente.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuth);
 
             var jsonContentCache = JsonSerializer.Serialize(waveReleaseKn);
@@ -717,7 +718,7 @@ namespace APIWaveRelease.controllers
             {
                 Console.WriteLine("Eliminando datos del cache");
                 _context.WaveReleaseCache.RemoveRange(waveCache);
-                await _context.SaveChangesAsync(); 
+                await _context.SaveChangesAsync();
 
                 return Ok("Datos enviados correctamente.");
             }
@@ -726,6 +727,7 @@ namespace APIWaveRelease.controllers
                 return StatusCode((int)response.StatusCode, "Error al enviar los datos.");
             }
         }
-    
+
+
     }
 }
