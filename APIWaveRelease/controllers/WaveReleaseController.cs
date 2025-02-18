@@ -83,7 +83,7 @@ namespace APIWaveRelease.controllers
         {
             await EnviarPostEndpoint();
 
-            return Ok("Datos Guardados Correctamente");
+            return Ok("Datos Enviados Correctamente a la WaveRelase");
 
         }
         /*
@@ -456,7 +456,7 @@ namespace APIWaveRelease.controllers
 
             var urlLucaBase = _configuration["ServiceUrls:luca"];
             var urlLuca = $"{urlLucaBase}/api/sort/waveRelease";
-
+            
             try
             {
                 var response = await httpClient.PostAsync(urlLuca, httpContent);
@@ -481,6 +481,7 @@ namespace APIWaveRelease.controllers
                 Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
                 return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
             }
+            
 
             //var haytandasActivas = await _context.FamilyMaster.AnyAsync(fm => fm.estado == true);
 

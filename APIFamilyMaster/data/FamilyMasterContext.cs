@@ -16,6 +16,8 @@ namespace APIFamilyMaster.data
         { 
         }
 
+        public DbSet<WaveRelease> WaveReleases { get; set; }
+
         public DbSet<FamilyMaster> Familias { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -93,6 +95,50 @@ namespace APIFamilyMaster.data
             });
 
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<WaveRelease>(entity =>
+            {
+                entity.ToTable("WaveRelease");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.CodMastr)
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.CodInr)
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.CantMastr);
+
+
+                entity.Property(e => e.CantInr);
+
+
+                entity.Property(e => e.Cantidad);
+                 
+
+                entity.Property(e => e.Familia)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.NumOrden)
+                    
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.CodProducto)
+                    
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Wave)
+                   
+                   .HasMaxLength(50);
+
+                entity.Property(e => e.tienda)
+                  .HasMaxLength(50);
+
+                entity.Property(e => e.estadoWave);
+                    
+            });
         }
 
     }
