@@ -285,7 +285,7 @@ namespace APIFamilyMaster.services
 
             // Obtener las siguientes tandas inactivas (Estado == 0)
             var siguientesTandas = await _context.Familias
-                .Where(f => f.NumTanda > numTandaActual && f.estado == false) // Solo futuras e inactivas
+                .Where(f => f.NumTanda > numTandaActual && f.estado == false) 
                 .GroupBy(f => f.NumTanda)
                 .Select(g => new
                 {
@@ -293,30 +293,26 @@ namespace APIFamilyMaster.services
                     Familias = g.Select(f => f.Familia).Distinct().ToList(),
                     Salidas = g.Select(f => f.NumSalida).Distinct().ToList()
                 })
-                .OrderBy(g => g.NumTanda) // Ordenar por NumTanda ascendente
+                .OrderBy(g => g.NumTanda) 
                 .ToListAsync();
 
-            bool tandaActivada = false; // Variable para verificar si se activó una tanda
+            bool tandaActivada = false; 
 
-            // Buscar la primera tanda que cumpla los requisitos
+            
             foreach (var tanda in siguientesTandas)
             {
-                // Debe tener exactamente las mismas numSalida que la tanda actual
                 if (!salidasActuales.Except(tanda.Salidas).Any() && !tanda.Salidas.Except(salidasActuales).Any())
                 {
-                    // Verificar si alguna de sus familias está en WaveRelease
-                    bool familiaEnWaveRelease = await _context.WaveReleases
+                   bool familiaEnWaveRelease = await _context.WaveReleases
                         .AnyAsync(wr => tanda.Familias.Contains(wr.Familia));
 
                     if (familiaEnWaveRelease)
                     {
-                        // 🔹 Activar la nueva tanda
                         await _context.Familias
                             .Where(f => f.NumTanda == tanda.NumTanda)
                             .ExecuteUpdateAsync(s => s.SetProperty(f => f.estado, true));
 
-                        // 🔹 Desactivar la tanda actual
-                        await _context.Familias
+                         await _context.Familias
                             .Where(f => f.NumTanda == numTandaActual)
                             .ExecuteUpdateAsync(s => s.SetProperty(f => f.estado, false));
 
