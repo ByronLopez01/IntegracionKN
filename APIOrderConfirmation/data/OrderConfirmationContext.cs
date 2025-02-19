@@ -13,6 +13,10 @@ namespace APIOrderConfirmation.data
         public DbSet<Confirmada> Confirmada { get; set; }
 
 
+        public DbSet<WaveRelease> WaveRelease { get; set; }
+
+        public DbSet<FamilyMaster> FamilyMaster { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -148,6 +152,46 @@ namespace APIOrderConfirmation.data
                 entity.Property(e => e.StoLoc).HasMaxLength(50).IsRequired();
                 entity.Property(e => e.Qty).IsRequired();
                 entity.Property(e => e.accion).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<FamilyMaster>(entity =>
+            {
+                entity.ToTable("FamilyMaster");
+
+                entity.HasKey(e => e.IdFamilyMaster);
+
+                entity.Property(e => e.Familia)
+                    .HasColumnName("familia")
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(e => e.NumSalida)
+                    .HasColumnName("numSalida")
+                    .IsRequired();
+
+                entity.Property(e => e.NumTanda)
+                    .HasColumnName("numTanda")
+                    .IsRequired();
+
+                entity.Property(e => e.estado)
+                    .HasColumnName("estado")
+                    .IsRequired();
+            });
+
+            modelBuilder.Entity<WaveRelease>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Wave)
+                    .HasColumnName("Wave")
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.estadoWave)
+                    .HasColumnName("estadoWave")
+                    .IsRequired()
+                    .HasMaxLength(50);
+
             });
         }
 
