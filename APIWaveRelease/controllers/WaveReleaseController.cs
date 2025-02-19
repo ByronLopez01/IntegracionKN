@@ -72,9 +72,9 @@ namespace APIWaveRelease.controllers
         [HttpPost("GuardarCache")]
         public async Task<IActionResult> GuardarCache([FromBody] WaveReleaseKN waveReleaseKN) 
         {
-            await GuardarWaveCache(waveReleaseKN);
+            var result = await GuardarWaveCache(waveReleaseKN);
 
-            return Ok("Datos Guardados Correctamente");
+            return result;
 
         }
 
@@ -587,6 +587,15 @@ namespace APIWaveRelease.controllers
 
         private async Task<IActionResult> GuardarWaveCache(WaveReleaseKN waveReleaseKn)
         {
+            // Verificar si ya existen datos en el cache
+            var existingCache = await _context.WaveReleaseCache.AsNoTracking().FirstOrDefaultAsync();
+
+            // Si existen datos y la Wave no coincide, rechazar.
+            if (existingCache != null && existingCache.Schbat != waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat)
+            {
+                return BadRequest("La nueva Wave no coincide con el de los registros existentes en el cache.");
+            }
+
 
             foreach (var orden in waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG)
             {
@@ -633,7 +642,6 @@ namespace APIWaveRelease.controllers
 
             // Guardar todos los cambios en la base de datos
             await _context.SaveChangesAsync();
-
             return Ok("Datos Guardados correctamente en el cache.");
         }
 
