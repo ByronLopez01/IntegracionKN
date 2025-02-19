@@ -214,19 +214,46 @@ namespace APIOrderConfirmation.controllers
 
                         //COMIENZO DE ACTIVAR SIGUIENTE TANDA!!!!!
 
+                        // FamilyMaster para obtener la tanda.
+                        var FamilyMaster = await _context.FamilyMaster
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(f => f.Familia == orden.familia);
+
+                        if (FamilyMaster == null)
+                        {
+                            Console.WriteLine("No se encontró la familia en FamilyMaster.");
+                            return NotFound("No se encontró la familia en FamilyMaster.");
+                        }
+
+                        var waveActivaActual = await _context.WaveRelease
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(w => w.estadoWave == true);
+
+                        if (waveActivaActual == null)
+                        {
+                            Console.WriteLine("No se encontró la wave activa en WaveRelease.");
+                            return NotFound("No se encontró la wave activa en WaveRelease.");
+                        }
+
                         // Verificar si todas las órdenes de la familia han sido completadas
                         var familia = orden.familia;
+                        //var wave = orden.wave;
+
+
+                        // Buscar las ordenes de la familia en la wave actual.
                         var ordenesFamilia = await _context.ordenesEnProceso
-                            .Where(o => o.familia == familia)
+                            .AsNoTracking()
+                            .Where(o => o.familia == familia && o.wave == waveActivaActual.Wave)
                             .ToListAsync();
 
                         bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
-                        Console.WriteLine($"Todas las Ordenes Completadas: {todasOrdenesCompletadas}");
+                        Console.WriteLine($"PROCESADO - Todas las Ordenes Completadas: {todasOrdenesCompletadas}");
 
 
                         if (todasOrdenesCompletadas)
                         {
-                            int numTandaActual = orden.numTanda;
+                            //int numTandaActual = orden.numTanda;
+                            int numTandaActual = FamilyMaster.NumTanda;
 
                             Console.WriteLine($"Tanda actual: {numTandaActual}");
                             SetAuthorizationHeader(_apiWaveReleaseClient);
@@ -304,19 +331,47 @@ namespace APIOrderConfirmation.controllers
                         }
 
 
+
                         // INICIO DE ACTIVAR SIGUIENTE TANDA!!!!!
+
+                        // FamilyMaster para obtener la tanda.
+                        var FamilyMaster = await _context.FamilyMaster
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(f => f.Familia == orden.familia);
+
+                        //Verificar que FamilyMaster no sea nulo
+                        if (FamilyMaster == null)
+                        {
+                            Console.WriteLine("No se encontró la familia en FamilyMaster.");
+                            return NotFound("No se encontró la familia en FamilyMaster.");
+                        }
+
+                        var waveActivaActual = await _context.WaveRelease
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(w => w.estadoWave == true);
+
+                        if (waveActivaActual == null)
+                        {
+                            Console.WriteLine("No se encontró la wave activa en WaveRelease.");
+                            return NotFound("No se encontró la wave activa en WaveRelease.");
+                        }
 
                         // Verificar si todas las órdenes de la familia han sido completadas
                         var familia = orden.familia;
+
+                        // Buscar las ordenes de la familia en la wave actual.
                         var ordenesFamilia = await _context.ordenesEnProceso
-                            .Where(o => o.familia == familia)
+                            .AsNoTracking()
+                            .Where(o => o.familia == familia && o.wave == waveActivaActual.Wave)
                             .ToListAsync();
 
                         bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
 
                         if (todasOrdenesCompletadas)
                         {
-                            int numTandaActual = orden.numTanda;
+                            
+                            int numTandaActual = FamilyMaster.NumTanda;
+
                             SetAuthorizationHeader(_apiWaveReleaseClient);
                             try
                             {
@@ -346,12 +401,8 @@ namespace APIOrderConfirmation.controllers
 
                         // Verificar si ya existe un registro con los mismos valores clave
                         var existeEnConfirmada = await _context.Confirmada
-                            .AnyAsync(c => c.WcsId == request.SORT_COMPLETE.wcs_id &&
-                                           c.WhId == request.SORT_COMPLETE.wh_id &&
-                                           c.MsgId == request.SORT_COMPLETE.msg_id &&
-                                           c.LodNum == request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM &&
-                                           c.SubNum == detail.subnum &&
-                                           c.DtlNum == detail.dtlnum);
+                            .AsNoTracking()
+                            .AnyAsync(c => c.DtlNum == detail.dtlnum);
 
 
                         if (!existeEnConfirmada)
@@ -412,18 +463,26 @@ namespace APIOrderConfirmation.controllers
                 }
             };
 
+            //Si no quedan detalles en la lista, no enviar a KN
+            if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
+            {
+                Console.WriteLine("No hay detalles para enviar a KN.");
+                return BadRequest("No hay detalles para enviar a KN.");
+            }
+
             // Console WriteLine del json filtrado
             var jsonFiltrado = JsonConvert.SerializeObject(requestFiltrado);
             Console.WriteLine("JSON FILTRADO: " + jsonFiltrado);
 
 
             Console.WriteLine("ENVIADO A KN CORRECTAMENTE");
-            //return Ok("ENVIADO A KN CORRECTAMENTE");
+            return Ok("ENVIADO A KN CORRECTAMENTE");
 
             
 
             
             //ENVIO DE DATOS A LA URL DE KN
+            
             try
             {
 
@@ -469,6 +528,7 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
+            
             
             
         }
@@ -556,20 +616,57 @@ namespace APIOrderConfirmation.controllers
                     }
 
 
+
                     // INICIO DE ACTIVAR SIGUIENTE TANDA!!!!!
+
+                    // FamilyMaster para obtener la tanda.
+                    var FamilyMaster = await _context.FamilyMaster
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(f => f.Familia == orden.familia);
+
+                    //Verificar que FamilyMaster no sea nulo
+                    if (FamilyMaster == null)
+                    {
+                        Console.WriteLine("No se encontró la familia en FamilyMaster.");
+                        return NotFound("No se encontró la familia en FamilyMaster.");
+                    }
+
+                    var waveActivaActual = await _context.WaveRelease
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(w => w.estadoWave == true);
+
+                    if (waveActivaActual == null)
+                    {
+                        Console.WriteLine("No se encontró la wave activa en WaveRelease.");
+                        return NotFound("No se encontró la wave activa en WaveRelease.");
+                    }
 
                     // Verificar si todas las órdenes de la familia han sido completadas
                     var familia = orden.familia;
+
+                    // Mostrar la familia
+                    Console.WriteLine($"Familia: {familia}");
+
+
+                    // Buscar las ordenes de la familia en la wave actual.
                     var ordenesFamilia = await _context.ordenesEnProceso
-                        .Where(o => o.familia == familia)
+                        .AsNoTracking()
+                        .Where(o => o.familia == familia && o.wave == waveActivaActual.Wave)
                         .ToListAsync();
+
 
                     bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
                     Console.WriteLine($"SHORT - Todas las Ordenes Completadas: {todasOrdenesCompletadas}");
 
                     if (todasOrdenesCompletadas)
                     {
-                        int numTandaActual = orden.numTanda;
+                        // Buscar la familia de la orden en el FamilyMaster
+                        var numTandaActual = FamilyMaster.NumTanda;
+
+                        var wave = waveActivaActual.Wave;
+
+                        Console.WriteLine($"Wave actual: {wave}");
+
                         SetAuthorizationHeader(_apiWaveReleaseClient);
                         try
                         {
@@ -601,12 +698,8 @@ namespace APIOrderConfirmation.controllers
                     {
                         // Verificar si ya existe un registro con los mismos valores clave
                         var existeEnConfirmada = await _context.Confirmada
-                            .AnyAsync(c => c.WcsId == request.SORT_COMPLETE.wcs_id &&
-                                           c.WhId == request.SORT_COMPLETE.wh_id &&
-                                           c.MsgId == request.SORT_COMPLETE.msg_id &&
-                                           c.LodNum == request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM &&
-                                           c.SubNum == detail.subnum &&
-                                           c.DtlNum == detail.dtlnum);
+                            .AsNoTracking()
+                            .AnyAsync(c => c.DtlNum == detail.dtlnum);
 
 
                         if (!existeEnConfirmada)
@@ -669,54 +762,14 @@ namespace APIOrderConfirmation.controllers
                 }
             };
 
-            var detallesConCantidad = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG
-            .Where(detail => detail.qty > 0)
-            .ToList();
+          
 
-            /*
-            var detallesAEliminar = new List<LoadDtlSeg>();
-
-            // Recorrer el JSON filtrado y verificar si el dtlnum tiene estadoLuca 0 en la BD
-            // Si tiene estadoLuca 0, agregarlo a la lista de detalles a eliminar
-            foreach (var detail in requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
-            {
-                var dtlnum = detail.dtlnum;
-                // Buscar la orden segun su dtlnum
-                var orden = await _context.ordenesEnProceso
-                    .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
-
-                if (orden == null)
-                {
-                    // Si no encuentra la orden o es una orden vacía.
-                    Console.WriteLine($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
-
-                    // Se pasa al siguiente detalle en la lista.
-                    continue;
-                }
-
-                if (!orden.estadoLuca)
-                {
-                    // Si la orden ya fue procesada.
-                    Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
-
-                    // Se agrega a la lista de detalles a eliminar.
-                    detallesAEliminar.Add(detail);
-                }
-            }
-
-            // Eliminar los detalles de la lista de detalles a enviar a KN
-            foreach (var detalle in detallesAEliminar)
-            {
-                requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Remove(detalle);
-            }
-
-            //Si no quedan detalles en la lista, retornar un BadRequest
+            //Si no quedan detalles en la lista, no enviar a KN
             if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
             {
                 Console.WriteLine("No hay detalles para enviar a KN.");
                 return BadRequest("No hay detalles para enviar a KN.");
             }
-            */
 
             // Console WriteLine del json filtrado
             var jsonFiltrado = JsonConvert.SerializeObject(requestFiltrado);
@@ -724,11 +777,12 @@ namespace APIOrderConfirmation.controllers
 
 
             Console.WriteLine("ENVIADO A KN CORRECTAMENTE");
-            //return Ok("ENVIADO A KN CORRECTAMENTE");
+            return Ok("ENVIADO A KN CORRECTAMENTE");
             
             
             
             //ENVIO DE DATOS A LA URL DE KN
+            
             try
             {
 
@@ -776,6 +830,7 @@ namespace APIOrderConfirmation.controllers
             }
             
             
+            
         }
 
         [HttpPost("Split")]
@@ -818,12 +873,7 @@ namespace APIOrderConfirmation.controllers
                     {
                         // Verificar si ya existe un registro con los mismos valores clave
                         var existeEnConfirmada = await _context.Confirmada
-                            .AnyAsync(c => c.WcsId == request.SORT_COMPLETE.wcs_id &&
-                                           c.WhId == request.SORT_COMPLETE.wh_id &&
-                                           c.MsgId == request.SORT_COMPLETE.msg_id &&
-                                           c.LodNum == request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM &&
-                                           c.SubNum == detail.subnum &&
-                                           c.DtlNum == detail.dtlnum);
+                            .AnyAsync(c => c.DtlNum == detail.dtlnum);
 
 
                         if (!existeEnConfirmada)
@@ -887,17 +937,26 @@ namespace APIOrderConfirmation.controllers
             };
 
 
+            //Si no quedan detalles en la lista, no enviar a KN
+            if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
+            {
+                Console.WriteLine("No hay detalles para enviar a KN.");
+                return BadRequest("No hay detalles para enviar a KN.");
+            }
+
+
             // Console WriteLine del json filtrado
             var jsonFiltrado = JsonConvert.SerializeObject(requestFiltrado);
             Console.WriteLine("JSON FILTRADO: " + jsonFiltrado);
 
 
             Console.WriteLine("ENVIADO A KN CORRECTAMENTE");    
-            //return Ok("ENVIADO A KN CORRECTAMENTE");
+            return Ok("ENVIADO A KN CORRECTAMENTE");
 
             
             
             //ENVIO DE DATOS A LA URL DE KN
+            
             try
             {
                 var urlKN = _configuration["ExternalService:UrlKN"];
@@ -941,7 +1000,8 @@ namespace APIOrderConfirmation.controllers
             {
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
-            }  
+            }
+            
 
         }
 
