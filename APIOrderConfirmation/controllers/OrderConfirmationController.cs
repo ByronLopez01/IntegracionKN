@@ -476,7 +476,7 @@ namespace APIOrderConfirmation.controllers
 
 
             Console.WriteLine("ENVIADO A KN CORRECTAMENTE");
-            return Ok("ENVIADO A KN CORRECTAMENTE");
+            //return Ok("ENVIADO A KN CORRECTAMENTE");
 
             
 
@@ -777,7 +777,8 @@ namespace APIOrderConfirmation.controllers
 
 
             Console.WriteLine("ENVIADO A KN CORRECTAMENTE");
-            return Ok("ENVIADO A KN CORRECTAMENTE");
+            //return Ok("ENVIADO A KN CORRECTAMENTE");
+
             
             
             
@@ -951,7 +952,7 @@ namespace APIOrderConfirmation.controllers
 
 
             Console.WriteLine("ENVIADO A KN CORRECTAMENTE");    
-            return Ok("ENVIADO A KN CORRECTAMENTE");
+            //return Ok("ENVIADO A KN CORRECTAMENTE");
 
             
             
