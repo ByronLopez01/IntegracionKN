@@ -253,7 +253,7 @@ namespace APIFamilyMaster.controllers
 
                 if (!tandaActivada.NumTanda.HasValue)
                 {
-                    return Ok(new { message = "No se encontró una tanda siguiente que coincida con las salidas." });
+                    return Ok(new { message = "No se encontró una tanda siguiente o ya fue activada: " + numTandaActual });
                 }
 
                 return Ok(new

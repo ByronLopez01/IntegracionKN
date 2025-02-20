@@ -271,6 +271,15 @@ namespace APIFamilyMaster.services
 
         public async Task<(int? NumTanda, string? Familia, string Message)> ActivarSiguienteTandaAsync(int numTandaActual)
         {
+
+            bool tandaActualInactiva = await _context.Familias
+                .AnyAsync(f => f.NumTanda == numTandaActual && f.estado == false);
+
+            if (tandaActualInactiva)
+            {
+                return (null, null, $"La tanda {numTandaActual} ya está inactiva, no se puede activar otra tanda.");
+            }
+
             // Obtener las salidas de la tanda actual
             var salidasActuales = await _context.Familias
                 .Where(f => f.NumTanda == numTandaActual)
@@ -282,6 +291,11 @@ namespace APIFamilyMaster.services
             {
                 return (null, null, "No hay datos en la tanda actual.");
             }
+            await _context.Familias
+               .Where(f => f.NumTanda == numTandaActual)
+               .ExecuteUpdateAsync(s => s.SetProperty(f => f.estado, false));
+
+            await _context.SaveChangesAsync(); // Guardar cambios
 
             // Obtener las siguientes tandas inactivas (Estado == 0)
             var siguientesTandas = await _context.Familias
