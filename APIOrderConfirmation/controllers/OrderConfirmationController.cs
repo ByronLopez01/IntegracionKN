@@ -275,7 +275,7 @@ namespace APIOrderConfirmation.controllers
                             .ToListAsync();
 
                         bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
-                        Console.WriteLine($"PROCESADO - Todas las Ordenes Completadas: {todasOrdenesCompletadas}");
+                        Console.WriteLine($"PROCESADO - Todas las Ordenes Completadas de la familia {familia}: {todasOrdenesCompletadas}");
 
 
                         if (todasOrdenesCompletadas)
@@ -683,7 +683,7 @@ namespace APIOrderConfirmation.controllers
 
 
                     bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
-                    Console.WriteLine($"SHORT - Todas las Ordenes Completadas: {todasOrdenesCompletadas}");
+                    Console.WriteLine($"SHORT - Todas las Ordenes Completadas de la familia {familia}: {todasOrdenesCompletadas}");
 
                     if (todasOrdenesCompletadas)
                     {
