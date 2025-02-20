@@ -74,7 +74,7 @@ namespace APIOrderConfirmation.controllers
         private void LogJsonToFile(string jsonContent, string endpoint)
         {
             var logFilePath = "/app/logs/confirm_log.txt"; // Ruta del archivo de log en el contenedor Docker
-            var logEntry = $"{DateTime.UtcNow.AddHours(-3)}: {endpoint} - {jsonContent}{Environment.NewLine}";
+            var logEntry = $"{DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy HH:mm:ss")}: {endpoint} - {jsonContent}{Environment.NewLine}";
 
             try
             {
