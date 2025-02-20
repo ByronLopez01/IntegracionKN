@@ -34,6 +34,8 @@ namespace APIOrderConfirmation.controllers
             _configuration = configuration;
         }
 
+        private static List<int> _activatedTandas = new();
+
         private async Task<HttpResponseMessage> activarSiguienteTandaAsync(int numTandaActual)
         {
             var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster/activarSiguienteTanda?numTandaActual={numTandaActual}";
@@ -52,10 +54,27 @@ namespace APIOrderConfirmation.controllers
             var desactivarWaveResponse = await _apiWaveReleaseClient.PostAsync(waveURL, null);
             return (desactivarWaveResponse);
         }
+
+        // Método para activar la tanda solo si aún no se activó en la Wave actual.
+        private async Task<HttpResponseMessage> activarTandaSinActivadaAsync(int numTandaActual)
+        {
+            if (!_activatedTandas.Contains(numTandaActual))
+            {
+                _activatedTandas.Add(numTandaActual);
+                return await activarSiguienteTandaAsync(numTandaActual);
+            }
+            else
+            {
+                Console.WriteLine($"La tanda {numTandaActual} ya fue activada en esta Wave.");
+                // Devuelve un OK simulado.
+                return new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+            }
+        }
+
         private void LogJsonToFile(string jsonContent, string endpoint)
         {
             var logFilePath = "/app/logs/confirm_log.txt"; // Ruta del archivo de log en el contenedor Docker
-            var logEntry = $"{DateTime.UtcNow}: {endpoint} - {jsonContent}{Environment.NewLine}";
+            var logEntry = $"{DateTime.UtcNow.AddHours(-3)}: {endpoint} - {jsonContent}{Environment.NewLine}";
 
             try
             {
@@ -76,6 +95,15 @@ namespace APIOrderConfirmation.controllers
             var credentials = $"{username}:{password}";
             var encodedCredentials = Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encodedCredentials);
+        }
+
+        // Endpoint para resetear la lista de tandas activadas
+        [HttpPost("ResetTandas")]
+        public IActionResult ResetTandas()
+        {
+            _activatedTandas.Clear();
+            Console.WriteLine("Reset de tandas activadas.");
+            return Ok("Reset completado");
         }
 
         [HttpPost("")]
@@ -262,7 +290,7 @@ namespace APIOrderConfirmation.controllers
 
                             try
                             {
-                                var response = await activarSiguienteTandaAsync(numTandaActual);
+                                var response = await activarTandaSinActivadaAsync(numTandaActual);
 
                                 if (!response.IsSuccessStatusCode)
                                 {
@@ -375,7 +403,7 @@ namespace APIOrderConfirmation.controllers
                             SetAuthorizationHeader(_apiWaveReleaseClient);
                             try
                             {
-                                var response = await activarSiguienteTandaAsync(numTandaActual);
+                                var response = await activarTandaSinActivadaAsync(numTandaActual);
                                 if (!response.IsSuccessStatusCode)
                                 {
                                     Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster. StatusCode: {response.StatusCode}");
@@ -466,8 +494,8 @@ namespace APIOrderConfirmation.controllers
             //Si no quedan detalles en la lista, no enviar a KN
             if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
             {
-                Console.WriteLine("No hay detalles para enviar a KN.");
-                return BadRequest("No hay detalles para enviar a KN.");
+                Console.WriteLine("No hay detalles con qty > 0 para enviar a KN.");
+                return Ok("No hay detalles con qty > 0 para enviar.");
             }
 
             // Console WriteLine del json filtrado
@@ -482,7 +510,6 @@ namespace APIOrderConfirmation.controllers
 
             
             //ENVIO DE DATOS A LA URL DE KN
-            
             try
             {
 
@@ -671,7 +698,7 @@ namespace APIOrderConfirmation.controllers
                         try
                         {
                             Console.WriteLine($"Tanda actual: {numTandaActual}");
-                            var response = await activarSiguienteTandaAsync(numTandaActual);
+                            var response = await activarTandaSinActivadaAsync(numTandaActual);
                             Console.WriteLine("ACTIVACION DE SIGUIENTE TANDA!!!!!");
                             Console.WriteLine($"Tanda actual: {numTandaActual}");
 
@@ -783,7 +810,6 @@ namespace APIOrderConfirmation.controllers
             
             
             //ENVIO DE DATOS A LA URL DE KN
-            
             try
             {
 

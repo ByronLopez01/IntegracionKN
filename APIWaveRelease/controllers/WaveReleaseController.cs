@@ -321,21 +321,23 @@ namespace APIWaveRelease.controllers
 
                 return StatusCode(407, "Existen órdenes en proceso en estado activo (1). enviando al cache.");
             }
-          /*  else
-            {
-                
+            /*  else
+              {
 
-                    var resultado = await EnviarPostEndpoint();
 
-                    if (resultado is OkObjectResult)
-                    {
-                        Console.WriteLine("OK. Cargando datos desde el cache ");
-                        await GuardarWaveCache(waveReleaseKn);
-                        return Ok("se cargo desde el cache."); // Retornar un OK si la llamada fue exitosa
-                    }
+                      var resultado = await EnviarPostEndpoint();
 
-            }*/
+                      if (resultado is OkObjectResult)
+                      {
+                          Console.WriteLine("OK. Cargando datos desde el cache ");
+                          await GuardarWaveCache(waveReleaseKn);
+                          return Ok("se cargo desde el cache."); // Retornar un OK si la llamada fue exitosa
+                      }
 
+              }*/
+
+
+            var urlConfirm = "http://apiorderconfirmation:8080/api/OrderConfirmation/ResetTandas";
 
             //int salidasDisponibles = 15;
             int salidasDisponibles = 0;
@@ -343,6 +345,19 @@ namespace APIWaveRelease.controllers
             var url = "http://apifamilymaster:8080/api/FamilyMaster/obtener-total-salidas";
             var httpClientFam = _httpClientFactory.CreateClient("apiFamilyMaster");
             SetAuthorizationHeader(httpClientFam);
+
+
+            var resetList = await httpClientFam.PostAsync(urlConfirm, null);
+
+            if (resetList.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Lista de ordenes reseteada");
+            }
+            else
+            {
+                return StatusCode((int)resetList.StatusCode, "Error al resetear la lista de ordenes.");
+            }
+
 
             var respuesta = await httpClientFam.GetAsync(url);
 
@@ -447,6 +462,7 @@ namespace APIWaveRelease.controllers
             await _context.SaveChangesAsync();
 
 
+
             // ENVIO DE JSON A LUCA!!
             var jsonContent = JsonSerializer.Serialize(waveReleaseKn);
             var httpClient = _httpClientFactory.CreateClient("apiLuca");
@@ -481,6 +497,7 @@ namespace APIWaveRelease.controllers
                 Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
                 return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
             }
+            
             
 
             //var haytandasActivas = await _context.FamilyMaster.AnyAsync(fm => fm.estado == true);
