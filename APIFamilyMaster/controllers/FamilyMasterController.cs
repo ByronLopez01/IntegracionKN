@@ -251,7 +251,7 @@ namespace APIFamilyMaster.controllers
                 // Llama al método del servicio
                 var tandaActivada = await _familyMasterService.ActivarSiguienteTandaAsync(numTandaActual);
 
-                if (tandaActivada == null)
+                if (!tandaActivada.NumTanda.HasValue)
                 {
                     return Ok(new { message = "No se encontró una tanda siguiente que coincida con las salidas." });
                 }
@@ -259,7 +259,7 @@ namespace APIFamilyMaster.controllers
                 return Ok(new
                 {
                     message = $"Tanda {tandaActivada} activada correctamente.",
-                    tandaActivada = tandaActivada
+                    tandaActivada = tandaActivada.NumTanda
                 });
             }
             catch (Exception ex)
