@@ -800,7 +800,7 @@ namespace APIOrderConfirmation.controllers
             if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
             {
                 Console.WriteLine("No hay detalles para enviar a KN.");
-                return BadRequest("No hay detalles para enviar a KN.");
+                return Ok("No hay detalles para enviar a KN.");
             }
 
             // Console WriteLine del json filtrado
@@ -975,7 +975,7 @@ namespace APIOrderConfirmation.controllers
             if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
             {
                 Console.WriteLine("No hay detalles para enviar a KN.");
-                return BadRequest("No hay detalles para enviar a KN.");
+                return Ok("No hay detalles para enviar a KN.");
             }
 
 
