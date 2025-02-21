@@ -291,11 +291,30 @@ namespace APIFamilyMaster.services
             {
                 return (null, null, "No hay datos en la tanda actual.");
             }
+
+            // Desactivar la tanda actual
             await _context.Familias
                .Where(f => f.NumTanda == numTandaActual)
                .ExecuteUpdateAsync(s => s.SetProperty(f => f.estado, false));
 
             await _context.SaveChangesAsync(); // Guardar cambios
+
+            // !!!! Se desactivan los registros activos en WaveRelease para la familia de la tanda actual !!!!
+            // Se obtiene la familia a partir de la tanda actual
+            var familiaActual = await _context.Familias
+                .Where(f => f.NumTanda == numTandaActual)
+                .Select(f => f.Familia)
+                .FirstOrDefaultAsync();
+
+            if (!string.IsNullOrEmpty(familiaActual))
+            {
+                await _context.WaveReleases
+                    .Where(wr => wr.Familia == familiaActual && wr.estadoWave == true)
+                    .ExecuteUpdateAsync(wr => wr.SetProperty(w => w.estadoWave, false));
+
+            }
+            // FIN DE DESACTIVACIÓN DE REGISTROS EN WaveRelease
+
 
             // Obtener las siguientes tandas inactivas (Estado == 0)
             var siguientesTandas = await _context.Familias
