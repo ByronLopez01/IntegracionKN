@@ -263,6 +263,9 @@ namespace APIOrderConfirmation.controllers
                             return NotFound("No se encontró la wave activa en WaveRelease.");
                         }
 
+                        // Recargar la orden para obtener los cambios
+                        await _context.Entry(orden).ReloadAsync();
+
                         // Verificar si todas las órdenes de la familia han sido completadas
                         var familia = orden.familia;
                         //var wave = orden.wave;
@@ -270,7 +273,6 @@ namespace APIOrderConfirmation.controllers
 
                         // Buscar las ordenes de la familia en la wave actual.
                         var ordenesFamilia = await _context.ordenesEnProceso
-                            .AsNoTracking()
                             .Where(o => o.familia == familia && o.wave == waveActivaActual.Wave)
                             .ToListAsync();
 
@@ -384,12 +386,14 @@ namespace APIOrderConfirmation.controllers
                             return NotFound("No se encontró la wave activa en WaveRelease.");
                         }
 
+                        // Recargar la orden para obtener los cambios
+                        await _context.Entry(orden).ReloadAsync();
+
                         // Verificar si todas las órdenes de la familia han sido completadas
                         var familia = orden.familia;
 
                         // Buscar las ordenes de la familia en la wave actual.
                         var ordenesFamilia = await _context.ordenesEnProceso
-                            .AsNoTracking()
                             .Where(o => o.familia == familia && o.wave == waveActivaActual.Wave)
                             .ToListAsync();
 
@@ -558,6 +562,7 @@ namespace APIOrderConfirmation.controllers
             
             
             
+            
         }
 
         [HttpPost("Short")]
@@ -668,19 +673,16 @@ namespace APIOrderConfirmation.controllers
                         return NotFound("No se encontró la wave activa en WaveRelease.");
                     }
 
+                    // Recargar la orden para obtener los cambios
+                    await _context.Entry(orden).ReloadAsync();
+
                     // Verificar si todas las órdenes de la familia han sido completadas
                     var familia = orden.familia;
 
-                    // Mostrar la familia
-                    Console.WriteLine($"Familia: {familia}");
-
-
                     // Buscar las ordenes de la familia en la wave actual.
                     var ordenesFamilia = await _context.ordenesEnProceso
-                        .AsNoTracking()
                         .Where(o => o.familia == familia && o.wave == waveActivaActual.Wave)
                         .ToListAsync();
-
 
                     bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
                     Console.WriteLine($"SHORT - Todas las Ordenes Completadas de la familia {familia}: {todasOrdenesCompletadas}");
@@ -810,6 +812,7 @@ namespace APIOrderConfirmation.controllers
             
             
             //ENVIO DE DATOS A LA URL DE KN
+            
             try
             {
 
@@ -855,6 +858,7 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
+            
             
             
             
