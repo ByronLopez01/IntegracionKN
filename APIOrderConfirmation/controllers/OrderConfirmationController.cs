@@ -205,6 +205,9 @@ namespace APIOrderConfirmation.controllers
                         // Actualizar el estadoLuca a false
                         orden.estadoLuca = false;
 
+                        // Guardar inmediatamente los cambios en la BD
+                        await _context.SaveChangesAsync();
+
                         // COMIENZO DE DESACTIVAR WAVE !!!!!!!!
                         try
                         {
@@ -263,8 +266,6 @@ namespace APIOrderConfirmation.controllers
                             return NotFound("No se encontró la wave activa en WaveRelease.");
                         }
 
-                        // Recargar la orden para obtener los cambios
-                        await _context.Entry(orden).ReloadAsync();
 
                         // Verificar si todas las órdenes de la familia han sido completadas
                         var familia = orden.familia;
@@ -327,6 +328,9 @@ namespace APIOrderConfirmation.controllers
                         orden.estado = false;
                         orden.fechaProceso = DateTime.Now.AddHours(-2);
 
+                        // Guardar inmediatamente los cambios en la BD
+                        await _context.SaveChangesAsync();
+
                         // INICIO DE DESACTIVAR WAVE !!!!!!!!
                         try
                         {
@@ -385,9 +389,6 @@ namespace APIOrderConfirmation.controllers
                             Console.WriteLine("No se encontró la wave activa en WaveRelease.");
                             return NotFound("No se encontró la wave activa en WaveRelease.");
                         }
-
-                        // Recargar la orden para obtener los cambios
-                        await _context.Entry(orden).ReloadAsync();
 
                         // Verificar si todas las órdenes de la familia han sido completadas
                         var familia = orden.familia;
@@ -615,6 +616,9 @@ namespace APIOrderConfirmation.controllers
 
                     orden.fechaProceso = DateTime.UtcNow.AddHours(-2);
 
+                    // Guardar inmediatamente los cambios en la BD
+                    await _context.SaveChangesAsync();
+
 
                     // INICIO DE DESACTIVAR WAVE !!!!!!!!
                     try
@@ -673,8 +677,6 @@ namespace APIOrderConfirmation.controllers
                         return NotFound("No se encontró la wave activa en WaveRelease.");
                     }
 
-                    // Recargar la orden para obtener los cambios
-                    await _context.Entry(orden).ReloadAsync();
 
                     // Verificar si todas las órdenes de la familia han sido completadas
                     var familia = orden.familia;
@@ -750,6 +752,7 @@ namespace APIOrderConfirmation.controllers
                             await _context.Confirmada.AddAsync(nuevaConfirmada);
                         }
 
+                        
                         _context.ordenesEnProceso.Update(orden);
                     }
 
