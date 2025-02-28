@@ -616,6 +616,7 @@ namespace APIOrderConfirmation.controllers
 
                     orden.fechaProceso = DateTime.UtcNow.AddHours(-2);
 
+                    _context.ordenesEnProceso.Update(orden);
                     // Guardar inmediatamente los cambios en la BD
                     await _context.SaveChangesAsync();
 
@@ -753,7 +754,7 @@ namespace APIOrderConfirmation.controllers
                         }
 
                         
-                        _context.ordenesEnProceso.Update(orden);
+                       
                     }
 
                     // Guardar cambios a BD
