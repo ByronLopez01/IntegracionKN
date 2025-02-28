@@ -205,6 +205,9 @@ namespace APIOrderConfirmation.controllers
                         // Actualizar el estadoLuca a false
                         orden.estadoLuca = false;
 
+                        // Guardar inmediatamente los cambios en la BD
+                        await _context.SaveChangesAsync();
+
                         // COMIENZO DE DESACTIVAR WAVE !!!!!!!!
                         try
                         {
@@ -263,6 +266,7 @@ namespace APIOrderConfirmation.controllers
                             return NotFound("No se encontró la wave activa en WaveRelease.");
                         }
 
+
                         // Verificar si todas las órdenes de la familia han sido completadas
                         var familia = orden.familia;
                         //var wave = orden.wave;
@@ -270,7 +274,6 @@ namespace APIOrderConfirmation.controllers
 
                         // Buscar las ordenes de la familia en la wave actual.
                         var ordenesFamilia = await _context.ordenesEnProceso
-                            .AsNoTracking()
                             .Where(o => o.familia == familia && o.wave == waveActivaActual.Wave)
                             .ToListAsync();
 
@@ -324,6 +327,9 @@ namespace APIOrderConfirmation.controllers
                         // Actualizar estado(Confirmacion Senad)
                         orden.estado = false;
                         orden.fechaProceso = DateTime.Now.AddHours(-2);
+
+                        // Guardar inmediatamente los cambios en la BD
+                        await _context.SaveChangesAsync();
 
                         // INICIO DE DESACTIVAR WAVE !!!!!!!!
                         try
@@ -389,7 +395,6 @@ namespace APIOrderConfirmation.controllers
 
                         // Buscar las ordenes de la familia en la wave actual.
                         var ordenesFamilia = await _context.ordenesEnProceso
-                            .AsNoTracking()
                             .Where(o => o.familia == familia && o.wave == waveActivaActual.Wave)
                             .ToListAsync();
 
@@ -558,6 +563,7 @@ namespace APIOrderConfirmation.controllers
             
             
             
+            
         }
 
         [HttpPost("Short")]
@@ -609,6 +615,9 @@ namespace APIOrderConfirmation.controllers
                     orden.estado = false;
 
                     orden.fechaProceso = DateTime.UtcNow.AddHours(-2);
+
+                    // Guardar inmediatamente los cambios en la BD
+                    await _context.SaveChangesAsync();
 
 
                     // INICIO DE DESACTIVAR WAVE !!!!!!!!
@@ -668,19 +677,14 @@ namespace APIOrderConfirmation.controllers
                         return NotFound("No se encontró la wave activa en WaveRelease.");
                     }
 
+
                     // Verificar si todas las órdenes de la familia han sido completadas
                     var familia = orden.familia;
 
-                    // Mostrar la familia
-                    Console.WriteLine($"Familia: {familia}");
-
-
                     // Buscar las ordenes de la familia en la wave actual.
                     var ordenesFamilia = await _context.ordenesEnProceso
-                        .AsNoTracking()
                         .Where(o => o.familia == familia && o.wave == waveActivaActual.Wave)
                         .ToListAsync();
-
 
                     bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
                     Console.WriteLine($"SHORT - Todas las Ordenes Completadas de la familia {familia}: {todasOrdenesCompletadas}");
@@ -748,6 +752,7 @@ namespace APIOrderConfirmation.controllers
                             await _context.Confirmada.AddAsync(nuevaConfirmada);
                         }
 
+                        
                         _context.ordenesEnProceso.Update(orden);
                     }
 
@@ -795,7 +800,7 @@ namespace APIOrderConfirmation.controllers
             if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
             {
                 Console.WriteLine("No hay detalles para enviar a KN.");
-                return BadRequest("No hay detalles para enviar a KN.");
+                return Ok("No hay detalles para enviar a KN.");
             }
 
             // Console WriteLine del json filtrado
@@ -810,6 +815,7 @@ namespace APIOrderConfirmation.controllers
             
             
             //ENVIO DE DATOS A LA URL DE KN
+            
             try
             {
 
@@ -855,6 +861,7 @@ namespace APIOrderConfirmation.controllers
                 Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
+            
             
             
             
@@ -968,7 +975,7 @@ namespace APIOrderConfirmation.controllers
             if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
             {
                 Console.WriteLine("No hay detalles para enviar a KN.");
-                return BadRequest("No hay detalles para enviar a KN.");
+                return Ok("No hay detalles para enviar a KN.");
             }
 
 
