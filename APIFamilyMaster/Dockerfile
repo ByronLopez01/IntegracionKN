@@ -18,6 +18,7 @@ RUN dotnet publish "APIFamilyMaster.csproj" -c Release -o /app/publish
 # Crear la imagen final
 # FROM mcr.microsoft.com/dotnet/aspnet:8.0-windowsservercore-ltsc2019 AS final # W.S.2019
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+RUN apt-get update && apt-get install -y libgssapi-krb5-2
 WORKDIR /app
 COPY --from=publish /app/publish .
 EXPOSE 8080

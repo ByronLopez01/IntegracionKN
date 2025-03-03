@@ -45,6 +45,11 @@ services:
     #  - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+
+
+#test
+      - ASPNETCORE_URLS=http://+:8080
+####################################################
     restart: unless-stopped
 
 

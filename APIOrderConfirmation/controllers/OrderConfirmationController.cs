@@ -101,9 +101,10 @@ namespace APIOrderConfirmation.controllers
         [HttpPost("ResetTandas")]
         public IActionResult ResetTandas()
         {
+            Console.WriteLine(_activatedTandas);
             _activatedTandas.Clear();
             Console.WriteLine("Reset de tandas activadas.");
-            return Ok("Reset completado");
+            return Ok(_activatedTandas);
         }
 
         [HttpPost("")]

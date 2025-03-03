@@ -60,6 +60,26 @@ builder.Services.AddHttpClient("apiLuca", m => { })
         ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
     });
 
+
+
+///testtt ???????????
+// Configuración de CORS
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5000") // Reemplaza con el puerto donde corre Swagger UI
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
+//??????????????????????????????????????
+
+
+
 // Configuraci�n Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -111,6 +131,14 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+
+//test??????????
+// Aplicar CORS antes de la autenticación y autorización
+app.UseCors(MyAllowSpecificOrigins);
+//???????????????????????????
+
+
 app.UseAuthentication(); // Autenticaci�n
 app.UseAuthorization();
 
