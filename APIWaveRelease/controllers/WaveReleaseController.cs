@@ -753,12 +753,5 @@ namespace APIWaveRelease.controllers
                 return StatusCode((int)response.StatusCode, "Error al enviar los datos.");
             }
         }
-        [HttpGet("WaveReleases")]
-        public async Task<IActionResult> GetAllWaveReleases()
-        {
-            var waveReleases = await _context.WaveRelease.ToListAsync();
-            return Ok(waveReleases);
-        }
-
     }
 }

@@ -1,0 +1,16 @@
+﻿@page
+@model APIFamilyMaster.Pages.EnviarCacheModel
+
+<h1>Envío de Datos a WaveRelease</h1>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="alert @(Model.Mensaje.Contains("Error") ? "alert-danger" : "alert-success") mt-3">
+        @Model.Mensaje
+    </div>
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-primary">Enviar Datos a WaveRelease</button>
+</form>
