@@ -189,15 +189,6 @@ namespace APIOrderConfirmation.controllers
                         continue;
                     }
 
-                    /*
-                    if (!orden.estadoLuca)
-                    {
-                        // Si la orden ya fue procesada, retornar un error
-                        Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
-                        return BadRequest($"La orden con dtlnum {dtlnum} ya fue procesada.");
-                    }
-                    */
-
                     // Si la cantidad procesada es igual a la cantidad LPN, actualizar el estadoLuca a false
                     if (orden.cantidadProcesada == orden.cantidadLPN)
                     {
@@ -428,41 +419,37 @@ namespace APIOrderConfirmation.controllers
 
                         }
                     }
+                    
+                }
 
-                    foreach (var detail in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
+                // Agrupamos por dtlnum y tomamos la primera ocurrencia de cada grupo
+                var uniqueDetails = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG
+                    .GroupBy(d => d.dtlnum)
+                    .Select(g => g.First())
+                    .ToList();
+
+                // Guardar registros de confirmación en la BD
+                foreach (var detail in uniqueDetails)
+                {
+                    var nuevaConfirmada = new Confirmada
                     {
+                        WcsId = request.SORT_COMPLETE.wcs_id,
+                        WhId = request.SORT_COMPLETE.wh_id,
+                        MsgId = request.SORT_COMPLETE.msg_id,
+                        TranDt = DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy HH:mm:ss"),
+                        LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
+                        SubNum = detail.subnum,
+                        DtlNum = detail.dtlnum,
+                        StoLoc = detail.stoloc,
+                        Qty = detail.qty,
+                        accion = "Procesado"
+                    };
 
-                        // Verificar si ya existe un registro con los mismos valores clave
-                        var existeEnConfirmada = await _context.Confirmada
-                            .AsNoTracking()
-                            .AnyAsync(c => c.DtlNum == detail.dtlnum);
-
-
-                        if (!existeEnConfirmada)
-                        {
-                            var nuevaConfirmada = new Confirmada
-                            {
-                                WcsId = request.SORT_COMPLETE.wcs_id,
-                                WhId = request.SORT_COMPLETE.wh_id,
-                                MsgId = request.SORT_COMPLETE.msg_id,
-                                TranDt = DateTime.Now.ToString("yyyyMMddHHmmss"),
-                                LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
-                                SubNum = detail.subnum,
-                                DtlNum = detail.dtlnum,
-                                StoLoc = detail.stoloc,
-                                Qty = detail.qty,
-                                accion = "Procesado"
-                            };
-
-                            await _context.Confirmada.AddAsync(nuevaConfirmada);
-                        }
-                    }
-
-                    await _context.SaveChangesAsync();
-                    _context.ordenesEnProceso.Update(orden);
+                    await _context.Confirmada.AddAsync(nuevaConfirmada);
                 }
 
                 await _context.SaveChangesAsync();
+
             }
             catch (Exception ex)
             {
@@ -566,8 +553,8 @@ namespace APIOrderConfirmation.controllers
             
         }
 
-
-        [HttpPost("ShortPick")]
+        // SHORT PICK NUEVO!!!
+        [HttpPost("Short")]
         public async Task<IActionResult> shortPickTest([FromBody] SortCompleteKN request)
         {
             Console.WriteLine("------ SHORT PICK !!!!!! ----------");
@@ -705,31 +692,30 @@ namespace APIOrderConfirmation.controllers
                     }
                 }
 
+                // Agrupamos por dtlnum y tomamos la primera ocurrencia de cada grupo
+                var uniqueDetails = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG
+                    .GroupBy(d => d.dtlnum)
+                    .Select(g => g.First())
+                    .ToList();
+
                 // Guardar registros de confirmación en la BD
-                foreach (var detail in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
+                foreach (var detail in uniqueDetails)
                 {
-                    var existeEnConfirmada = await _context.Confirmada
-                        .AsNoTracking()
-                        .AnyAsync(c => c.DtlNum == detail.dtlnum);
-
-                    if (!existeEnConfirmada)
+                    var nuevaConfirmada = new Confirmada
                     {
-                        var nuevaConfirmada = new Confirmada
-                        {
-                            WcsId = request.SORT_COMPLETE.wcs_id,
-                            WhId = request.SORT_COMPLETE.wh_id,
-                            MsgId = request.SORT_COMPLETE.msg_id,
-                            TranDt = DateTime.Now.ToString("yyyyMMddHHmmss"),
-                            LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
-                            SubNum = detail.subnum,
-                            DtlNum = detail.dtlnum,
-                            StoLoc = detail.stoloc,
-                            Qty = detail.qty,
-                            accion = "Short-pick"
-                        };
+                        WcsId = request.SORT_COMPLETE.wcs_id,
+                        WhId = request.SORT_COMPLETE.wh_id,
+                        MsgId = request.SORT_COMPLETE.msg_id,
+                        TranDt = DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy HH:mm:ss"),
+                        LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
+                        SubNum = detail.subnum,
+                        DtlNum = detail.dtlnum,
+                        StoLoc = detail.stoloc,
+                        Qty = detail.qty,
+                        accion = "Short-pick"
+                    };
 
-                        await _context.Confirmada.AddAsync(nuevaConfirmada);
-                    }
+                    await _context.Confirmada.AddAsync(nuevaConfirmada);
                 }
 
                 // Guardar cambios en la BD
@@ -821,16 +807,8 @@ namespace APIOrderConfirmation.controllers
 
 
 
-
-
-
-
-
-
-
-
-
-        [HttpPost("Short")]
+        // SHORT PICK ANTIGUO!!
+        /*[HttpPost("Short")]
         public async Task<IActionResult> shortPick([FromBody] SortCompleteKN request)
         {
             Console.WriteLine("------ SHORT PICK !!!!!! ----------");
@@ -862,15 +840,6 @@ namespace APIOrderConfirmation.controllers
                         //return NotFound($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
                         continue;
                     }
-
-                    /*
-                    if (!orden.estadoLuca)
-                    {
-                        // Si la orden ya fue procesada, retornar un error
-                        Console.WriteLine($"La orden con dtlnum {dtlnum} ya fue procesada.");
-                        return BadRequest($"La orden con dtlnum {dtlnum} ya fue procesada.");
-                    }
-                    */
 
 
                     // Actualizar estadoLuca (Confirmar a KN)
@@ -1131,6 +1100,9 @@ namespace APIOrderConfirmation.controllers
             
             
         }
+        */
+
+
 
         [HttpPost("Split")]
         public async Task<IActionResult> splitPick([FromBody] SortCompleteKN request)
@@ -1167,40 +1139,40 @@ namespace APIOrderConfirmation.controllers
 
                     orden.fechaProceso = DateTime.UtcNow.AddHours(-2);
 
-
-                    foreach (var detail in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
-                    {
-                        // Verificar si ya existe un registro con los mismos valores clave
-                        var existeEnConfirmada = await _context.Confirmada
-                            .AnyAsync(c => c.DtlNum == detail.dtlnum);
-
-
-                        if (!existeEnConfirmada)
-                        {
-                            var nuevaConfirmada = new Confirmada
-                            {
-                                WcsId = request.SORT_COMPLETE.wcs_id,
-                                WhId = request.SORT_COMPLETE.wh_id,
-                                MsgId = request.SORT_COMPLETE.msg_id,
-                                TranDt = DateTime.Now.ToString("yyyyMMddHHmmss"),
-                                LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
-                                SubNum = detail.subnum,
-                                DtlNum = detail.dtlnum,
-                                StoLoc = detail.stoloc,
-                                Qty = detail.qty,
-                                accion = "Split-short"
-                            };
-
-                            await _context.Confirmada.AddAsync(nuevaConfirmada);
-                        }
-
-                        _context.ordenesEnProceso.Update(orden);
-                    }
-
                     // Guardar cambios a BD
                     await _context.SaveChangesAsync();
 
                 }
+
+                // Agrupamos por dtlnum y tomamos la primera ocurrencia de cada grupo
+                var uniqueDetails = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG
+                    .GroupBy(d => d.dtlnum)
+                    .Select(g => g.First())
+                    .ToList();
+
+                // Guardar registros de confirmación en la BD
+                foreach (var detail in uniqueDetails)
+                {
+                    var nuevaConfirmada = new Confirmada
+                    {
+                        WcsId = request.SORT_COMPLETE.wcs_id,
+                        WhId = request.SORT_COMPLETE.wh_id,
+                        MsgId = request.SORT_COMPLETE.msg_id,
+                        TranDt = DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy HH:mm:ss"),
+                        LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
+                        SubNum = detail.subnum,
+                        DtlNum = detail.dtlnum,
+                        StoLoc = detail.stoloc,
+                        Qty = detail.qty,
+                        accion = "Split-short"
+                    };
+
+                    await _context.Confirmada.AddAsync(nuevaConfirmada);
+                }
+
+                // Guardar cambios a BD
+                await _context.SaveChangesAsync();
+
             }
             catch (Exception ex)
             {
