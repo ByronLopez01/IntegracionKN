@@ -17,10 +17,12 @@ var builder = WebApplication.CreateBuilder(args);
 //agrega el archivo para parametrizar (ExternalProperties.json)        true = archivo opcional o false = obligatorio para compilar
 builder.Configuration.AddJsonFile("externalproperties/ExternalProperties.json", optional: false, reloadOnChange: true);
 
-// Add services to the container.
+
+builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
-builder.Services.AddHttpClient();
+
+
 
 
 // Configuraciï¿½n de JWT

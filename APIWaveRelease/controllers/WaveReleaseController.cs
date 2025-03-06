@@ -753,7 +753,5 @@ namespace APIWaveRelease.controllers
                 return StatusCode((int)response.StatusCode, "Error al enviar los datos.");
             }
         }
-
-
     }
 }

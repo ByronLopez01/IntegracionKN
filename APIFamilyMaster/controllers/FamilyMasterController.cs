@@ -268,5 +268,29 @@ namespace APIFamilyMaster.controllers
                 return StatusCode(500, new { message = "Error interno del servidor.", error = ex.Message });
             }
         }
+        // Nuevo endpoint GET para obtener todos los registros de FamilyMaster
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllFamilyMasters()
+        {
+            try
+            {
+                // Obtener todos los registros de la tabla FamilyMaster
+                var familyMasters = await _context.Familias.ToListAsync();
+
+                // Verificar si hay datos
+                if (familyMasters == null || familyMasters.Count == 0)
+                {
+                    return NotFound("No se encontraron registros en la tabla FamilyMaster.");
+                }
+
+                // Devolver los datos en formato JSON
+                return Ok(familyMasters);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de errores
+                return StatusCode(500, new { message = "Error interno del servidor.", error = ex.Message });
+            }
+        }
     }
 }

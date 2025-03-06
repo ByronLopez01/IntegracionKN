@@ -1,0 +1,33 @@
+﻿@page
+@model APIFamilyMaster.Pages.TestModel
+
+<h1>Datos de Family Master</h1>
+
+@if (Model.FamilyMasters != null && Model.FamilyMasters.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Familia</th>
+                <th>Número de Salida</th>
+                <th>Número de Tanda</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.FamilyMasters)
+            {
+                <tr>
+                    <td>@item.IdFamilyMaster</td>
+                    <td>@item.Familia</td>
+                    <td>@item.NumSalida</td>
+                    <td>@item.NumTanda</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No se encontraron datos.</p>
+}
