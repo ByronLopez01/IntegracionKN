@@ -43,7 +43,7 @@ namespace APISenad.controllers
         public async Task<ActionResult> CodigoEscaneado(string codItem)
         {
 
-            _logger.LogInformation("Ininio del Proceso....");
+            _logger.LogInformation("Inicio del Proceso APISenad....");
             // !!!!!!!!!!!!!!!!!!!!!!!!
             // VARIABLES DE SALIDA!!!!!
             // !!!!!!!!!!!!!!!!!!!!!!!!
@@ -62,12 +62,20 @@ namespace APISenad.controllers
             // Busca el código en los campos codMastr, codInr y codProducto en la tabla ordenesEnProceso
             // Selecciona solamente las ordenes No Procesadas.
             var ordenEncontrada = await _context.ordenesEnProceso
+                .AsNoTracking()
                 .Where(o => (o.codMastr == codItem || o.codInr == codItem || o.codProducto == codItem) && o.estado == true)
                 .OrderBy(o => o.id)
                 .FirstOrDefaultAsync();
 
-            
 
+            // Validar si no se encontró la orden
+            if (ordenEncontrada == null)
+            {
+                _logger.LogError("No se encontró ninguna orden para el código: {codItem}", codItem);
+                return Ok($"No se encontró una orden para el código: {codItem}");
+            }
+
+            /*
             if (ordenEncontrada == null)
             {
                 Console.WriteLine($"Orden encontrada {ordenEncontrada.numOrden} ");
@@ -110,6 +118,7 @@ namespace APISenad.controllers
                     return Ok(responseError);
                 }
             }
+            */
 
             // Procesar orden encontrada
             string tipoCodigo = "Desconocido";
@@ -117,6 +126,7 @@ namespace APISenad.controllers
 
             _logger.LogInformation("Buscando familia activa para la orden: {numOrden}, Familia: {Familia}", ordenEncontrada.numOrden, ordenEncontrada.familia);
             var familiasActivas = await _context.familias
+                .AsNoTracking()
                 .FirstOrDefaultAsync(f => f.Familia == ordenEncontrada.familia && f.estado == true &&
                             (f.Tienda1 != null || f.Tienda2 != null || f.Tienda3 != null ||
                             f.Tienda4 != null || f.Tienda5 != null || f.Tienda6 != null ||
@@ -304,129 +314,20 @@ namespace APISenad.controllers
 
             await _context.SaveChangesAsync();
 
-
-
-            
-            // Verificar si todas las órdenes de la familia han sido completadas
-            var familiaOrden = ordenEncontrada.familia;
-            var ordenesFamilia = await _context.ordenesEnProceso
-                .Where(o => o.familia == familiaOrden)
-                .ToListAsync();
-
-            bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
-
-            _logger.LogInformation("Verificando que todas las ordenes de la familia: {familiaOrden} esten completadas ", familiaOrden);
-
-            // Si todas las órdenes de la familia han sido completadas
-            if (todasOrdenesCompletadas)
-            {
-                // Buscamos la familia actual en FamilyMaster
-                var familyMasterActual = await _context.familias
-                    .Where(f => f.Familia == familiaOrden)
-                    .FirstOrDefaultAsync();
-
-               // Console.WriteLine($"Todas las órdenes de la familia {familiaOrden} han sido completadas.");
-                _logger.LogInformation("Todas las órdenes de la familia: {familiaOrden} fueron completadas " ,familiaOrden);
-                // Console.WriteLine($"Familia actual: {familyMasterActual.Familia}");
-
-                _logger.LogInformation(" Familia En proceso {FamilyMasterActual.Familia} ", familyMasterActual.Familia);
-
-                // OBTENEMOS EL NÚMERO DE TANDA ACTUAL
-                int numTandaActual = familyMasterActual.NumTanda;
-
-               // Console.WriteLine("Número de tanda actual: " + numTandaActual);
-                _logger.LogInformation(" Número de tanda actual: {numTandaActual} ", numTandaActual);
-
-                await ActivatSiguienteTanda(numTandaActual);
-
-               // try
-                //{
-                  //  SetAuthorizationHeader(_apiFamilyMasterClient);
-
-                    //var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster/activarSiguienteTanda?numTandaActual={numTandaActual}";
-                    //Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
-
-                    // Llamamos con un POST el endpoint de FamilyMaster para activar la siguiente tanda
-                    //var familyMasterResponse = await _apiFamilyMasterClient.PostAsync(urlFamilyMaster, null);
-                    //Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
-                    //Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
-                    //Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
-
-
-               // }
-               // catch (HttpRequestException ex)
-               // {
-                 //   Console.WriteLine($"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                  //  return StatusCode(500, $"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-               // }
-               // catch (Exception ex)
-               // {
-                 //   Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                 //   return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-               // }
-
-            }
-
             var respuestaSorter = new RespuestaEscaneo
             {
                 codigoIngresado = codItem,
                 numeroOrden = ordenEncontrada.numOrden,
                 salida = ordenEncontrada.numSalida
             };
+
             _logger.LogInformation("codItem: {respuestaSorter.codigoIngresado} numOrden: {respuestaSorter.numeroOrden} salida: {respuestaSorter.salida}"
                 , respuestaSorter.codigoIngresado,respuestaSorter.numeroOrden,respuestaSorter.salida);
-         //   Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
-          //  Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
-            //Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
-            //Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
-            //Console.WriteLine($"codItem: {respuestaSorter.codigoIngresado}, numOrden: {respuestaSorter.numeroOrden}, salida: {respuestaSorter.salida}");
 
             return Ok(respuestaSorter);
 
         }
 
-
-        public async Task<IActionResult> ActivatSiguienteTanda(int numTandaActual)
-        {
-
-            _logger.LogInformation("Activando Siguiente Tanda...");
-
-            try
-            {
-                SetAuthorizationHeader(_apiFamilyMasterClient);
-
-                var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster/activarSiguienteTanda?numTandaActual={numTandaActual}";
-                Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
-                _logger.LogInformation("URL FamilyMaster: {urlFamilyMaster} ", urlFamilyMaster);
-
-                // Llamamos con un POST el endpoint de FamilyMaster para activar la siguiente tanda
-                var familyMasterResponse = await _apiFamilyMasterClient.PostAsync(urlFamilyMaster, null);
-
-                _logger.LogInformation("Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}",familyMasterResponse.StatusCode);
-
-              //  Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
-               // Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
-               // Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
-
-                return StatusCode(200, "TandaActivada");
-
-
-            }
-            catch (HttpRequestException ex)
-            {
-                _logger.LogError("Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message} ", ex.Message);
-
-                //Console.WriteLine($"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                return StatusCode(500, $"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Error al activar la siguiente tanda en FamilyMaster: {ex.Message}",ex.Message);
-           //     Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-                return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
-            }
-
-        }
     }
 
 }
