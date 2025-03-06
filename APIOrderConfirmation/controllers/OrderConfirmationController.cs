@@ -158,7 +158,10 @@ namespace APIOrderConfirmation.controllers
             return Ok(response);
         }
 
-        [HttpPost("Procesado")]
+
+
+        // PROCESADO ANTIGUO
+        /*[HttpPost("Procesado")]
         public async Task<IActionResult> Procesado([FromBody] SortCompleteKN request)
         {
             var jsonLog = JsonConvert.SerializeObject(request);
@@ -548,10 +551,261 @@ namespace APIOrderConfirmation.controllers
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
             
-            
-            
-            
         }
+
+        */
+
+        // PROCESADO NUEVO
+        [HttpPost("Procesado")]
+        public async Task<IActionResult> Procesado([FromBody] SortCompleteKN request)
+        {
+            var jsonLog = JsonConvert.SerializeObject(request);
+            LogJsonToFile(jsonLog, "Procesado");
+
+            if (request?.SORT_COMPLETE?.SORT_COMP_SEG?.LOAD_HDR_SEG?.LOAD_DTL_SEG == null ||
+                request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
+            {
+                return BadRequest("Datos en formato incorrecto.");
+            }
+
+            // Lista para almacenar las familias que se hayan procesado
+            var familiasProcesadas = new HashSet<string>();
+
+            try
+            {
+                // Primero recorremos cada detalle para actualizar cada orden individualmente
+                foreach (var loadDtl in request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG)
+                {
+                    Console.WriteLine("Procesando orden para dtlnum: " + loadDtl.dtlnum);
+                    var dtlnum = loadDtl.dtlnum;
+                    var orden = await _context.ordenesEnProceso
+                        .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
+
+                    if (orden == null)
+                    {
+                        Console.WriteLine($"No se encontró la orden para dtlnum: {dtlnum}");
+                        continue;
+                    }
+
+                    // Actualización de la orden
+                    if (orden.cantidadProcesada == orden.cantidadLPN)
+                    {
+                        Console.WriteLine("PROCESANDO CON SORTER!!!");
+                        orden.estadoLuca = false;
+
+                        try
+                        {
+                            var numOrden = orden.numOrden;
+                            var codProducto = orden.codProducto;
+                            SetAuthorizationHeader(_apiWaveReleaseClient);
+                            var responseWave = await desactivarWaveAsync(numOrden, codProducto);
+                            Console.WriteLine($"Wave de la orden {numOrden} desactivada correctamente.");
+                        }
+                        catch (HttpRequestException httpEx)
+                        {
+                            Console.WriteLine($"Error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
+                        }
+                    }
+                    else // Cuando cantidadProcesada != cantidadLPN
+                    {
+                        Console.WriteLine("PROCESANDO SIN SORTER!!!");
+                        orden.estadoLuca = false;
+                        orden.estado = false;
+                        orden.fechaProceso = DateTime.Now.AddHours(-2);
+                        
+
+                        try
+                        {
+                            var numOrden = orden.numOrden;
+                            var codProducto = orden.codProducto;
+                            SetAuthorizationHeader(_apiWaveReleaseClient);
+                            var responseWave = await desactivarWaveAsync(numOrden, codProducto);
+                            Console.WriteLine($"Wave de la orden {numOrden} desactivada correctamente.");
+                        }
+                        catch (HttpRequestException httpEx)
+                        {
+                            Console.WriteLine($"Error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
+                        }
+                        catch (Exception)
+                        {
+                            //Console.WriteLine($"Error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
+                            Console.WriteLine($"Wave de la orden {orden.numOrden} ya desactivada.");
+                        }
+                    }
+
+                    // Agregamos la familia de esta orden para verificaciones posteriores
+                    familiasProcesadas.Add(orden.familia);
+                }
+                // Guardar los cambios en la BD
+                await _context.SaveChangesAsync();
+
+                // Luego de procesar todas las órdenes, verificamos por cada familia si todas sus órdenes están completadas
+                foreach (var familia in familiasProcesadas)
+                {
+                    var waveActivaActual = await _context.WaveRelease
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(w => w.estadoWave == true);
+
+                    if (waveActivaActual == null)
+                    {
+                        Console.WriteLine("No se encontró la wave activa en WaveRelease para la familia: " + familia);
+                        continue;
+                    }
+
+                    var ordenesFamilia = await _context.ordenesEnProceso
+                        .Where(o => o.familia == familia && o.wave == waveActivaActual.Wave)
+                        .ToListAsync();
+
+                    bool todasCompletadas = ordenesFamilia.All(o => o.estado == false);
+                    Console.WriteLine($"PROCESADO - Todas las órdenes completadas de la familia {familia}: {todasCompletadas}");
+
+                    if (todasCompletadas)
+                    {
+                        var familyRecord = await _context.FamilyMaster
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(f => f.Familia == familia);
+                        if (familyRecord == null)
+                        {
+                            Console.WriteLine("No se encontró la familia en FamilyMaster para: " + familia);
+                            continue;
+                        }
+
+                        int numTandaActual = familyRecord.NumTanda;
+                        Console.WriteLine("Activando siguiente tanda para la familia " + familia + " tanda: " + numTandaActual);
+                        SetAuthorizationHeader(_apiWaveReleaseClient);
+                        try
+                        {
+                            var responseTanda = await activarTandaSinActivadaAsync(numTandaActual);
+                            if (!responseTanda.IsSuccessStatusCode)
+                            {
+                                Console.WriteLine($"Error al activar la siguiente tanda para la familia {familia}. StatusCode: {responseTanda.StatusCode}");
+                            }
+                        }
+                        catch (HttpRequestException ex)
+                        {
+                            Console.WriteLine($"Error HTTP al activar la tanda para la familia {familia}: {ex.Message}");
+                            return StatusCode(500, $"Error HTTP al activar la tanda para la familia {familia}: {ex.Message}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error al activar la tanda para la familia {familia}: {ex.Message}");
+                            return StatusCode(500, $"Error al activar la tanda para la familia {familia}: {ex.Message}");
+                        }
+                    }
+                }
+
+                // Agrupar los detalles únicos (por dtlnum) para insertar en Confirmada
+                var uniqueDetails = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG
+                    .GroupBy(d => d.dtlnum)
+                    .Select(g => g.First())
+                    .ToList();
+
+                foreach (var detail in uniqueDetails)
+                {
+                    var nuevaConfirmada = new Confirmada
+                    {
+                        WcsId = request.SORT_COMPLETE.wcs_id,
+                        WhId = request.SORT_COMPLETE.wh_id,
+                        MsgId = request.SORT_COMPLETE.msg_id,
+                        TranDt = DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy HH:mm:ss"),
+                        LodNum = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
+                        SubNum = detail.subnum,
+                        DtlNum = detail.dtlnum,
+                        StoLoc = detail.stoloc,
+                        Qty = detail.qty,
+                        accion = "Procesado"
+                    };
+                    await _context.Confirmada.AddAsync(nuevaConfirmada);
+                }
+
+                // Guardar los cambios en la BD
+                await _context.SaveChangesAsync();
+
+                // Filtrar los detalles con qty > 0 para enviar a KN
+                var detallesFiltrados = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG
+                    .Where(d => d.qty > 0)
+                    .ToList();
+
+                var requestFiltrado = new SortCompleteKN
+                {
+                    SORT_COMPLETE = new SortComplete
+                    {
+                        wcs_id = request.SORT_COMPLETE.wcs_id,
+                        wh_id = request.SORT_COMPLETE.wh_id,
+                        msg_id = request.SORT_COMPLETE.msg_id,
+                        trandt = request.SORT_COMPLETE.trandt,
+                        SORT_COMP_SEG = new SortCompSeg
+                        {
+                            LOAD_HDR_SEG = new LoadHdrSeg
+                            {
+                                LODNUM = request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LODNUM,
+                                LOAD_DTL_SEG = detallesFiltrados
+                            }
+                        }
+                    }
+                };
+
+                if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
+                {
+                    Console.WriteLine("No hay detalles con qty > 0 para enviar a KN.");
+                    return Ok("No hay detalles con qty > 0 para enviar.");
+                }
+
+                var jsonFiltrado = JsonConvert.SerializeObject(requestFiltrado);
+                Console.WriteLine("JSON FILTRADO: " + jsonFiltrado);
+                Console.WriteLine("ENVIADO A KN CORRECTAMENTE");
+
+                // ENVÍO DE DATOS A LA URL DE KN
+                try
+                {
+                    var urlKN = _configuration["ExternalService:UrlKN"];
+                    Console.WriteLine("URL KN:" + urlKN);
+
+                    using (var client = new HttpClient())
+                    {
+                        var username = _configuration["BasicAuth:Username"];
+                        var password = _configuration["BasicAuth:Password"];
+                        var array = Encoding.ASCII.GetBytes($"{username}:{password}");
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(array));
+
+                        var httpContent = new StringContent(jsonFiltrado, Encoding.UTF8, "application/json");
+                        var responseKN = await client.PostAsync(urlKN, httpContent);
+
+                        if (responseKN.IsSuccessStatusCode)
+                        {
+                            Console.WriteLine("Datos enviados correctamente a KN.");
+                            return Ok("Datos enviados correctamente a KN.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Error al enviar datos a KN.");
+                            return StatusCode((int)responseKN.StatusCode, "Error al enviar datos a KN.");
+                        }
+                    }
+                }
+                catch (HttpRequestException httpEx)
+                {
+                    Console.WriteLine("Ocurrió un error HTTP al enviar los datos a KN: " + httpEx.Message);
+                    return StatusCode(500, $"Ocurrió un error HTTP al enviar los datos a KN: {httpEx.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
+                    return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ocurrió un error al procesar las órdenes: " + ex.Message);
+                return StatusCode(500, $"Ocurrió un error al procesar las órdenes: {ex.Message}");
+            }
+        }
+
+
 
         // SHORT PICK NUEVO!!!
         [HttpPost("Short")]
