@@ -11,8 +11,8 @@ namespace APIFamilyMaster.Pages
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
 
-        [TempData]
-        public string Mensaje { get; set; }
+        //[TempData]
+        //public string Mensaje { get; set; }
 
         public EnviarCacheModel(
             IHttpClientFactory httpClientFactory,
@@ -22,11 +22,12 @@ namespace APIFamilyMaster.Pages
             _configuration = configuration;
         }
 
-        public void OnGet() { }
+        //public void OnGet() { }
 
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnPostAsync()
         {
+            string mensaje;
             try
             {
                 var httpClient = _httpClientFactory.CreateClient();
@@ -34,38 +35,30 @@ namespace APIFamilyMaster.Pages
                 // Credenciales desde appsettings.json
                 var usuario = _configuration["BasicAuth:Username"];
                 var contrasena = _configuration["BasicAuth:Password"];
-
-                var authHeader = new AuthenticationHeaderValue(
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
                     "Basic",
                     Convert.ToBase64String(Encoding.UTF8.GetBytes($"{usuario}:{contrasena}"))
                 );
-
-                httpClient.DefaultRequestHeaders.Authorization = authHeader;
 
                 var response = await httpClient.PostAsync(
                     "http://apiwaverelease:8080/api/WaveRelease/EnviarCache",
                     null
                 );
 
-                if (response.IsSuccessStatusCode)
-                {
-                    Mensaje = await response.Content.ReadAsStringAsync();
-                }
-                else
-                {
-                    Mensaje = $"Error HTTP {response.StatusCode}: {await response.Content.ReadAsStringAsync()}";
-                }
+                mensaje = response.IsSuccessStatusCode
+                    ? await response.Content.ReadAsStringAsync()
+                    : $"Error HTTP {response.StatusCode}: {await response.Content.ReadAsStringAsync()}";
             }
             catch (HttpRequestException ex)
             {
-                Mensaje = $"Error de conexión: {ex.Message}";
+                mensaje = $"Error de conexión: {ex.Message}";
             }
             catch (Exception ex)
             {
-                Mensaje = $"Error inesperado: {ex.Message}";
+                mensaje = $"Error inesperado: {ex.Message}";
             }
 
-            return RedirectToPage();
+            return new JsonResult(new { mensaje });
         }
     }
 }
