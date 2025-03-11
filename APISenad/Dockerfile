@@ -3,29 +3,23 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY ["APISenad/APISenad.csproj", "APISenad/"]
+# Copiar el archivo de proyecto y restaurar las dependencias
+COPY APISenad.csproj ./
+RUN dotnet restore "APISenad.csproj"
 
-
-RUN dotnet restore "APISenad/APISenad.csproj"
-COPY APISenad/. APISenad/
-
-COPY externalproperties/ExternalProperties.json /app/externalproperties/
-
-WORKDIR "/src/APISenad"
+# Copiar el resto de los archivos y compilar la aplicación
+COPY . ./
+WORKDIR /src
 RUN dotnet build "APISenad.csproj" -c Release -o /app/build
 
-# Publicar la aplicaci�n en una carpeta
+# Publicar la aplicación en una carpeta
 FROM build AS publish
 RUN dotnet publish "APISenad.csproj" -c Release -o /app/publish
 
 # Crear la imagen final
 # FROM mcr.microsoft.com/dotnet/aspnet:8.0-windowsservercore-ltsc2019 AS final # W.S.2019
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-RUN apt-get update && apt-get install -y libgssapi-krb5-2
 WORKDIR /app
-
 COPY --from=publish /app/publish .
-COPY externalproperties/ExternalProperties.json ./externalproperties/
-
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "APISenad.dll"]
