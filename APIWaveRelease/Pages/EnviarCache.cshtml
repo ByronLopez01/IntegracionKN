@@ -59,37 +59,37 @@
 
 <script>
     document.getElementById('myForm').addEventListener('submit', async function(e) {
-        // Detener envío normal del formulario
         e.preventDefault();
 
-        // Obtener referencias a elementos
         const btn = document.getElementById('submitBtn');
         const spinner = btn.querySelector('.spinner-border');
         const messageContainer = document.getElementById('messageContainer');
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-        // Desactivar botón y mostrar spinner
         btn.disabled = true;
         spinner.style.display = 'inline-block';
-
-        // Limpiar mensajes anteriores
         messageContainer.innerHTML = '';
 
         try {
-            // Crear FormData y agregar token antifalsificación
-            const formData = new FormData(this);
+            
+            const response = await fetch('/api/WaveRelease/EnviarCache', {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'Authorization': 'Basic ' + btoa('senad:S3nad'),
+                    'Content-Type': 'application/json'
+                }
+            });
 
-            // Enviar solicitud POST
-        const response = await fetch('http://localhost:5000/api/WaveRelease/EnviarCache', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Basic ' + btoa('senad:S3nad')
+            let data;
+            const contentType = response.headers.get('content-type');
+
+            if (contentType?.includes('application/json')) {
+                data = await response.json();
+            } else {
+                data = { mensaje: await response.text() };
             }
-        });
 
-            // Leer respuesta JSON
-            const data = await response.json();
-
-            // Mostrar mensaje dinámicamente
             const alertType = data.mensaje.includes("Error") ? "alert-danger" : "alert-success";
             messageContainer.innerHTML = `
                 <div class="alert ${alertType}">
@@ -100,7 +100,7 @@
         } catch (error) {
             messageContainer.innerHTML = `
                 <div class="alert alert-danger">
-                    ${error.message}
+                    Error de conexión: ${error.message}
                 </div>
             `;
         } finally {
@@ -108,4 +108,4 @@
             spinner.style.display = 'none';
         }
     });
-</script>   
+</script>

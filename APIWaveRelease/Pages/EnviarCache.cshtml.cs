@@ -67,7 +67,11 @@ namespace APIWaveRelease.Pages
                 mensaje = $"Error inesperado: {ex.Message}";
             }
 
-            return new JsonResult(new { mensaje });
+            return new JsonResult(new
+            {
+                mensaje = mensaje,
+                esError = mensaje.Contains("Error")
+            });
         }
     }
 }

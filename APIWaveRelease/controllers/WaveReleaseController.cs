@@ -79,12 +79,11 @@ namespace APIWaveRelease.controllers
         }
 
         [HttpPost("EnviarCache")]
-        [AllowAnonymous]
         public async Task<IActionResult> EnviarCache()
         {
             await EnviarPostEndpoint();
 
-            return Ok("Datos Enviados Correctamente a la WaveRelase");
+            return Ok(new { mensaje = "Datos Enviados Correctamente a la WaveRelease" });
 
         }
         /*

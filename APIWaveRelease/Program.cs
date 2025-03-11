@@ -23,6 +23,17 @@ builder.Services.AddRazorPages(options =>
 });
 ///
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader()
+               .WithExposedHeaders("WWW-Authenticate");
+    });
+});
+
 // Configurar Data Protection para persistir claves en Docker
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
@@ -97,6 +108,9 @@ if (app.Environment.IsDevelopment())
 //app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseCors("AllowAll");
 
 app.UseEndpoints(endpoints =>
 {
