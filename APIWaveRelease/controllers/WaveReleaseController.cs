@@ -79,6 +79,7 @@ namespace APIWaveRelease.controllers
         }
 
         [HttpPost("EnviarCache")]
+        [AllowAnonymous]
         public async Task<IActionResult> EnviarCache()
         {
             await EnviarPostEndpoint();

@@ -79,13 +79,12 @@
             const formData = new FormData(this);
 
             // Enviar solicitud POST
-            const response = await fetch(this.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                }
-            });
+        const response = await fetch('http://localhost:5000/api/WaveRelease/EnviarCache', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Basic ' + btoa('senad:S3nad')
+            }
+        });
 
             // Leer respuesta JSON
             const data = await response.json();
