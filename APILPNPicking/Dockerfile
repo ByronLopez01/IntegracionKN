@@ -3,18 +3,16 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY ["APILPNPicking/APILPNPicking.csproj", "APILPNPicking/"]
+COPY APILPNPicking.csproj ./
 
-
-RUN dotnet restore "APILPNPicking/APILPNPicking.csproj"
-COPY APILPNPicking/. APILPNPicking/
-
+RUN dotnet restore "APILPNPicking.csproj"
+COPY . ./
 COPY externalproperties/ExternalProperties.json /app/externalproperties/
 
-WORKDIR "/src/APILPNPicking"
+WORKDIR /src
 RUN dotnet build "APILPNPicking.csproj" -c Release -o /app/build
 
-# Publicar la aplicaci�n en una carpeta
+# Publicar la aplicación en una carpeta
 FROM build AS publish
 RUN dotnet publish "APILPNPicking.csproj" -c Release -o /app/publish
 
@@ -23,5 +21,6 @@ RUN dotnet publish "APILPNPicking.csproj" -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY externalproperties/ExternalProperties.json ./externalproperties/
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "APILPNPicking.dll"]

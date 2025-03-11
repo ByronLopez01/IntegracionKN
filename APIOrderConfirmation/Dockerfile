@@ -4,23 +4,23 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copiar el archivo de proyecto y restaurar dependencias
-COPY ["APIOrderConfirmation/APIOrderConfirmation.csproj", "APIOrderConfirmation/"]
-RUN dotnet restore "APIOrderConfirmation/APIOrderConfirmation.csproj"
-COPY APIOrderConfirmation/. APIOrderConfirmation/
+COPY APIOrderConfirmation.csproj ./
+RUN dotnet restore "APIOrderConfirmation.csproj"
 
-# Construir la aplicación
-WORKDIR "/src/APIOrderConfirmation"
+# Copiar el resto de los archivos y construir la aplicación
+COPY . ./
+WORKDIR /src
 RUN dotnet build "APIOrderConfirmation.csproj" -c Release -o /app/build
 
 # Publicar la aplicación en una carpeta
 FROM build AS publish
 RUN dotnet publish "APIOrderConfirmation.csproj" -c Release -o /app/publish
-
 # Crear la imagen final
 #FROM mcr.microsoft.com/dotnet/aspnet:8.0-windowsservercore-ltsc2019 AS final
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN mkdir -p /app/logs
 EXPOSE 8080
 EXPOSE 8081
 ENTRYPOINT ["dotnet", "APIOrderConfirmation.dll"]
