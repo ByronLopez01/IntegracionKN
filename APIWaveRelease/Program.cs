@@ -7,50 +7,53 @@ using System.Text;
 using Newtonsoft.Json;
 using APIWaveRelease.security;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection;
 
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 //agrega el archivo para parametrizar (ExternalProperties.json)        true = archivo opcional o false = obligatorio para compilar
 builder.Configuration.AddJsonFile("externalproperties/ExternalProperties.json", optional: false, reloadOnChange: true);
 
+//TEST
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AllowAnonymousToPage("/EnviarCache");
+});
+///
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader()
+               .WithExposedHeaders("WWW-Authenticate");
+    });
+});
+
+// Configurar Data Protection para persistir claves en Docker
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
+    .SetApplicationName("APIWaveRelease");
+
 
 // Configurar servicios
-builder.Services.AddRazorPages();
-builder.Services.AddControllers();
-builder.Services.AddHttpClient();
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options =>
     {
         options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
     });
-// Configuraci�n de JWT
-//var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
-//builder.Services.AddAuthentication(x =>
-//{
-//  x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//  x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//})
-//.AddJwtBearer(x =>
-//{
-//  x.RequireHttpsMetadata = false; // true en producci�n
-//  x.SaveToken = true;
-//   x.TokenValidationParameters = new TokenValidationParameters
-//  {
-//      ValidateIssuerSigningKey = true,
-//      IssuerSigningKey = new SymmetricSecurityKey(key),
-//      ValidateIssuer = true,
-//      ValidIssuer = builder.Configuration["Jwt:Issuer"], // Aseg�rate de que este valor coincida
-//     ValidateAudience = false
-//  };
-// });
+
+builder.Services.AddHttpClient();
+
 
 //basic auth
 builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
-builder.Services.AddHttpClient();
+
 
 // Configuración cliente HTTP
 builder.Services.AddHttpClient("apiLuca", m => { })
@@ -61,25 +64,7 @@ builder.Services.AddHttpClient("apiLuca", m => { })
     });
 
 
-
-///testtt ???????????
-// Configuración de CORS
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:5000")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
-});
-//??????????????????????????????????????
-
-
-
-// Configuraci�n Swagger
+// Configurar Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -88,18 +73,14 @@ builder.Services.AddSwaggerGen(options =>
     {
         Type = SecuritySchemeType.Http,
         Scheme = "basic",
-        Description = "Autenticacion basica. Ingresa el usuario y la contrase�a en el formato 'username:password'."
+        Description = "Autenticación básica. Ingresa usuario y contraseña en formato 'username:password'."
     });
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "basic"
-                }
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "basic" }
             },
             new string[] { }
         }
@@ -110,10 +91,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddDbContext<WaveReleaseContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddAuthorization();
-
 var app = builder.Build();
-
 
 if (app.Environment.IsDevelopment())
 {
@@ -127,20 +105,17 @@ if (app.Environment.IsDevelopment())
 
 
 // Configurar middleware
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
-
-//test??????????
-app.UseCors(MyAllowSpecificOrigins);
-//???????????????????????????
-
-
-app.UseAuthentication(); // Autenticaci�n
+app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("AllowAll");
 
-app.MapRazorPages();
-app.MapControllers();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapRazorPages();
+    endpoints.MapControllers();
+});
 
 app.Run();

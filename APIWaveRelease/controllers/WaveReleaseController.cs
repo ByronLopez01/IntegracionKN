@@ -81,9 +81,9 @@ namespace APIWaveRelease.controllers
         [HttpPost("EnviarCache")]
         public async Task<IActionResult> EnviarCache()
         {
-           var result = await EnviarPostEndpoint();
+            await EnviarPostEndpoint();
 
-            return result;
+            return Ok(new { mensaje = "Datos Enviados Correctamente a la WaveRelease" });
 
         }
         /*

@@ -2,6 +2,7 @@ services:
   apiwaverelease:
     volumes:
        - ../externalproperties/ExternalProperties.json:/app/externalproperties/ExternalProperties.json
+       - ./keys:/app/keys
     build:
 
       context: ..

@@ -28,6 +28,13 @@ namespace APIWaveRelease.security
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
+            // Excluir rutas públicas
+            var path = Request.Path.Value.ToLower();
+            if (path.StartsWith("/enviarcache") || path.StartsWith("/swagger") || path == "/")
+            {
+                return Task.FromResult(AuthenticateResult.NoResult());
+            }
+
             if (!Request.Headers.ContainsKey("Authorization"))
             {
                 Logger.LogWarning("Missing Authorization Header");
