@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 using APIWaveRelease.security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 
 
 
@@ -17,9 +19,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("externalproperties/ExternalProperties.json", optional: false, reloadOnChange: true);
 
 //TEST
-builder.Services.AddRazorPages(options =>
-{
-    options.Conventions.AllowAnonymousToPage("/EnviarCache");
+builder.Services.AddRazorPages(options => {
+    options.Conventions.AllowAnonymousToPage("/api/WaveRelease/EnviarWave");
+    options.Conventions.AuthorizePage("/api/WaveRelease/EnviarWave", "PublicAccess");
 });
 ///
 
@@ -53,6 +55,23 @@ builder.Services.AddHttpClient();
 //basic auth
 builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+
+//test
+// Política por defecto: requiere autenticación
+builder.Services.AddAuthorization(options => {
+    // Política por defecto: requiere autenticación
+    options.DefaultPolicy = new AuthorizationPolicyBuilder("BasicAuthentication")
+        .RequireAuthenticatedUser()
+        .Build();
+
+    // Política para rutas públicas (sin autenticación)
+    options.AddPolicy("PublicAccess", policy =>
+        policy.RequireAssertion(context => true));
+});
+///
+
+
+
 
 
 // Configuración cliente HTTP

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
@@ -28,9 +29,8 @@ namespace APIWaveRelease.security
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            // Excluir rutas públicas
-            var path = Request.Path.Value.ToLower();
-            if (path.StartsWith("/enviarcache") || path.StartsWith("/swagger") || path == "/")
+            var endpoint = Context.GetEndpoint();
+            if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() != null)
             {
                 return Task.FromResult(AuthenticateResult.NoResult());
             }
