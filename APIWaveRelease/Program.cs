@@ -20,8 +20,8 @@ builder.Configuration.AddJsonFile("externalproperties/ExternalProperties.json", 
 
 //TEST
 builder.Services.AddRazorPages(options => {
-    options.Conventions.AllowAnonymousToPage("/EnviarCache");
-    options.Conventions.AuthorizePage("/EnviarCache", "PublicAccess"); // Aplica política pública
+    options.Conventions.AllowAnonymousToPage("/api/WaveRelease/EnviarWave");
+    options.Conventions.AuthorizePage("/api/WaveRelease/EnviarWave", "PublicAccess");
 });
 ///
 
