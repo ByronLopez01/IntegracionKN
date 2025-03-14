@@ -10,9 +10,8 @@
 
         <form method="post" id="myForm">
             @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-primary" id="submitBtn">
+            <button type="submit" class="custom-button" id="submitBtn">
                 Enviar Datos a WaveRelease
-                <span class="spinner-border spinner-border-sm" style="display: none;"></span>
             </button>
         </form>
     </div>
@@ -23,6 +22,7 @@
         overflow-y: hidden;
         margin: 0;
         padding: 0;
+        font-family: Arial, sans-serif;
     }
 
     .navbar {
@@ -51,10 +51,46 @@
         background-color: #f9f9f9;
     }
 
-    .spinner-border {
-        vertical-align: middle;
-        margin-left: 8px;
+    .custom-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+        position: relative;
     }
+
+    .custom-button:hover {
+        background-color: #0056b3;
+    }
+
+    .custom-button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+
 </style>
 
 <script>
@@ -62,12 +98,10 @@
         e.preventDefault();
 
         const btn = document.getElementById('submitBtn');
-        const spinner = btn.querySelector('.spinner-border');
         const messageContainer = document.getElementById('messageContainer');
         const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
         btn.disabled = true;
-        spinner.style.display = 'inline-block';
         messageContainer.innerHTML = '';
 
         try {
@@ -105,7 +139,6 @@
             `;
         } finally {
             btn.disabled = false;
-            spinner.style.display = 'none';
         }
     });
 </script>
