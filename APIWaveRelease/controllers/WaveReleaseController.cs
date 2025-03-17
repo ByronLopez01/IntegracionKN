@@ -72,7 +72,7 @@ namespace APIWaveRelease.controllers
         [HttpPost("GuardarCache")]
         public async Task<IActionResult> GuardarCache([FromBody] WaveReleaseKN waveReleaseKN) 
         {
-            var result = await GuardarWaveCache(waveReleaseKN);
+            var result = await GuardarWaveCacheTest(waveReleaseKN);
 
             return result;
 
@@ -306,8 +306,8 @@ namespace APIWaveRelease.controllers
         */
 
 
-        [HttpPost]
-        public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveReleaseKn)
+        [HttpPost("POSTViejo")]
+        public async Task<IActionResult> PostOrderTransmissionAntiguo([FromBody] WaveReleaseKN waveReleaseKn)
         {
 
             var ordenesActivas = await _context.WaveRelease.AnyAsync(wr => wr.estadoWave == true);
@@ -551,6 +551,168 @@ namespace APIWaveRelease.controllers
             }
     }
 
+        
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveReleaseKn)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var ordenesActivas = await _context.WaveRelease.AnyAsync(wr => wr.estadoWave == true);
+
+                    if (ordenesActivas)
+                    {
+                        return StatusCode(407, "Existen órdenes en proceso en estado activo (1). no se guardan datos.");
+                    }
+
+                    var urlConfirm = "http://apiorderconfirmation:8080/api/OrderConfirmation/ResetTandas";
+                    int salidasDisponibles = 0;
+
+                    var url = "http://apifamilymaster:8080/api/FamilyMaster/obtener-total-salidas";
+                    var httpClientFam = _httpClientFactory.CreateClient("apiFamilyMaster");
+                    SetAuthorizationHeader(httpClientFam);
+
+                    var resetList = await httpClientFam.PostAsync(urlConfirm, null);
+
+                    if (!resetList.IsSuccessStatusCode)
+                    {
+                        return StatusCode((int)resetList.StatusCode, "Error al resetear la lista de ordenes.");
+                    }
+
+                    var respuesta = await httpClientFam.GetAsync(url);
+
+                    if (!respuesta.IsSuccessStatusCode)
+                    {
+                        return StatusCode((int)respuesta.StatusCode, "No hay FamilyMaster cargado o hubo un error al llamar a la API.");
+                    }
+
+                    var content = await respuesta.Content.ReadAsStringAsync();
+                    try
+                    {
+                        var jsonDocument = JsonDocument.Parse(content);
+                        if (jsonDocument.RootElement.TryGetProperty("totalSalidas", out JsonElement totalSalidasElement) && totalSalidasElement.TryGetInt32(out int totalSalidas))
+                        {
+                            if (totalSalidas == 0)
+                            {
+                                return StatusCode((int)respuesta.StatusCode, "No hay FamilyMaster cargado o hubo un error al llamar a la API.");
+                            }
+
+                            salidasDisponibles = totalSalidas;
+                            Console.WriteLine($"Salidas disponibles: {salidasDisponibles}");
+                        }
+                        else
+                        {
+                            return StatusCode((int)respuesta.StatusCode, "El formato de la respuesta no es válido.");
+                        }
+                    }
+                    catch (JsonException ex)
+                    {
+                        Console.WriteLine($"Error al deserializar el JSON: {ex.Message}");
+                        return StatusCode(500, "Error al deserializar el JSON.");
+                    }
+
+                    if (waveReleaseKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null || string.IsNullOrEmpty(waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat))
+                    {
+                        return BadRequest("Datos en formato no válido.");
+                    }
+
+                    var waveReleases = new List<WaveRelease>();
+
+                    foreach (var orderSeg in waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG)
+                    {
+                        if (orderSeg?.SHIP_SEG?.PICK_DTL_SEG == null)
+                        {
+                            return BadRequest("El PICK_DTL_SEG viene null");
+                        }
+
+                        foreach (var pickDtlSeg in orderSeg.SHIP_SEG.PICK_DTL_SEG)
+                        {
+                            var existingWaveRelease = waveReleases
+                                .FirstOrDefault(wr => wr.NumOrden == orderSeg.ordnum && wr.CodProducto == pickDtlSeg.prtnum);
+
+                            if (existingWaveRelease != null)
+                            {
+                                existingWaveRelease.Cantidad += pickDtlSeg.qty;
+                                Console.WriteLine($"Cantidad actualizada para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
+                            }
+                            else
+                            {
+                                var newWaveRelease = new WaveRelease
+                                {
+                                    CodMastr = pickDtlSeg.mscs_ean,
+                                    CodInr = pickDtlSeg.incs_ean,
+                                    CantMastr = pickDtlSeg.qty_mscs,
+                                    CantInr = pickDtlSeg.qty_incs,
+                                    Cantidad = pickDtlSeg.qty,
+                                    Familia = pickDtlSeg.prtfam,
+                                    NumOrden = orderSeg.ordnum,
+                                    CodProducto = pickDtlSeg.prtnum,
+                                    Wave = waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat,
+                                    tienda = orderSeg.rtcust,
+                                    estadoWave = true
+                                };
+
+                                waveReleases.Add(newWaveRelease);
+                                Console.WriteLine($"Nuevo registro creado para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
+                            }
+                        }
+                    }
+
+                    _context.WaveRelease.AddRange(waveReleases);
+                    await _context.SaveChangesAsync();
+
+                    var jsonContent = JsonSerializer.Serialize(waveReleaseKn);
+                    var httpClient = _httpClientFactory.CreateClient("apiLuca");
+                    /*   var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                       SetAuthorizationHeader(httpClient);
+
+                       var urlLucaBase = _configuration["ServiceUrls:luca"];
+                       var urlLuca = $"{urlLucaBase}/api/sort/waveRelease";
+
+                       var response = await httpClient.PostAsync(urlLuca, httpContent);
+                       Console.WriteLine("URL LUCA: " + urlLuca);
+
+                       if (!response.IsSuccessStatusCode)
+                       {
+                           throw new Exception("Error al enviar el JSON a Luca.");
+                       }
+   */
+                   
+                    var urlActivarTandas = "http://apifamilymaster:8080/api/FamilyMaster/activar-tandas";
+                    SetAuthorizationHeader(httpClient);
+                    var responseTandas = await httpClient.PostAsync($"{urlActivarTandas}?salidasDisponibles={salidasDisponibles}", null);
+
+                    var responseContent = await responseTandas.Content.ReadAsStringAsync();
+                    Console.WriteLine("Respuesta JSON recibida: " + responseContent);
+
+                    var tandaResponse = JsonSerializer.Deserialize<ActivarTandasResponse>(responseContent, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    if (tandaResponse == null)
+                    {
+                        throw new Exception("La respuesta no contiene las propiedades esperadas.");
+                    }
+
+                    await transaction.CommitAsync();
+
+                    return Ok(new { tandaResponse.Message, tandaResponse.TandasActivadas });
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
+                    return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
+                }
+            }
+        }
+
 
         [HttpGet("{idOrdenTrabajo}")]
         public async Task<IActionResult> GetWaveByIdOrdenTrabajo(string idOrdenTrabajo)
@@ -599,6 +761,88 @@ namespace APIWaveRelease.controllers
         public void Delete(int id)
         {
         }
+
+        private async Task<IActionResult> GuardarWaveCacheTest(WaveReleaseKN waveReleaseKn)
+        {
+            // Verificar si ya existen datos en el cache
+            var existingCache = await _context.WaveReleaseCache.AsNoTracking().FirstOrDefaultAsync();
+
+            // Si existen datos y la Wave no coincide, rechazar.
+            if (existingCache != null && existingCache.Schbat != waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat)
+            {
+                return BadRequest("La nueva Wave no coincide con el de los registros existentes en el cache.");
+            }
+
+            // Diccionario para agrupar por ordnum y prtnum
+            var groupedData = new Dictionary<(string ordnum, string prtnum), WaveReleaseCache>();
+
+            foreach (var orden in waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG)
+            {
+                foreach (var shipSeg in orden.SHIP_SEG.PICK_DTL_SEG)
+                {
+                    var key = (orden.ordnum, shipSeg.prtnum);
+
+                    if (groupedData.TryGetValue(key, out var existingWaveCache))
+                    {
+                        // Si ya existe, sumar las cantidades
+                        existingWaveCache.Qty += shipSeg.qty;
+                        //existingWaveCache.QtyMscs += shipSeg.qty_mscs;
+                        //existingWaveCache.QtyIncs += shipSeg.qty_incs;
+                    }
+                    else
+                    {
+                        // Si no existe, crear un nuevo registro
+                        var waveCache = new WaveReleaseCache
+                        {
+                            WcsId = waveReleaseKn.ORDER_TRANSMISSION.wcs_id,
+                            WhId = waveReleaseKn.ORDER_TRANSMISSION.wh_id,
+                            MsgId = waveReleaseKn.ORDER_TRANSMISSION.msg_id,
+                            Trandt = waveReleaseKn.ORDER_TRANSMISSION.trandt,
+                            Schbat = waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat,
+                            Ordnum = orden.ordnum,
+                            Cponum = orden.cponum,
+                            Rtcust = orden.rtcust,
+                            Stcust = orden.stcust,
+                            Ordtyp = orden.ordtyp,
+                            Adrpsz = orden.ADDRESS_SEG?.adrpsz,
+                            State = orden.ADDRESS_SEG?.state,
+                            ShipId = orden.SHIP_SEG?.ship_id,
+                            Carcod = orden.SHIP_SEG?.carcod,
+                            Srvlvl = orden.SHIP_SEG?.srvlvl,
+                            Wrkref = shipSeg.wrkref,
+                            Prtnum = shipSeg.prtnum,
+                            Prtfam = shipSeg.prtfam,
+                            AltPrtnum = shipSeg.alt_prtnum,
+                            MscsEan = shipSeg.mscs_ean,
+                            IncsEan = shipSeg.incs_ean,
+                            QtyMscs = shipSeg.qty_mscs,
+                            QtyIncs = shipSeg.qty_incs,
+                            Qty = shipSeg.qty,
+                            OrdCasCnt = shipSeg.ord_cas_cnt,
+                            Stgloc = shipSeg.stgloc,
+                            MovZoneCode = shipSeg.mov_zone_code,
+                            Conveyable = shipSeg.conveyable,
+                            CubicVol = shipSeg.cubic_vol
+                        };
+
+                        groupedData[key] = waveCache;
+                    }
+                }
+            }
+
+            // Agregar todos los registros agrupados al contexto
+            foreach (var waveCache in groupedData.Values)
+            {
+                _context.WaveReleaseCache.Add(waveCache);
+            }
+
+            // Guardar todos los cambios en la base de datos
+            await _context.SaveChangesAsync();
+            return Ok("Datos guardados correctamente en el cache.");
+        }
+
+
+
 
 
         private async Task<IActionResult> GuardarWaveCache(WaveReleaseKN waveReleaseKn)
