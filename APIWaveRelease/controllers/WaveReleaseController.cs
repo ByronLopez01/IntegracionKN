@@ -72,7 +72,7 @@ namespace APIWaveRelease.controllers
         */
 
         [HttpPost("GuardarCache")]
-        public async Task<IActionResult> GuardarCache([FromBody] WaveReleaseKN waveReleaseKN) 
+        public async Task<IActionResult> GuardarCache([FromBody] WaveReleaseKN waveReleaseKN)
         {
             var result = await GuardarWaveCache(waveReleaseKN);
 
@@ -87,7 +87,7 @@ namespace APIWaveRelease.controllers
 
             return result;
         }
-  
+
 
         // WAVE POST ANTIGUO !!!!
         /*[HttpPost("POSTViejo")]
@@ -571,13 +571,15 @@ namespace APIWaveRelease.controllers
 
         private async Task<IActionResult> GuardarWaveCache(WaveReleaseKN waveReleaseKn)
         {
-            // Verificar si ya existen datos en el cache
-            var existingCache = await _context.WaveReleaseCache.AsNoTracking().FirstOrDefaultAsync();
+            // Obtener datos existentes en la base de datos con clave de tipo tupla
+            var existingCacheData = await _context.WaveReleaseCache
+                .ToDictionaryAsync(x => (x.Ordnum, x.Prtnum));
 
-            // Si existen datos y la Wave no coincide, rechazar.
+            // Verificar que la Wave sea la misma
+            var existingCache = existingCacheData.Values.FirstOrDefault();
             if (existingCache != null && existingCache.Schbat != waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat)
             {
-                return BadRequest("La nueva Wave no coincide con el de los registros existentes en el cache.");
+                return BadRequest("La nueva Wave no coincide con los registros existentes en el cache.");
             }
 
             // Verificar que no haya prtfam nulos o vacíos
@@ -587,8 +589,7 @@ namespace APIWaveRelease.controllers
                 {
                     if (string.IsNullOrWhiteSpace(shipSeg.prtfam))
                     {
-                        // Se encontró un prtfam nulo o vacío, rechazar el JSON y enviar información del error
-                        return BadRequest($"Error: Familia de producto (prtfam) vacía o nula encontrada con el ordnum {orden.ordnum} y prtnum {shipSeg.prtnum}");
+                        return BadRequest($"Error: Familia de producto (prtfam) vacía o nula en ordnum {orden.ordnum} y prtnum {shipSeg.prtnum}");
                     }
                 }
             }
@@ -600,20 +601,23 @@ namespace APIWaveRelease.controllers
             {
                 foreach (var shipSeg in orden.SHIP_SEG.PICK_DTL_SEG)
                 {
-                    // Ya hemos verificado que prtfam no es nulo o vacío
+                    var key = (orden.ordnum, shipSeg.prtnum);  // ✅ Clave en formato de tupla
 
-                    var key = (orden.ordnum, shipSeg.prtnum);
-
-                    if (groupedData.TryGetValue(key, out var existingWaveCache))
+                    // Verificar si ya existe en la BD
+                    if (existingCacheData.TryGetValue(key, out var existingWaveCache))
                     {
-                        // Si ya existe, sumar las cantidades
+                        // Si existe en la BD, actualizar cantidades
                         existingWaveCache.Qty += shipSeg.qty;
-                        //existingWaveCache.QtyMscs += shipSeg.qty_mscs;
-                        //existingWaveCache.QtyIncs += shipSeg.qty_incs;
+                        _context.WaveReleaseCache.Update(existingWaveCache);
+                    }
+                    else if (groupedData.TryGetValue(key, out var cachedWaveCache))
+                    {
+                        // Si ya existe en la agrupación temporal, sumar cantidades
+                        cachedWaveCache.Qty += shipSeg.qty;
                     }
                     else
                     {
-                        // Si no existe, crear un nuevo registro
+                        // Si no existe ni en la BD ni en la agrupación, crear nuevo registro
                         var waveCache = new WaveReleaseCache
                         {
                             WcsId = waveReleaseKn.ORDER_TRANSMISSION.wcs_id,
@@ -633,7 +637,7 @@ namespace APIWaveRelease.controllers
                             Srvlvl = orden.SHIP_SEG?.srvlvl,
                             Wrkref = shipSeg.wrkref,
                             Prtnum = shipSeg.prtnum,
-                            Prtfam = shipSeg.prtfam, // Ya validamos que no es null ni vacío
+                            Prtfam = shipSeg.prtfam,
                             AltPrtnum = shipSeg.alt_prtnum,
                             MscsEan = shipSeg.mscs_ean,
                             IncsEan = shipSeg.incs_ean,
@@ -652,17 +656,13 @@ namespace APIWaveRelease.controllers
                 }
             }
 
-            // Agregar todos los registros agrupados al contexto
-            foreach (var waveCache in groupedData.Values)
-            {
-                _context.WaveReleaseCache.Add(waveCache);
-            }
-
-            // Guardar todos los cambios en la base de datos
+            // Guardar nuevos registros
+            _context.WaveReleaseCache.AddRange(groupedData.Values);
             await _context.SaveChangesAsync();
+
             return Ok("Datos guardados correctamente en el cache.");
         }
-
+    
 
 
         // GUARDAR CACHE ANTIGUO !!!!
