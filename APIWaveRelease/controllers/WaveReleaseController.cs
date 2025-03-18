@@ -391,7 +391,7 @@ namespace APIWaveRelease.controllers
                 return StatusCode(500, "Error al deserializar el JSON.");
             }
 
-            // Paso 2: Operaciones en la BD dentro de una transacción, incluyendo el envío a Luca
+            // Paso 2: Operaciones en la BD dentro de una transacción incluyendo el envío a Luca
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
@@ -478,10 +478,12 @@ namespace APIWaveRelease.controllers
                 }
             }
 
-            // Paso 3: Activar tandas (esta parte se puede ejecutar fuera de la transacción)
+            // Fuera de la transacción
+
+            // Paso 3: Activar tandas
             try
             {
-                var httpClient = _httpClientFactory.CreateClient("apiLuca"); // O el cliente que uses para FamilyMaster
+                var httpClient = _httpClientFactory.CreateClient("apiLuca");
                 SetAuthorizationHeader(httpClient);
                 var urlActivarTandas = "http://apifamilymaster:8080/api/FamilyMaster/activar-tandas";
                 var responseTandas = await httpClient.PostAsync($"{urlActivarTandas}?salidasDisponibles={salidasDisponibles}", null);
