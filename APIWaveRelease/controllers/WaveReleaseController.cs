@@ -85,226 +85,7 @@ namespace APIWaveRelease.controllers
 
             return result;
         }
-        /*
-        [HttpPost("PostCache")]
-        public async Task<IActionResult> PostOrderCache([FromBody] WaveReleaseKN waveReleaseKn)
-        {
-
-            // Buscar si existen Waves activas en la tabla
-            var ordenesActivas = await _context.WaveRelease.AnyAsync(wr => wr.estadoWave == true);
-
-            if (ordenesActivas)
-            {
-                // Si existe
-                return StatusCode(407, "Existen órdenes en proceso en estado activo (1)\n No se puede agregar otra Wave");
-            }
-
-            //int salidasDisponibles = 15;
-            int salidasDisponibles = 0;
-
-            var url = "http://apifamilymaster:8080/api/FamilyMaster/obtener-total-salidas";
-            var httpClientFam = _httpClientFactory.CreateClient("apiFamilyMaster");
-            SetAuthorizationHeader(httpClientFam);
-
-            var respuesta = await httpClientFam.GetAsync(url);
-
-            if (respuesta.IsSuccessStatusCode)
-            {
-                var content = await respuesta.Content.ReadAsStringAsync();
-                try
-                {
-                    var jsonDocument = JsonDocument.Parse(content);
-                    if (jsonDocument.RootElement.TryGetProperty("totalSalidas", out JsonElement totalSalidasElement) && totalSalidasElement.TryGetInt32(out int totalSalidas))
-                    {
-                        if (totalSalidas == 0)
-                        {
-                            return StatusCode((int)respuesta.StatusCode, "No hay FamilyMaster cargado o hubo un error al llamar a la API.");
-                        }
-
-                        if (totalSalidas > 0)
-                        {
-                            salidasDisponibles = totalSalidas;
-                            Console.WriteLine($"Salidas disponibles: {salidasDisponibles}");
-                            Console.WriteLine($"Salidas disponibles: {salidasDisponibles}");
-                            Console.WriteLine($"Salidas disponibles: {salidasDisponibles}");
-                            Console.WriteLine($"Salidas disponibles: {salidasDisponibles}");
-                        }
-                    }
-                    else
-                    {
-                        return StatusCode((int)respuesta.StatusCode, "El formato de la respuesta no es válido.");
-                    }
-                }
-                catch (JsonException ex)
-                {
-                    Console.WriteLine($"Error al deserializar el JSON: {ex.Message}");
-                    return StatusCode(500, "Error al deserializar el JSON.");
-                }
-
-            }
-            else
-            {
-                return StatusCode((int)respuesta.StatusCode, "No hay FamilyMaster cargado o hubo un error al llamar a la API.");
-            }
-
-
-            if (waveReleaseKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null || string.IsNullOrEmpty(waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat))
-            {
-                return BadRequest("Datos en formato no válido.");
-            }
-
-            var waveReleases = new List<WaveRelease>();
-
-            // Itera sobre cada ORDER_SEG en la lista
-            foreach (var orderSeg in waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG)
-            {
-                if (orderSeg?.SHIP_SEG?.PICK_DTL_SEG == null)
-                {
-                    return BadRequest("El PICK_DTL_SEG viene null");
-                }
-
-                foreach (var pickDtlSeg in orderSeg.SHIP_SEG.PICK_DTL_SEG)
-                {
-
-                    // Busca si ya existe un WaveRelease con el mismo número de orden y producto
-                    //var existingWaveRelease = waveReleases.FirstOrDefault(wr => wr.NumOrden == orderSeg.ordnum && wr.CodProducto == pickDtlSeg.prtnum);
-
-                    // Buscar si existen Waves activas en la tabla
-                    var existingWaveRelease = waveReleases
-                        .FirstOrDefault(wr => wr.NumOrden == orderSeg.ordnum && wr.CodProducto == pickDtlSeg.prtnum);
-
-                    if (existingWaveRelease != null)
-                    {
-
-                        //existingWaveRelease.CantInr = pickDtlSeg.qty_incs;
-                        existingWaveRelease.Cantidad += pickDtlSeg.qty;
-
-                        // Mensaje de depuración para indicar que se ha encontrado y actualizado un registro existente
-                        Console.WriteLine($"Cantidad actualizada para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
-                    }
-                    else
-                    {
-                        // Si no existe, crea un nuevo registro
-                        var newWaveRelease = new WaveRelease
-                        {
-                            CodMastr = pickDtlSeg.mscs_ean,
-                            CodInr = pickDtlSeg.incs_ean,
-                            CantMastr = pickDtlSeg.qty_mscs,
-                            CantInr = pickDtlSeg.qty_incs,
-                            Cantidad = pickDtlSeg.qty,
-                            Familia = pickDtlSeg.prtfam,
-                            NumOrden = orderSeg.ordnum,
-                            CodProducto = pickDtlSeg.prtnum,
-                            Wave = waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat,
-                            tienda = orderSeg.rtcust,
-                            estadoWave = true
-                        };
-
-                        waveReleases.Add(newWaveRelease);
-
-                        // Mensaje de depuración para indicar que se ha creado un nuevo registro
-                        Console.WriteLine($"Nuevo registro creado para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
-                    }
-                }
-            }
-
-            _context.WaveRelease.AddRange(waveReleases);
-            await _context.SaveChangesAsync();
-
-            
-
-            // ENVIO DE JSON A LUCA!!
-            var jsonContent = JsonSerializer.Serialize(waveReleaseKn);
-            var httpClient = _httpClientFactory.CreateClient("apiLuca");
-            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-            SetAuthorizationHeader(httpClient);
-
-            var urlLucaBase = _configuration["ServiceUrls:luca"];
-            var urlLuca = $"{urlLucaBase}/api/sort/waveRelease";
-
-
-            try
-            {
-                var response = await httpClient.PostAsync(urlLuca, httpContent);
-                Console.WriteLine("URL LUCA: " + urlLuca);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine("El JSON fue enviado correctamente a Luca.");
-                }
-                else
-                {
-                    Console.WriteLine("Error al enviar el JSON a Luca.");
-                }
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine($"Error en la solicitud HTTP: {ex.Message}");
-                return StatusCode(500, $"Error en la solicitud HTTP: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
-                return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
-            }
-            
-
-            var haytandasActivas = await _context.FamilyMaster.AnyAsync(fm => fm.estado == true);
-
-
-
-                // Llamar al endpoint "activar-tandas"
-                var urlActivarTandas = "http://apifamilymaster:8080/api/FamilyMaster/activar-tandas";
-                var responseTandas = await httpClientFam.PostAsync($"{urlActivarTandas}?salidasDisponibles={salidasDisponibles}", null);
-
-
-                try
-                {
-                    var responseContent = await responseTandas.Content.ReadAsStringAsync();
-                    Console.WriteLine("Respuesta JSON recibida: " + responseContent);
-
-                    // Deserializa el JSON a la clase ActivarTandasResponse
-                    var tandaResponse = JsonSerializer.Deserialize<ActivarTandasResponse>(responseContent, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true // Por si las propiedades tienen diferente casing
-                    });
-
-                    if (tandaResponse != null && tandaResponse.TandasActivadas != null)
-                    {
-                        Console.WriteLine($"Mensaje: {tandaResponse.Message}");
-                        Console.WriteLine($"Tandas activadas: {string.Join(", ", tandaResponse.TandasActivadas)}");
-
-                        // Devuelve el mensaje y las tandas activadas en la respuesta
-                        return Ok(new { tandaResponse.Message, tandaResponse.TandasActivadas });
-
-                    }
-                    else
-                    {
-                        Console.WriteLine("La respuesta no contiene las propiedades esperadas.");
-
-                        return Ok(new { Message = "La respuesta no contiene las propiedades esperadas.", TandasActivadas = new List<int>() });
-                    }
-                }
-                catch (JsonException ex)
-                {
-                    Console.WriteLine("Error al deserializar el JSON: " + ex.Message);
-                    return StatusCode(500, "Error al deserializar el JSON.");
-                }
-                catch (HttpRequestException ex)
-                {
-                    Console.WriteLine("Error en la solicitud HTTP: " + ex.Message);
-                    return StatusCode(500, "Error en la solicitud HTTP.");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Ocurrió un error inesperado: " + ex.Message);
-                    return StatusCode(500, "Ocurrió un error inesperado.");
-                }
-           
-        }
-        */
-
+  
 
         [HttpPost("POSTViejo")]
         public async Task<IActionResult> PostOrderTransmissionAntiguo([FromBody] WaveReleaseKN waveReleaseKn)
@@ -551,75 +332,75 @@ namespace APIWaveRelease.controllers
             }
     }
 
-        
 
 
 
         [HttpPost]
         public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveReleaseKn)
         {
+            // Validación de la entrada
+            if (waveReleaseKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null ||
+                string.IsNullOrEmpty(waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat))
+            {
+                return BadRequest("Datos en formato no válido.");
+            }
+
+            // Paso 1: Obtener información de FamilyMaster
+            int salidasDisponibles = 0;
+            var httpClientFam = _httpClientFactory.CreateClient("apiFamilyMaster");
+            SetAuthorizationHeader(httpClientFam);
+
+            var urlConfirm = "http://apiorderconfirmation:8080/api/OrderConfirmation/ResetTandas";
+            var resetList = await httpClientFam.PostAsync(urlConfirm, null);
+            if (!resetList.IsSuccessStatusCode)
+            {
+                return StatusCode((int)resetList.StatusCode, "Error al resetear la lista de órdenes.");
+            }
+
+            var urlFamily = "http://apifamilymaster:8080/api/FamilyMaster/obtener-total-salidas";
+            var respuesta = await httpClientFam.GetAsync(urlFamily);
+            if (!respuesta.IsSuccessStatusCode)
+            {
+                return StatusCode((int)respuesta.StatusCode, "No hay FamilyMaster cargado o error al llamar a la API.");
+            }
+
+            var content = await respuesta.Content.ReadAsStringAsync();
+            try
+            {
+                using JsonDocument jsonDocument = JsonDocument.Parse(content);
+                if (jsonDocument.RootElement.TryGetProperty("totalSalidas", out JsonElement totalSalidasElement) &&
+                    totalSalidasElement.TryGetInt32(out int totalSalidas))
+                {
+                    if (totalSalidas == 0)
+                    {
+                        return StatusCode((int)respuesta.StatusCode, "No hay FamilyMaster cargado.");
+                    }
+                    salidasDisponibles = totalSalidas;
+                }
+                else
+                {
+                    return StatusCode((int)respuesta.StatusCode, "El formato de la respuesta no es válido.");
+                }
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine($"Error al deserializar el JSON: {ex.Message}");
+                return StatusCode(500, "Error al deserializar el JSON.");
+            }
+
+            // Paso 2: Operaciones en la BD dentro de una transacción, incluyendo el envío a Luca
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
+                    // Evitar guardar si hay órdenes activas
                     var ordenesActivas = await _context.WaveRelease.AnyAsync(wr => wr.estadoWave == true);
-
                     if (ordenesActivas)
                     {
-                        return StatusCode(407, "Existen órdenes en proceso en estado activo (1). no se guardan datos.");
+                        return StatusCode(407, "Existen órdenes en proceso en estado activo (1). No se guardan datos.");
                     }
 
-                    var urlConfirm = "http://apiorderconfirmation:8080/api/OrderConfirmation/ResetTandas";
-                    int salidasDisponibles = 0;
-
-                    var url = "http://apifamilymaster:8080/api/FamilyMaster/obtener-total-salidas";
-                    var httpClientFam = _httpClientFactory.CreateClient("apiFamilyMaster");
-                    SetAuthorizationHeader(httpClientFam);
-
-                    var resetList = await httpClientFam.PostAsync(urlConfirm, null);
-
-                    if (!resetList.IsSuccessStatusCode)
-                    {
-                        return StatusCode((int)resetList.StatusCode, "Error al resetear la lista de ordenes.");
-                    }
-
-                    var respuesta = await httpClientFam.GetAsync(url);
-
-                    if (!respuesta.IsSuccessStatusCode)
-                    {
-                        return StatusCode((int)respuesta.StatusCode, "No hay FamilyMaster cargado o hubo un error al llamar a la API.");
-                    }
-
-                    var content = await respuesta.Content.ReadAsStringAsync();
-                    try
-                    {
-                        var jsonDocument = JsonDocument.Parse(content);
-                        if (jsonDocument.RootElement.TryGetProperty("totalSalidas", out JsonElement totalSalidasElement) && totalSalidasElement.TryGetInt32(out int totalSalidas))
-                        {
-                            if (totalSalidas == 0)
-                            {
-                                return StatusCode((int)respuesta.StatusCode, "No hay FamilyMaster cargado o hubo un error al llamar a la API.");
-                            }
-
-                            salidasDisponibles = totalSalidas;
-                            Console.WriteLine($"Salidas disponibles: {salidasDisponibles}");
-                        }
-                        else
-                        {
-                            return StatusCode((int)respuesta.StatusCode, "El formato de la respuesta no es válido.");
-                        }
-                    }
-                    catch (JsonException ex)
-                    {
-                        Console.WriteLine($"Error al deserializar el JSON: {ex.Message}");
-                        return StatusCode(500, "Error al deserializar el JSON.");
-                    }
-
-                    if (waveReleaseKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null || string.IsNullOrEmpty(waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat))
-                    {
-                        return BadRequest("Datos en formato no válido.");
-                    }
-
+                    // Construir la lista de objetos WaveRelease a partir de la información recibida
                     var waveReleases = new List<WaveRelease>();
 
                     foreach (var orderSeg in waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG)
@@ -655,63 +436,84 @@ namespace APIWaveRelease.controllers
                                     tienda = orderSeg.rtcust,
                                     estadoWave = true
                                 };
-
                                 waveReleases.Add(newWaveRelease);
                                 Console.WriteLine($"Nuevo registro creado para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
                             }
                         }
                     }
 
+                    // Guardar en la base de datos
                     _context.WaveRelease.AddRange(waveReleases);
                     await _context.SaveChangesAsync();
 
+                    // Envío de JSON a Luca dentro de la transacción
+                    var httpClientLuca = _httpClientFactory.CreateClient("apiLuca");
+                    SetAuthorizationHeader(httpClientLuca);
                     var jsonContent = JsonSerializer.Serialize(waveReleaseKn);
-                    var httpClient = _httpClientFactory.CreateClient("apiLuca");
-                    /*   var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                    var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                    var urlLucaBase = _configuration["ServiceUrls:luca"];
+                    var urlLuca = $"{urlLucaBase}/api/sort/waveRelease";
 
-                       SetAuthorizationHeader(httpClient);
+                    var responseLuca = await httpClientLuca.PostAsync(urlLuca, httpContent);
+                    Console.WriteLine("URL LUCA: " + urlLuca);
 
-                       var urlLucaBase = _configuration["ServiceUrls:luca"];
-                       var urlLuca = $"{urlLucaBase}/api/sort/waveRelease";
-
-                       var response = await httpClient.PostAsync(urlLuca, httpContent);
-                       Console.WriteLine("URL LUCA: " + urlLuca);
-
-                       if (!response.IsSuccessStatusCode)
-                       {
-                           throw new Exception("Error al enviar el JSON a Luca.");
-                       }
-   */
-                   
-                    var urlActivarTandas = "http://apifamilymaster:8080/api/FamilyMaster/activar-tandas";
-                    SetAuthorizationHeader(httpClient);
-                    var responseTandas = await httpClient.PostAsync($"{urlActivarTandas}?salidasDisponibles={salidasDisponibles}", null);
-
-                    var responseContent = await responseTandas.Content.ReadAsStringAsync();
-                    Console.WriteLine("Respuesta JSON recibida: " + responseContent);
-
-                    var tandaResponse = JsonSerializer.Deserialize<ActivarTandasResponse>(responseContent, new JsonSerializerOptions
+                    if (!responseLuca.IsSuccessStatusCode)
                     {
-                        PropertyNameCaseInsensitive = true
-                    });
-
-                    if (tandaResponse == null)
-                    {
-                        throw new Exception("La respuesta no contiene las propiedades esperadas.");
+                        var errorDetails = await responseLuca.Content.ReadAsStringAsync();
+                        throw new Exception($"Error al enviar JSON a Luca. Status: {responseLuca.StatusCode}. Detalles: {errorDetails}");
                     }
+                    Console.WriteLine("El JSON fue enviado correctamente a Luca.");
 
+                    // Si el envío a Luca es correcto, confirmar la transacción
                     await transaction.CommitAsync();
-
-                    return Ok(new { tandaResponse.Message, tandaResponse.TandasActivadas });
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
-                    return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
+                    Console.WriteLine($"Error durante la transacción (envío a Luca fallido): {ex.Message}");
+                    return StatusCode(500, $"Error durante la transacción: {ex.Message}");
                 }
             }
+
+            // Paso 3: Activar tandas (esta parte se puede ejecutar fuera de la transacción)
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient("apiLuca"); // O el cliente que uses para FamilyMaster
+                SetAuthorizationHeader(httpClient);
+                var urlActivarTandas = "http://apifamilymaster:8080/api/FamilyMaster/activar-tandas";
+                var responseTandas = await httpClient.PostAsync($"{urlActivarTandas}?salidasDisponibles={salidasDisponibles}", null);
+                var responseContent = await responseTandas.Content.ReadAsStringAsync();
+                Console.WriteLine("Respuesta de activar-tandas: " + responseContent);
+
+                var tandaResponse = JsonSerializer.Deserialize<ActivarTandasResponse>(
+                    responseContent,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+
+                if (tandaResponse == null)
+                {
+                    return Ok(new { Message = "La respuesta no contiene las propiedades esperadas.", TandasActivadas = new List<int>() });
+                }
+
+                return Ok(new { tandaResponse.Message, tandaResponse.TandasActivadas });
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine("Error al deserializar activar-tandas: " + ex.Message);
+                return StatusCode(500, "Error al deserializar el JSON de activar-tandas.");
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine("Error en la solicitud de activar-tandas: " + ex.Message);
+                return StatusCode(500, "Error en la solicitud HTTP de activar-tandas.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error inesperado en activar-tandas: " + ex.Message);
+                return StatusCode(500, "Ocurrió un error inesperado en activar-tandas.");
+            }
         }
+
 
 
         [HttpGet("{idOrdenTrabajo}")]
@@ -773,6 +575,19 @@ namespace APIWaveRelease.controllers
                 return BadRequest("La nueva Wave no coincide con el de los registros existentes en el cache.");
             }
 
+            // Verificar que no haya prtfam nulos o vacíos
+            foreach (var orden in waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG)
+            {
+                foreach (var shipSeg in orden.SHIP_SEG.PICK_DTL_SEG)
+                {
+                    if (string.IsNullOrWhiteSpace(shipSeg.prtfam))
+                    {
+                        // Se encontró un prtfam nulo o vacío, rechazar el JSON y enviar información del error
+                        return BadRequest($"Error: Familia de producto (prtfam) vacía o nula encontrada con el ordnum {orden.ordnum} y prtnum {shipSeg.prtnum}");
+                    }
+                }
+            }
+
             // Diccionario para agrupar por ordnum y prtnum
             var groupedData = new Dictionary<(string ordnum, string prtnum), WaveReleaseCache>();
 
@@ -780,6 +595,8 @@ namespace APIWaveRelease.controllers
             {
                 foreach (var shipSeg in orden.SHIP_SEG.PICK_DTL_SEG)
                 {
+                    // Ya hemos verificado que prtfam no es nulo o vacío
+
                     var key = (orden.ordnum, shipSeg.prtnum);
 
                     if (groupedData.TryGetValue(key, out var existingWaveCache))
@@ -811,7 +628,7 @@ namespace APIWaveRelease.controllers
                             Srvlvl = orden.SHIP_SEG?.srvlvl,
                             Wrkref = shipSeg.wrkref,
                             Prtnum = shipSeg.prtnum,
-                            Prtfam = shipSeg.prtfam,
+                            Prtfam = shipSeg.prtfam, // Ya validamos que no es null ni vacío
                             AltPrtnum = shipSeg.alt_prtnum,
                             MscsEan = shipSeg.mscs_ean,
                             IncsEan = shipSeg.incs_ean,
@@ -907,94 +724,132 @@ namespace APIWaveRelease.controllers
 
         private async Task<IActionResult> EnviarPostEndpoint()
         {
-            var waveCache = await _context.WaveReleaseCache.ToListAsync();
-
-            if (!waveCache.Any())
+            try
             {
-                return BadRequest("No hay datos en cache para enviar.");
-            }
+                var waveCache = await _context.WaveReleaseCache.ToListAsync();
 
-            // Construcción del JSON esperado
-            var waveReleaseKn = new WaveReleaseKN
-            {
-                ORDER_TRANSMISSION = new OrderTransmission
+                if (!waveCache.Any())
                 {
-                    wcs_id = waveCache.First().WcsId,
-                    wh_id = waveCache.First().WhId,
-                    msg_id = waveCache.First().MsgId,
-                    trandt = waveCache.First().Trandt,
-                    ORDER_TRANS_SEG = new OrderTransSeg
-                    {
-                        schbat = waveCache.First().Schbat,
-                        ORDER_SEG = waveCache
-                            .GroupBy(c => c.Ordnum)
-                            .Select(orderGroup => new OrderSeg
-                            {
-                                ordnum = orderGroup.Key,
-                                cponum = orderGroup.First().Cponum,
-                                rtcust = orderGroup.First().Rtcust,
-                                stcust = orderGroup.First().Stcust,
-                                ordtyp = orderGroup.First().Ordtyp,
-                                ADDRESS_SEG = new AddressSeg
-                                {
-                                    adrpsz = orderGroup.First().Adrpsz,
-                                    state = orderGroup.First().State
-                                },
-                                SHIP_SEG = new ShipSeg
-                                {
-                                    ship_id = orderGroup.First().ShipId,
-                                    carcod = orderGroup.First().Carcod,
-                                    srvlvl = orderGroup.First().Srvlvl,
-                                    PICK_DTL_SEG = orderGroup.Select(pick => new PickDtlSeg
-                                    {
-                                        wrkref = pick.Wrkref,
-                                        prtnum = pick.Prtnum,
-                                        prtfam = pick.Prtfam,
-                                        alt_prtnum = pick.AltPrtnum,
-                                        mscs_ean = pick.MscsEan,
-                                        incs_ean = pick.IncsEan,
-                                        qty_mscs = pick.QtyMscs,
-                                        qty_incs = pick.QtyIncs,
-                                        qty = pick.Qty,
-                                        ord_cas_cnt = pick.OrdCasCnt,
-                                        stgloc = pick.Stgloc,
-                                        mov_zone_code = pick.MovZoneCode,
-                                        conveyable = pick.Conveyable,
-                                        cubic_vol = pick.CubicVol
-                                    }).ToList()
-                                }
-                            }).ToList()
-                    }
+                    return BadRequest("No hay datos en cache para enviar.");
                 }
-            };
 
-            var usuario = "senad";
-            var contrasena = "S3nad";
-            var basicAuth = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{usuario}:{contrasena}"));
+                // Construcción del JSON esperado
+                var waveReleaseKn = new WaveReleaseKN
+                {
+                    ORDER_TRANSMISSION = new OrderTransmission
+                    {
+                        wcs_id = waveCache.First().WcsId,
+                        wh_id = waveCache.First().WhId,
+                        msg_id = waveCache.First().MsgId,
+                        trandt = waveCache.First().Trandt,
+                        ORDER_TRANS_SEG = new OrderTransSeg
+                        {
+                            schbat = waveCache.First().Schbat,
+                            ORDER_SEG = waveCache
+                                .GroupBy(c => c.Ordnum)
+                                .Select(orderGroup => new OrderSeg
+                                {
+                                    ordnum = orderGroup.Key,
+                                    cponum = orderGroup.First().Cponum,
+                                    rtcust = orderGroup.First().Rtcust,
+                                    stcust = orderGroup.First().Stcust,
+                                    ordtyp = orderGroup.First().Ordtyp,
+                                    ADDRESS_SEG = new AddressSeg
+                                    {
+                                        adrpsz = orderGroup.First().Adrpsz,
+                                        state = orderGroup.First().State
+                                    },
+                                    SHIP_SEG = new ShipSeg
+                                    {
+                                        ship_id = orderGroup.First().ShipId,
+                                        carcod = orderGroup.First().Carcod,
+                                        srvlvl = orderGroup.First().Srvlvl,
+                                        PICK_DTL_SEG = orderGroup.Select(pick => new PickDtlSeg
+                                        {
+                                            wrkref = pick.Wrkref,
+                                            prtnum = pick.Prtnum,
+                                            prtfam = pick.Prtfam,
+                                            alt_prtnum = pick.AltPrtnum,
+                                            mscs_ean = pick.MscsEan,
+                                            incs_ean = pick.IncsEan,
+                                            qty_mscs = pick.QtyMscs,
+                                            qty_incs = pick.QtyIncs,
+                                            qty = pick.Qty,
+                                            ord_cas_cnt = pick.OrdCasCnt,
+                                            stgloc = pick.Stgloc,
+                                            mov_zone_code = pick.MovZoneCode,
+                                            conveyable = pick.Conveyable,
+                                            cubic_vol = pick.CubicVol
+                                        }).ToList()
+                                    }
+                                }).ToList()
+                        }
+                    }
+                };
 
-            var httpCliente = _httpClientFactory.CreateClient();
-            httpCliente.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuth);
+                var usuario = "senad";
+                var contrasena = "S3nad";
+                var basicAuth = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{usuario}:{contrasena}"));
 
-            var jsonContentCache = JsonSerializer.Serialize(waveReleaseKn);
-            var httpContentCache = new StringContent(jsonContentCache, Encoding.UTF8, "application/json");
+                var httpCliente = _httpClientFactory.CreateClient();
+                httpCliente.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuth);
 
-            var urlCache = "http://apiwaverelease:8080/api/Waverelease";
+                var jsonContentCache = JsonSerializer.Serialize(waveReleaseKn);
+                var httpContentCache = new StringContent(jsonContentCache, Encoding.UTF8, "application/json");
 
-            // Enviar datos al endpoint 'post'
-            var response = await httpCliente.PostAsync(urlCache, httpContentCache);
+                var urlCache = "http://apiwaverelease:8080/api/Waverelease";
+                Console.WriteLine($"Enviando datos a: {urlCache}");
 
-            if (response.IsSuccessStatusCode)
-            {
-                Console.WriteLine("Eliminando datos del cache");
-                _context.WaveReleaseCache.RemoveRange(waveCache);
-                await _context.SaveChangesAsync();
+                // Enviar datos al endpoint 'post'
+                var response = await httpCliente.PostAsync(urlCache, httpContentCache);
 
-                return Ok("Datos enviados correctamente.");
+                // Leer el contenido de la respuesta independientemente del status code
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Respuesta del servidor: Status {(int)response.StatusCode} - {response.StatusCode}");
+                Console.WriteLine($"Contenido de la respuesta: {responseContent}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Eliminando datos del cache");
+                    _context.WaveReleaseCache.RemoveRange(waveCache);
+                    await _context.SaveChangesAsync();
+
+                    return Ok("Datos enviados correctamente.");
+                }
+                else
+                {
+                    // Capturar más detalles sobre el error HTTP
+                    return StatusCode((int)response.StatusCode,
+                        $"Error al enviar los datos. Status: {(int)response.StatusCode} {response.StatusCode}. " +
+                        $"\nDetalle: {responseContent}" +
+                        $"\nSE REALIZÓ UN ROLLBACK A LOS CAMBIOS HECHOS EN LA BD.");
+                }
             }
-            else
+            catch (HttpRequestException ex)
             {
-                return StatusCode((int)response.StatusCode, "Error al enviar los datos.");
+                Console.WriteLine($"Error de solicitud HTTP: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Error interno: {ex.InnerException.Message}");
+                }
+                return StatusCode(500, $"Error de conexión HTTP: {ex.Message}. Inner: {ex.InnerException?.Message}");
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine($"Error de serialización JSON: {ex.Message}");
+                return StatusCode(500, $"Error al procesar JSON: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Excepción no controlada: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Error interno: {ex.InnerException.Message}");
+                }
+                return StatusCode(500, $"Error inesperado: {ex.Message}. Inner: {ex.InnerException?.Message}");
             }
         }
+
     }
 }
