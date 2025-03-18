@@ -40,6 +40,7 @@ namespace APIWaveRelease.controllers
             var encodedCredentials = Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encodedCredentials);
         }
+
         /*
         [HttpPost("EliminarCache")]
         public async Task<IActionResult> BorrarCache()
@@ -69,10 +70,11 @@ namespace APIWaveRelease.controllers
             return Ok();
         }
         */
+
         [HttpPost("GuardarCache")]
         public async Task<IActionResult> GuardarCache([FromBody] WaveReleaseKN waveReleaseKN) 
         {
-            var result = await GuardarWaveCacheTest(waveReleaseKN);
+            var result = await GuardarWaveCache(waveReleaseKN);
 
             return result;
 
@@ -87,7 +89,8 @@ namespace APIWaveRelease.controllers
         }
   
 
-        [HttpPost("POSTViejo")]
+        // WAVE POST ANTIGUO !!!!
+        /*[HttpPost("POSTViejo")]
         public async Task<IActionResult> PostOrderTransmissionAntiguo([FromBody] WaveReleaseKN waveReleaseKn)
         {
 
@@ -101,7 +104,7 @@ namespace APIWaveRelease.controllers
 
                 return StatusCode(407, "Existen órdenes en proceso en estado activo (1). enviando al cache.");
             }
-            /*  else
+              else
               {
 
 
@@ -114,7 +117,7 @@ namespace APIWaveRelease.controllers
                           return Ok("se cargo desde el cache."); // Retornar un OK si la llamada fue exitosa
                       }
 
-              }*/
+              }
 
 
             var urlConfirm = "http://apiorderconfirmation:8080/api/OrderConfirmation/ResetTandas";
@@ -331,7 +334,7 @@ namespace APIWaveRelease.controllers
                 return StatusCode(500, "Ocurrió un error inesperado.");
             }
     }
-
+        */
 
 
 
@@ -564,7 +567,7 @@ namespace APIWaveRelease.controllers
         {
         }
 
-        private async Task<IActionResult> GuardarWaveCacheTest(WaveReleaseKN waveReleaseKn)
+        private async Task<IActionResult> GuardarWaveCache(WaveReleaseKN waveReleaseKn)
         {
             // Verificar si ya existen datos en el cache
             var existingCache = await _context.WaveReleaseCache.AsNoTracking().FirstOrDefaultAsync();
@@ -660,9 +663,8 @@ namespace APIWaveRelease.controllers
 
 
 
-
-
-        private async Task<IActionResult> GuardarWaveCache(WaveReleaseKN waveReleaseKn)
+        // GUARDAR CACHE ANTIGUO !!!!
+        /*private async Task<IActionResult> GuardarWaveCache(WaveReleaseKN waveReleaseKn)
         {
             // Verificar si ya existen datos en el cache
             var existingCache = await _context.WaveReleaseCache.AsNoTracking().FirstOrDefaultAsync();
@@ -721,6 +723,8 @@ namespace APIWaveRelease.controllers
             await _context.SaveChangesAsync();
             return Ok("Datos Guardados correctamente en el cache.");
         }
+        */
+
 
         private async Task<IActionResult> EnviarPostEndpoint()
         {
