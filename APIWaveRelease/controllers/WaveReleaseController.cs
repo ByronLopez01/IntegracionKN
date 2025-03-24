@@ -88,6 +88,25 @@ namespace APIWaveRelease.controllers
             return result;
         }
 
+        [HttpPost("ValidarUsuario")]
+        [AllowAnonymous]
+        public IActionResult ValidarUsuario([FromBody] UsuarioModel credenciales)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var usuariosPermitidos = _configuration.GetSection("UsuariosPermitidos")
+                                                  .Get<List<UsuarioConfig>>();
+
+            var usuarioValido = usuariosPermitidos?.FirstOrDefault(u =>
+                u.Usuario == credenciales.Usuario &&
+                u.Contrasena == credenciales.Contrasena);
+
+            return usuarioValido != null ? Ok() : Unauthorized();
+        }
+
 
         // WAVE POST ANTIGUO !!!!
         /*[HttpPost("POSTViejo")]
@@ -662,7 +681,7 @@ namespace APIWaveRelease.controllers
 
             return Ok("Datos guardados correctamente en el cache.");
         }
-    
+
 
 
         // GUARDAR CACHE ANTIGUO !!!!
