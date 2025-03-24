@@ -1,8 +1,27 @@
 ﻿@page "/api/WaveRelease/EnviarWave"
 @model APIWaveRelease.Pages.EnviarCacheModel
 
+<!-- Popup de Login -->
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <h3>Autorización requerida para Enviar Wave</h3>
+        <div id="loginMessage" class="message-error"></div>
 
-<div class="container">
+        <div class="form-group">
+            <input class="input-modal" type="text" id="username" placeholder="Usuario" required>
+            <div class="validation-message" id="userError"></div>
+        </div>
+
+        <div class="form-group">
+            <input class="input-modal" type="password" id="password" placeholder="Contraseña" required>
+            <div class="validation-message" id="passError"></div>
+        </div>
+
+        <button type="submit" onclick="validarCredenciales()" class="custom-button">Ingresar</button>
+    </div>
+</div>
+<!-- html -->
+<div class="container" id="mainContent" style="display: none;">
     <div class="content">
         <h1>Envío de WaveCache a WaveRelease</h1>
 
@@ -18,20 +37,92 @@
 </div>
 
 <style>
+    
     body {
         overflow-y: hidden;
         margin: 0;
         padding: 0;
-        font-family: Arial, sans-serif;
+        background-color: #f1f3f5;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     .navbar {
         display: none;
     }
 
-    .footer{
+    .footer {
         display: none;
     }
+
+    h3 {
+        font-size: 20px;
+    }
+
+    /* Estilos del login-POPUP */
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: rgba(0, 0, 0, 0.5);
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+
+        text-align: center;
+        width: 300px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        margin: 0 10px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .input-modal{
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        font-size: 16px; 
+        box-sizing: border-box;
+        transition: border-color 0.3s, box-shadow 0.3s;
+        background-color: #fff;
+    }
+
+    .input-modal:focus, .input-modal:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        outline: none;
+    }
+
+    .input-modal::placeholder, .input-modal::placeholder {
+        color: #6c757d;
+        opacity: 1;
+    }
+
+    .validation-message {
+        color: #dc3545;
+        font-size: 0.875em;
+        height: 20px;
+    }
+
+    .message-error {
+        color: #dc3545;
+        margin-bottom: 15px;
+        min-height: 20px;
+    }
+
+    /* Estilos del HTML */
 
     .container {
         display: flex;
@@ -45,11 +136,21 @@
         text-align: center;
         max-width: 600px;
         width: 100%;
-        padding: 60px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         border-radius: 8px;
-        background-color: #f9f9f9;
+        background-color: #ffffff;
+        transition: box-shadow 0.3s ease;
     }
+        .content:hover {
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .content h1 {
+            font-size: 24px;
+            color: #343a40;
+            margin-bottom: 20px;
+        }
 
     .custom-button {
         background-color: #007bff;
@@ -59,18 +160,21 @@
         border-radius: 5px;
         cursor: pointer;
         font-size: 16px;
-        transition: background-color 0.3s;
         position: relative;
+        transition: background-color 0.3s, box-shadow 0.3s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
 
-    .custom-button:hover {
-        background-color: #0056b3;
-    }
+        .custom-button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
 
-    .custom-button:disabled {
-        background-color: #6c757d;
-        cursor: not-allowed;
-    }
+        .custom-button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
 
     .alert {
         padding: 15px;
@@ -91,9 +195,50 @@
         border-color: #f5c6cb;
     }
 
+    .alert.show {
+        opacity: 1;
+    }
+
 </style>
 
 <script>
+        async function validarCredenciales() {
+        // Resetear mensajes de error
+        document.querySelectorAll('.validation-message').forEach(e => e.textContent = '');
+        document.getElementById('loginMessage').textContent = '';
+
+        // Validacion front
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        if (!username || !password) {
+            if (!username) document.getElementById('userError').textContent = 'Usuario es requerido';
+            if (!password) document.getElementById('passError').textContent = 'Contraseña es requerida';
+            return;
+        }
+
+        // Validacion back
+        try {
+            const response = await fetch('/api/WaveRelease/ValidarUsuario', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Usuario: username, Contrasena: password })
+            });
+
+            if (response.ok) {
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'flex';
+            } else {
+                document.getElementById('loginMessage').textContent = "Credenciales incorrectas";
+            }
+        } catch (error) {
+            document.getElementById('loginMessage').textContent = "Error de conexión";
+        }
+    }
+
+    /*
+      lOGICA BOTON
+    */
     document.getElementById('myForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
@@ -105,7 +250,7 @@
         messageContainer.innerHTML = '';
 
         try {
-            
+
             const response = await fetch('/api/WaveRelease/EnviarCache', {
                 method: 'POST',
                 headers: {
