@@ -121,11 +121,11 @@ namespace APIWaveRelease.data
                     .IsRequired()
                     .HasMaxLength(255);
 
-                //entity.Property(e => e.Tienda11)
-                //   .HasMaxLength(255);
+                entity.Property(e => e.Tienda11)
+                   .HasMaxLength(255);
 
-                //entity.Property(e => e.Tienda12)
-                //  .HasMaxLength(255);
+                entity.Property(e => e.Tienda12)
+                  .HasMaxLength(255);
 
                 //entity.Property(e => e.Tienda13)
                 //  .HasMaxLength(255);

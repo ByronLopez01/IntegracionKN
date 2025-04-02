@@ -9,6 +9,7 @@ using System.Net.Http.Headers; // Asegúrate de importar este espacio de nombres
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace APILPNPicking.controllers
@@ -54,7 +55,76 @@ namespace APILPNPicking.controllers
                 return BadRequest("Datos en formato incorrecto.");
             }
 
+
+
+            // Verificar si existen dtlnum duplicados en los datos recibidos
+            var allDtlNumbers = request.SORT_INDUCTION.LOAD_HDR_SEG
+                                        .SelectMany(hdr => hdr.LOAD_DTL_SEG)
+                                        .SelectMany(dtl => dtl.SUBNUM_SEG)
+                                        .Select(sub => sub.dtlnum)
+                                        .Where(dtlnum => !string.IsNullOrEmpty(dtlnum))
+                                        .ToList();
+
+            var duplicateDtl = allDtlNumbers
+                                    .GroupBy(dtlnum => dtlnum)
+                                    .Where(g => g.Count() > 1)
+                                    .Select(g => g.Key)
+                                    .ToList();
+
+            if (duplicateDtl.Any())
+            {
+                var msg = $"Dtlnum (detail) duplicado en el json recibido: {string.Join(", ", duplicateDtl)}.";
+                Console.WriteLine(msg);
+                return BadRequest(msg);
+            }
+
+
+
+
+            // Obtener la Wave activa actual
+            var activeWave = await _context.WaveRelease
+                                    .Where(w => w.estadoWave)
+                                    .OrderBy(w => w.Id)
+                                    .Select(w => w.Wave)
+                                    .FirstOrDefaultAsync();
+
+            if (string.IsNullOrEmpty(activeWave))
+            {
+                Console.WriteLine("No se encontró una Wave activa.");
+                return StatusCode(500, "No se encontró una Wave activa.");
+            }
+            Console.WriteLine($"Wave activa actual: {activeWave}");
+
+
+
+            // Extraer los dtlNumbers del request
+            var dtlNumbers = request.SORT_INDUCTION.LOAD_HDR_SEG
+                                .SelectMany(hdr => hdr.LOAD_DTL_SEG)
+                                .SelectMany(dtl => dtl.SUBNUM_SEG)
+                                .Select(sub => sub.dtlnum)
+                                .Where(dtlnum => !string.IsNullOrEmpty(dtlnum))
+                                .Distinct()
+                                .ToList();
+
+            // Verificar si alguno de los dtlNumbers ya existe en la tabla OrdenEnProceso para la Wave activa
+            if (dtlNumbers.Any())
+            {
+                var existingNumbers = await _context.ordenesEnProceso
+                    .Where(o => o.wave == activeWave && dtlNumbers.Contains(o.dtlNumber))
+                    .Select(o => o.dtlNumber)
+                    .Distinct()
+                    .ToListAsync();
+
+                if (existingNumbers.Count > 0)
+                {
+                    var msg = $"El dtlnum '{string.Join(", ", existingNumbers)}' ya existe en la Wave activa ({activeWave}) de OrdenEnProceso.";
+                    Console.WriteLine(msg);
+                    return BadRequest(msg);
+                }
+            }
+
             Console.WriteLine("Datos válidos. Procesando el encabezado de carga.");
+
 
             foreach (var loadHdrSeg in request.SORT_INDUCTION.LOAD_HDR_SEG)
             {
@@ -241,6 +311,7 @@ namespace APILPNPicking.controllers
                             var urlLucaBase = _configuration["ServiceUrls:luca"];
                             var urlLuca = $"{urlLucaBase}/api/sort/LpnSorter?sorterId={familyMaster.numSalida}";
 
+                            /*
                             try
                             {
                                 var response = await httpClient.PostAsync(urlLuca, httpContent);
@@ -258,6 +329,7 @@ namespace APILPNPicking.controllers
                                 Console.WriteLine($"Error al enviar datos a LpnSorter: {ex.Message}");
                                 return StatusCode(500, $"Error al enviar datos a LpnSorter: {ex.Message}");
                             }
+                            */
                             
                         }
 
