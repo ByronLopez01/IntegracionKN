@@ -231,7 +231,6 @@ namespace APISenad.controllers
             }
 
             // ACTUALIZACION al detectar inner o producto.
-            /*
             else if (ordenEncontrada.codInr == codItem)
             {
                 _logger.LogInformation("Orden: {ordenEncontrada.numOrden} con código de producto: {codItem} es Inner", ordenEncontrada.numOrden, codItem);
@@ -282,6 +281,16 @@ namespace APISenad.controllers
 
             else if (ordenEncontrada.codProducto == codItem)
             {
+                _logger.LogInformation("Orden: {ordenEncontrada.numOrder} con codigo de producto: {codItem} es Codigo de producto", ordenEncontrada.numOrden, codItem);
+
+                tipoCodigo = "Producto";
+                //cantidadProcesada = ordenEncontrada.cantidad + ordenEncontrada.cantidadProcesada;
+            }
+
+            // ACTUALIZACION al detectar producto
+            /*
+            else if (ordenEncontrada.codProducto == codItem)
+            {
                 _logger.LogInformation("Orden: {ordenEncontrada.numOrden} con código de producto: {codItem} es Código de producto", ordenEncontrada.numOrden, codItem);
                 tipoCodigo = "Producto";
 
@@ -326,22 +335,6 @@ namespace APISenad.controllers
             */
 
 
-            // ANTIGUO detectar inner o producto
-            else if (ordenEncontrada.codInr == codItem)
-            {
-                _logger.LogInformation("Orden: {ordenEncontrada.numOrder} con codigo de producto: {codItem} es Inner", ordenEncontrada.numOrden, codItem);
-
-                tipoCodigo = "Inner";
-                cantidadProcesada = ordenEncontrada.cantInr + ordenEncontrada.cantidadProcesada;
-            }
-            else if (ordenEncontrada.codProducto == codItem)
-            {
-                _logger.LogInformation("Orden: {ordenEncontrada.numOrder} con codigo de producto: {codItem} es Codigo de producto", ordenEncontrada.numOrden, codItem);
-
-                tipoCodigo = "Producto";
-                //cantidadProcesada = ordenEncontrada.cantidad + ordenEncontrada.cantidadProcesada;
-            }
-
             // Si el tipo de Codigo es Producto, se envía a la salida de ERROR
             if (tipoCodigo == "Producto")
             {
@@ -359,6 +352,7 @@ namespace APISenad.controllers
                 Console.WriteLine("Codigo de Producto detectado. Enviando a ERROR ");
                 return Ok(responseError);
             }
+
 
 
             // Actualiza la cantidad procesada luego de escanear el código
