@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Net.Http.Headers;
+using Microsoft.Extensions.Logging;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,15 +22,14 @@ namespace APIWaveRelease.controllers
         private readonly WaveReleaseContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<WaveReleaseController> _logger;
 
-
-
-        public WaveReleaseController(WaveReleaseContext context, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public WaveReleaseController(WaveReleaseContext context, IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<WaveReleaseController> logger)
         {
             _context = context;
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
-
+            _logger = logger;
         }
 
         private void SetAuthorizationHeader(HttpClient client)
@@ -158,7 +158,7 @@ namespace APIWaveRelease.controllers
             }
             catch (JsonException ex)
             {
-                Console.WriteLine($"Error al deserializar el JSON: {ex.Message}");
+                _logger.LogError($"Error al deserializar el JSON: {ex.Message}");
                 return StatusCode(500, "Error al deserializar el JSON.");
             }
 
@@ -192,7 +192,7 @@ namespace APIWaveRelease.controllers
                             if (existingWaveRelease != null)
                             {
                                 existingWaveRelease.Cantidad += pickDtlSeg.qty;
-                                Console.WriteLine($"Cantidad actualizada para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
+                                _logger.LogInformation($"Cantidad actualizada para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
                             }
                             else
                             {
@@ -211,7 +211,7 @@ namespace APIWaveRelease.controllers
                                     estadoWave = true
                                 };
                                 waveReleases.Add(newWaveRelease);
-                                Console.WriteLine($"Nuevo registro creado para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
+                                _logger.LogInformation($"Nuevo registro creado para Orden: {orderSeg.ordnum}, Producto: {pickDtlSeg.prtnum}");
                             }
                         }
                     }
@@ -229,14 +229,15 @@ namespace APIWaveRelease.controllers
                     var urlLuca = $"{urlLucaBase}/api/sort/waveRelease";
                     
                     var responseLuca = await httpClientLuca.PostAsync(urlLuca, httpContent);
-                    Console.WriteLine("URL LUCA: " + urlLuca);
+                    _logger.LogInformation("URL LUCA: " + urlLuca);
 
                     if (!responseLuca.IsSuccessStatusCode)
                     {
                         var errorDetails = await responseLuca.Content.ReadAsStringAsync();
-                        throw new Exception($"Error al enviar JSON a Luca. Status: {responseLuca.StatusCode}. Detalles: {errorDetails}");
+                        _logger.LogError($"Error. Fallo al enviar JSON a LUCA. Status: {responseLuca.StatusCode}. Detalles: {errorDetails}");
+                        throw new Exception($"Error. Fallo al enviar JSON a Luca. Status: {responseLuca.StatusCode}. Detalles: {errorDetails}");
                     }
-                    Console.WriteLine("El JSON fue enviado correctamente a Luca.");
+                    _logger.LogInformation("El JSON fue enviado correctamente a Luca.");
                     
                     // Si el envío a Luca es correcto, confirmar la transacción
                     await transaction.CommitAsync();
@@ -245,13 +246,13 @@ namespace APIWaveRelease.controllers
                 catch (HttpRequestException ex)
                 {
                     await transaction.RollbackAsync();
-                    Console.WriteLine($"Error HTTP durante la transacción (envío a Luca fallido): {ex.Message}");
+                    _logger.LogError($"Error HTTP durante la transacción (envío a Luca fallido): {ex.Message}");
                     return StatusCode(500, $"Error HTTP durante la transacción (posible error de envío a Luca): {ex.Message}");
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    Console.WriteLine($"Error inesperado durante la transacción (envío a Luca fallido): {ex.Message}");
+                    _logger.LogError($"Error inesperado durante la transacción (envío a Luca fallido): {ex.Message}");
                     return StatusCode(500, $"Error inesperado durante la transacción: {ex.Message}");
                 }
             }
@@ -266,7 +267,7 @@ namespace APIWaveRelease.controllers
                 var urlActivarTandas = "http://apifamilymaster:8080/api/FamilyMaster/activar-tandas";
                 var responseTandas = await httpClient.PostAsync($"{urlActivarTandas}?salidasDisponibles={salidasDisponibles}", null);
                 var responseContent = await responseTandas.Content.ReadAsStringAsync();
-                Console.WriteLine("Respuesta de activar-tandas: " + responseContent);
+                _logger.LogInformation("Respuesta de activar-tandas: " + responseContent);
 
                 var tandaResponse = JsonSerializer.Deserialize<ActivarTandasResponse>(
                     responseContent,
@@ -282,17 +283,17 @@ namespace APIWaveRelease.controllers
             }
             catch (JsonException ex)
             {
-                Console.WriteLine("Error al deserializar activar-tandas: " + ex.Message);
+                _logger.LogError("Error al deserializar activar-tandas: " + ex.Message);
                 return StatusCode(500, "Error al deserializar el JSON de activar-tandas.");
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine("Error en la solicitud de activar-tandas: " + ex.Message);
+                _logger.LogError("Error en la solicitud de activar-tandas: " + ex.Message);
                 return StatusCode(500, "Error en la solicitud HTTP de activar-tandas.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error inesperado en activar-tandas: " + ex.Message);
+                _logger.LogError("Error inesperado en activar-tandas: " + ex.Message);
                 return StatusCode(500, "Ocurrió un error inesperado en activar-tandas.");
             }
         }
@@ -574,19 +575,19 @@ namespace APIWaveRelease.controllers
                 var httpContentCache = new StringContent(jsonContentCache, Encoding.UTF8, "application/json");
 
                 var urlCache = "http://apiwaverelease:8080/api/Waverelease";
-                Console.WriteLine($"Enviando datos a: {urlCache}");
+                _logger.LogInformation($"Enviando datos a: {urlCache}");
 
                 // Enviar datos al endpoint 'post'
                 var response = await httpCliente.PostAsync(urlCache, httpContentCache);
 
                 // Leer el contenido de la respuesta independientemente del status code
                 var responseContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Respuesta del servidor: Status {(int)response.StatusCode} - {response.StatusCode}");
-                Console.WriteLine($"Contenido de la respuesta: {responseContent}");
+                _logger.LogInformation($"Respuesta del servidor: Status {(int)response.StatusCode} - {response.StatusCode}");
+                _logger.LogInformation($"Contenido de la respuesta: {responseContent}");
 
                 if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Eliminando datos del cache");
+                    _logger.LogInformation("Eliminando datos del cache");
                     _context.WaveReleaseCache.RemoveRange(waveCache);
                     await _context.SaveChangesAsync();
 
@@ -603,25 +604,25 @@ namespace APIWaveRelease.controllers
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine($"Error de solicitud HTTP: {ex.Message}");
+                _logger.LogError($"Error de solicitud HTTP: {ex.Message}");
                 if (ex.InnerException != null)
                 {
-                    Console.WriteLine($"Error interno: {ex.InnerException.Message}");
+                    _logger.LogError($"Error interno: {ex.InnerException.Message}");
                 }
                 return StatusCode(500, $"Error de conexión HTTP: {ex.Message}. Inner: {ex.InnerException?.Message}");
             }
             catch (JsonException ex)
             {
-                Console.WriteLine($"Error de serialización JSON: {ex.Message}");
+                _logger.LogError($"Error de serialización JSON: {ex.Message}");
                 return StatusCode(500, $"Error al procesar JSON: {ex.Message}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Excepción no controlada: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                _logger.LogError($"Excepción no controlada: {ex.Message}");
+                _logger.LogError($"Stack trace: {ex.StackTrace}");
                 if (ex.InnerException != null)
                 {
-                    Console.WriteLine($"Error interno: {ex.InnerException.Message}");
+                    _logger.LogError($"Error interno: {ex.InnerException.Message}");
                 }
                 return StatusCode(500, $"Error inesperado: {ex.Message}. Inner: {ex.InnerException?.Message}");
             }

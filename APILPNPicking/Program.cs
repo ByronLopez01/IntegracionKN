@@ -8,6 +8,8 @@ using System.Text;
 using System.IO;
 using APILPNPicking.security;
 using Microsoft.AspNetCore.Authentication;
+using Serilog.Events;
+using Serilog;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,31 +33,23 @@ builder.Services.AddHttpClient("apiFamilyMaster", client =>
 });
 
 
-// Configuraci�n de JWT
-//var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
-//builder.Services.AddAuthentication(x =>
-//{
-//  x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//  x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//})
-//.AddJwtBearer(x =>
-//{
-//  x.RequireHttpsMetadata = false; // Cambiar a true para producci�n
-// x.SaveToken = true;
-// x.TokenValidationParameters = new TokenValidationParameters
-// {
-//   ValidateIssuerSigningKey = true,
-//   IssuerSigningKey = new SymmetricSecurityKey(key),
-//   ValidateIssuer = true,
-//   ValidIssuer = builder.Configuration["Jwt:Issuer"], // Agrega el Issuer desde la configuraci�n
-//   ValidateAudience = false
-// };
-//});
 
 //basic auth
 builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 builder.Services.AddHttpClient();
+
+
+// Config Logs
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .WriteTo.Console()
+    .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+// Agregar Serilog al host
+builder.Host.UseSerilog();
+
 
 // Configuración cliente HTTP
 builder.Services.AddHttpClient("apiLuca", m => { })

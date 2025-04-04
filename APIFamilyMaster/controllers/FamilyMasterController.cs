@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Net.Http;
 using System.Text;
 using System.Net.Http.Headers;
+using Microsoft.Extensions.Logging;
 
 
 namespace APIFamilyMaster.controllers
@@ -20,14 +21,20 @@ namespace APIFamilyMaster.controllers
         private readonly FamilyMasterService _familyMasterService;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<FamilyMasterController> _logger;
 
-        public FamilyMasterController(FamilyMasterContext context, FamilyMasterService familyMasterService, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public FamilyMasterController(
+            FamilyMasterContext context,
+            FamilyMasterService familyMasterService,
+            IHttpClientFactory httpClientFactory,
+            IConfiguration configuration,
+            ILogger<FamilyMasterController> logger)
         {
             _context = context;
             _familyMasterService = familyMasterService;
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
-
+            _logger = logger;
         }
         private void SetAuthorizationHeader(HttpClient client)
         {
@@ -50,7 +57,8 @@ namespace APIFamilyMaster.controllers
         {
             if (familyMasters == null || familyMasters.Count == 0)
             {
-                return BadRequest("Datos invalidos.");
+                _logger.LogError("La lista de FamilyMaster está vacía o es nula.");
+                return BadRequest("Error. La lista de FamilyMaster está vacía o es nula.");
             }
 
             var familiasAgrupadas = familyMasters.GroupBy(fm => fm.Familia);
@@ -59,7 +67,8 @@ namespace APIFamilyMaster.controllers
                 var tandasDistintas = grupo.Select(fm => fm.NumTanda).Distinct().Count();
                 if (tandasDistintas > 1)
                 {
-                    return BadRequest($"La familia '{grupo.Key}' tiene diferentes numeros de tandas. Esto no esta permitido!");
+                    _logger.LogError($"Error. La familia '{grupo.Key}' tiene diferentes numeros de tandas. Esto no esta permitido!");
+                    return BadRequest($"Error. La familia '{grupo.Key}' tiene diferentes numeros de tandas. Esto no esta permitido!");
                 }
             }
 
@@ -112,45 +121,41 @@ namespace APIFamilyMaster.controllers
                 var urlLucaBase = _configuration["ServiceUrls:luca"];
                 var urlLuca = $"{urlLucaBase}/api/sort/FamilyMaster";
 
-                Console.WriteLine($"Enviando JSON a Luca en la URL: {urlLuca}");
+                _logger.LogInformation("Enviando JSON a Luca en la URL: {UrlLuca}", urlLuca);
+                _logger.LogInformation("JSON a enviar: {JsonContent}", jsonContent);
 
-                // Mostrar el JSON que se enviará a Luca
-                Console.WriteLine(jsonContent);
 
-                
                 try
                 {
-
                     var response = await httpClient.PostAsync(urlLuca, httpContent);
                     if (!response.IsSuccessStatusCode)
                     {
-                        Console.WriteLine("Error al enviar el JSON a Luca.");
+                        _logger.LogInformation("Error al enviar el JSON a Luca. StatusCode: {StatusCode}", response.StatusCode);
+                        return StatusCode((int)response.StatusCode, $"Error al enviar el JSON a Luca. StatusCode: {response.StatusCode}");
                     }
                     else
                     {
-                        Console.WriteLine("El JSON fue enviado correctamente a Luca.");
+                        _logger.LogInformation("El JSON fue enviado correctamente a Luca.");
                     }
                     
                 }
                 catch (HttpRequestException ex)
                 {
-                    Console.WriteLine($"Error en la solicitud HTTP: {ex.Message}");
+                    _logger.LogError("Error en la solicitud HTTP: {Message}", ex.Message);
                     return StatusCode(500, $"Error en la solicitud HTTP: {ex.Message}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
+                    _logger.LogError("Ocurrió un error inesperado: {Message}", ex.Message);
                     return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
-                }
-                
-
+                }               
 
                 return Ok("Datos guardados correctamente.");
 
             }
             catch
             {
-                return BadRequest("Error al procesar familymaster");
+                return BadRequest("Error al procesar FamilyMaster");
             }
             
         }
@@ -162,6 +167,7 @@ namespace APIFamilyMaster.controllers
             // Validar los parámetros de entrada
             if (string.IsNullOrEmpty(tienda) && string.IsNullOrEmpty(familia))
             {
+                _logger.LogError("Los parámetros de búsqueda 'tienda' y 'familia' no pueden ser nulos o vacíos.");
                 return BadRequest("Los parámetros de búsqueda 'tienda' y 'familia' no pueden ser nulos o vacíos.");
             }
 
@@ -204,6 +210,7 @@ namespace APIFamilyMaster.controllers
             // Verificar si se encontraron resultados
             if (familyMasters == null || !familyMasters.Any())
             {
+                _logger.LogWarning("No se encontraron datos para la tienda y familia proporcionadas.");
                 return NotFound("No se encontraron datos para la tienda y familia proporcionadas.");
             }
 
@@ -230,7 +237,8 @@ namespace APIFamilyMaster.controllers
         {
             if (salidasDisponibles <= 0)
             {
-                return BadRequest("El número de salidas disponibles debe ser mayor a cero.");
+                _logger.LogError("Error. El número de salidas disponibles debe ser mayor a cero.");
+                return BadRequest("Error. El número de salidas disponibles debe ser mayor a cero.");
             }
 
             // Llamamos al servicio para activar las tandas
@@ -253,6 +261,7 @@ namespace APIFamilyMaster.controllers
 
                 if (!tandaActivada.NumTanda.HasValue)
                 {
+                    _logger.LogWarning("No se encontró una tanda siguiente o ya fue activada: {NumTandaActual}", numTandaActual);
                     return Ok(new { message = "No se encontró una tanda siguiente o ya fue activada: " + numTandaActual });
                 }
 
@@ -265,7 +274,8 @@ namespace APIFamilyMaster.controllers
             catch (Exception ex)
             {
                 // Manejo de errores
-                return StatusCode(500, new { message = "Error interno del servidor.", error = ex.Message });
+                _logger.LogError("Error al activar la siguiente tanda: {Message}", ex.Message);
+                return StatusCode(500, new { message = "Error al activar siguiente tanda.", error = ex.Message });
             }
         }
         // Nuevo endpoint GET para obtener todos los registros de FamilyMaster
@@ -280,7 +290,8 @@ namespace APIFamilyMaster.controllers
                 // Verificar si hay datos
                 if (familyMasters == null || familyMasters.Count == 0)
                 {
-                    return NotFound("No se encontraron registros en la tabla FamilyMaster.");
+                    _logger.LogError("Error. No se encontraron registros en la tabla FamilyMaster.");
+                    return NotFound("Error. No se encontraron registros en la tabla FamilyMaster.");
                 }
 
                 // Devolver los datos en formato JSON
@@ -289,7 +300,7 @@ namespace APIFamilyMaster.controllers
             catch (Exception ex)
             {
                 // Manejo de errores
-                return StatusCode(500, new { message = "Error interno del servidor.", error = ex.Message });
+                return StatusCode(500, new { message = "Error al obtener los registros de FamilyMaster.", error = ex.Message });
             }
         }
     }

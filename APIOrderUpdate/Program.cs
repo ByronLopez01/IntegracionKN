@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog.Events;
+using Serilog;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,31 +23,22 @@ builder.Services.AddControllers();
 
 builder.Services.AddHttpClient();
 
-
-//var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
-//builder.Services.AddAuthentication(x =>
-//{
-//  x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-// x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//})
-//.AddJwtBearer(x =>
-//{
-//  x.RequireHttpsMetadata = false; // Cambiar a true para producci�n
-// x.SaveToken = true;
-// x.TokenValidationParameters = new TokenValidationParameters
-// {
-//   ValidateIssuerSigningKey = true,
-//   IssuerSigningKey = new SymmetricSecurityKey(key),
-//   ValidateIssuer = true,
-//  ValidIssuer = builder.Configuration["Jwt:Issuer"], 
-//  ValidateAudience = false
-// };
-//});
-
 //basic auth
 builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 builder.Services.AddHttpClient();
+
+
+// Config Logs
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .WriteTo.Console()
+    .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+// Agregar Serilog al host
+builder.Host.UseSerilog();
+
 
 // Configuraci�n Swagger
 builder.Services.AddEndpointsApiExplorer();
