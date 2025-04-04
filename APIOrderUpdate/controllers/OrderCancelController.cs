@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace APIOrderUpdate.controllers
 {
@@ -21,13 +22,19 @@ namespace APIOrderUpdate.controllers
         private readonly HttpClient _httpClient;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<OrderCancelController> _logger;
 
-        public OrderCancelController(IOrderCancelService orderCancelService, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public OrderCancelController(
+            IOrderCancelService orderCancelService,
+            IHttpClientFactory httpClientFactory,
+            IConfiguration configuration,
+            ILogger<OrderCancelController> logger)
         {
             _orderCancelService = orderCancelService;
             _httpClientFactory = httpClientFactory;
             _httpClient = _httpClientFactory.CreateClient();
             _configuration = configuration;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -37,7 +44,8 @@ namespace APIOrderUpdate.controllers
             if (orderCancelKn?.ORDER_CANCEL?.ORDER_CANCEL_SEG == null ||
         !orderCancelKn.ORDER_CANCEL.ORDER_CANCEL_SEG.Any(seg => !string.IsNullOrEmpty(seg.schbat)))
             {
-                return BadRequest("JSON inválido.");
+                _logger.LogError("Error. El JSON recibido no es válido o no contiene la información necesaria.");
+                return BadRequest("Error. El JSON recibido no es válido o no contiene la información necesaria.");
             }
 
             var (result, ordersNotCancelled) = await _orderCancelService.HandleOrderCancelAsync(orderCancelKn);
@@ -64,19 +72,16 @@ namespace APIOrderUpdate.controllers
                 var jsonContent = new StringContent(JsonSerializer.Serialize(orderCancelJson), Encoding.UTF8, "application/json");
                 var urlLuca = _configuration["ServiceUrls:luca"];
 
-                Console.WriteLine($"URL Luca: {urlLuca}/api/sort/OrderUpdate");
-                Console.WriteLine($"URL Luca: {urlLuca}/api/sort/OrderUpdate");
-                Console.WriteLine($"URL Luca: {urlLuca}/api/sort/OrderUpdate");
-
-                // Console.WriteLine de el contenido del json
-                Console.WriteLine(JsonSerializer.Serialize(orderCancelJson));
+                _logger.LogInformation("URL Luca: {UrlLuca}", $"{urlLuca}/api/sort/OrderUpdate");
+                _logger.LogInformation("Contenido JSON: {Json}", JsonSerializer.Serialize(orderCancelJson));
 
                 // ENVIO A LUCA!!
                 var response = await _httpClient.PostAsync($"{urlLuca}/api/sort/OrderUpdate", jsonContent);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    return StatusCode((int)response.StatusCode, "Ocurrió un error al enviar el OrderCancel a Luca.");
+                    _logger.LogError("Error. Fallo al enviar el OrderCancel a Luca. Código de estado: {StatusCode}", response.StatusCode);
+                    return StatusCode((int)response.StatusCode, "Error. Fallo al enviar el OrderCancel a Luca.");
                 }
                 
             }
