@@ -311,25 +311,25 @@ namespace APILPNPicking.controllers
                             var urlLucaBase = _configuration["ServiceUrls:luca"];
                             var urlLuca = $"{urlLucaBase}/api/sort/LpnSorter?sorterId={familyMaster.numSalida}";
 
-                            /*
+                            
                             try
                             {
                                 var response = await httpClient.PostAsync(urlLuca, httpContent);
                                 if (response.IsSuccessStatusCode)
                                 {
-                                    Console.WriteLine("El JSON fue enviado correctamente a LpnSorter.");
+                                    Console.WriteLine("El JSON fue enviado correctamente a LUCA.");
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Error al enviar el JSON a LpnSorter.");
+                                    Console.WriteLine("Error al enviar el JSON a LUCA.");
                                 }
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine($"Error al enviar datos a LpnSorter: {ex.Message}");
-                                return StatusCode(500, $"Error al enviar datos a LpnSorter: {ex.Message}");
+                                Console.WriteLine($"Error al enviar datos a LUCA: {ex.Message}");
+                                return StatusCode(500, $"Error al enviar datos a LUCA: {ex.Message}");
                             }
-                            */
+                            
                             
                         }
 
