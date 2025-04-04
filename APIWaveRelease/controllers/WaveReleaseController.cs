@@ -475,7 +475,7 @@ namespace APIWaveRelease.controllers
                     var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
                     var urlLucaBase = _configuration["ServiceUrls:luca"];
                     var urlLuca = $"{urlLucaBase}/api/sort/waveRelease";
-
+                    /*
                     var responseLuca = await httpClientLuca.PostAsync(urlLuca, httpContent);
                     Console.WriteLine("URL LUCA: " + urlLuca);
 
@@ -485,9 +485,10 @@ namespace APIWaveRelease.controllers
                         throw new Exception($"Error al enviar JSON a Luca. Status: {responseLuca.StatusCode}. Detalles: {errorDetails}");
                     }
                     Console.WriteLine("El JSON fue enviado correctamente a Luca.");
-
+                    */
                     // Si el envío a Luca es correcto, confirmar la transacción
                     await transaction.CommitAsync();
+
                 }
                 catch (Exception ex)
                 {
@@ -594,6 +595,7 @@ namespace APIWaveRelease.controllers
             var existingCacheData = await _context.WaveReleaseCache
                 .ToDictionaryAsync(x => (x.Ordnum, x.Prtnum));
 
+
             // Verificar que la Wave sea la misma
             var existingCache = existingCacheData.Values.FirstOrDefault();
             if (existingCache != null && existingCache.Schbat != waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat)
@@ -613,6 +615,61 @@ namespace APIWaveRelease.controllers
                 }
             }
 
+
+            // *** VALIDACIÓN 1: Verificar que las familias (prtfam) existan en FamilyMaster ***
+            var familiasRecibidas = waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG
+                .SelectMany(orden => orden.SHIP_SEG.PICK_DTL_SEG
+                    .Select(seg => seg.prtfam))
+                .Where(prtfam => !string.IsNullOrWhiteSpace(prtfam))
+                .Distinct()
+                .ToList();
+
+            var familiasExistentes = await _context.FamilyMaster
+                .Select(f => f.Familia)
+                .Distinct()
+                .ToListAsync();
+
+            var familiasNoEncontradas = familiasRecibidas
+                .Where(fam => !familiasExistentes.Contains(fam))
+                .ToList();
+
+            if (familiasNoEncontradas.Any())
+            {
+                return BadRequest($"Las siguientes familias no existen en FamilyMaster: {string.Join(", ", familiasNoEncontradas)}");
+            }
+
+
+
+            // *** VALIDACIÓN 2: Verificar que las tiendas (rtcust/stcust) existan en FamilyMaster ***
+            var tiendasRecibidas = waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.ORDER_SEG
+                .SelectMany(orden => new[] { orden.rtcust, orden.stcust })
+                .Where(tienda => !string.IsNullOrWhiteSpace(tienda))
+                .Distinct()
+                .ToList();
+
+            // Traer todas las entidades de FamilyMaster primero y luego hacer las validaciones en memoria
+            var todasLasTiendas = await _context.FamilyMaster.ToListAsync();
+
+            // Extraer todas las tiendas válidas en memoria
+            var tiendasExistentes = todasLasTiendas
+                .SelectMany(f => new[] {
+            f.Tienda1, f.Tienda2, f.Tienda3, f.Tienda4, f.Tienda5, f.Tienda6,
+            f.Tienda7, f.Tienda8, f.Tienda9, f.Tienda10, f.Tienda11, f.Tienda12
+                })
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Distinct()
+                .ToList();
+
+            var tiendasNoEncontradas = tiendasRecibidas
+                .Where(tienda => !tiendasExistentes.Contains(tienda))
+                .ToList();
+
+            if (tiendasNoEncontradas.Any())
+            {
+                return BadRequest($"Las siguientes tiendas no existen en FamilyMaster: {string.Join(", ", tiendasNoEncontradas)}");
+            }
+
+
             // Diccionario para agrupar por ordnum y prtnum
             var groupedData = new Dictionary<(string ordnum, string prtnum), WaveReleaseCache>();
 
@@ -620,7 +677,7 @@ namespace APIWaveRelease.controllers
             {
                 foreach (var shipSeg in orden.SHIP_SEG.PICK_DTL_SEG)
                 {
-                    var key = (orden.ordnum, shipSeg.prtnum);  // ✅ Clave en formato de tupla
+                    var key = (orden.ordnum, shipSeg.prtnum);  // Clave en formato de tupla
 
                     // Verificar si ya existe en la BD
                     if (existingCacheData.TryGetValue(key, out var existingWaveCache))

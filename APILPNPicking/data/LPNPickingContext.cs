@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using APILPNPicking.models;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace APILPNPicking.data
@@ -12,6 +13,7 @@ namespace APILPNPicking.data
         
         public DbSet<LPNSorting> LPNSorting { get; set; }
         public DbSet<OrdenEnProceso> ordenesEnProceso { get; set; }
+        public DbSet<WaveReleaseTable> WaveRelease { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -126,6 +128,49 @@ namespace APILPNPicking.data
                 entity.Property(e => e.estadoLuca)
                     .HasColumnName("estadoLuca");
             });
+
+            // Configuración para WaveRelease
+            modelBuilder.Entity<WaveReleaseTable>(entity =>
+            {
+                entity.ToTable("WaveRelease");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("Id")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.CodMastr)
+                    .HasMaxLength(50)
+                    .HasColumnName("CodMastr");
+
+                entity.Property(e => e.CodInr)
+                    .HasMaxLength(50)
+                    .HasColumnName("CodInr");
+
+                entity.Property(e => e.Familia)
+                    .HasMaxLength(50)
+                    .HasColumnName("Familia");
+
+                entity.Property(e => e.NumOrden)
+                    .HasMaxLength(50)
+                    .HasColumnName("NumOrden");
+
+                entity.Property(e => e.Wave)
+                    .HasMaxLength(50)
+                    .HasColumnName("Wave");
+
+                entity.Property(e => e.tienda)
+                    .HasMaxLength(50)
+                    .HasColumnName("tienda");
+
+                entity.Property(e => e.estadoWave)
+                    .HasColumnName("estadoWave");
+
+
+            });
+
         }
+
     }
 }
