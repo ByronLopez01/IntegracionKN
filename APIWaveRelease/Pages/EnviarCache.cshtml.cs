@@ -13,9 +13,6 @@ namespace APIWaveRelease.Pages
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
 
-        //[TempData]
-        //public string Mensaje { get; set; }
-
         public EnviarCacheModel(
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration)
@@ -33,7 +30,6 @@ namespace APIWaveRelease.Pages
             try
             {
                 var httpClient = _httpClientFactory.CreateClient();
-
                 var usuario = _configuration["BasicAuth:Username"];
                 var contrasena = _configuration["BasicAuth:Password"];
                 var urlApi = _configuration["ApiUrl"];
@@ -53,25 +49,16 @@ namespace APIWaveRelease.Pages
                 Console.WriteLine($"Authorization Header: {request.Headers.Authorization}");
 
                 var response = await httpClient.SendAsync(request);
+                var responseContent = await response.Content.ReadAsStringAsync();
 
-                mensaje = response.IsSuccessStatusCode
-                    ? await response.Content.ReadAsStringAsync()
-                    : $"Error HTTP {response.StatusCode}: {await response.Content.ReadAsStringAsync()}";
-            }
-            catch (HttpRequestException ex)
-            {
-                mensaje = $"Error de conexión: {ex.Message}";
+                //response back
+                return Content(responseContent, "application/json");
             }
             catch (Exception ex)
             {
-                mensaje = $"Error inesperado: {ex.Message}";
+                //Errores de conexion 
+                return new JsonResult(new { mensaje = $"Error de conexión: {ex.Message}", esError = true });
             }
-
-            return new JsonResult(new
-            {
-                mensaje = mensaje,
-                esError = mensaje.Contains("Error")
-            });
         }
     }
 }

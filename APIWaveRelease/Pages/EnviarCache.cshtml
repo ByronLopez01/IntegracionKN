@@ -260,16 +260,17 @@
                 }
             });
 
-            let data;
             const contentType = response.headers.get('content-type');
+            let data;
 
             if (contentType?.includes('application/json')) {
                 data = await response.json();
             } else {
-                data = { mensaje: await response.text() };
+                const text = await response.text();
+                data = { mensaje: text, esError: true }
             }
 
-            const alertType = data.mensaje.includes("Error") ? "alert-danger" : "alert-success";
+            const alertType = data.esError ? "alert-danger" : "alert-success";
             messageContainer.innerHTML = `
                 <div class="alert ${alertType}">
                     ${data.mensaje}
