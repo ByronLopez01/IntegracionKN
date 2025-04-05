@@ -30,15 +30,6 @@ namespace APISenad.controllers
             _logger = logger;
         }
 
-        private void SetAuthorizationHeader(HttpClient client)
-        {
-            var username = _configuration["BasicAuth:Username"];
-            var password = _configuration["BasicAuth:Password"];
-            var credentials = $"{username}:{password}";
-            var encodedCredentials = Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials));
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encodedCredentials);
-        }
-
         [HttpGet("{codItem}")]
         public async Task<ActionResult> CodigoEscaneado(string codItem)
         {
@@ -71,8 +62,14 @@ namespace APISenad.controllers
             // Validar si no se encontró la orden
             if (ordenEncontrada == null)
             {
-                _logger.LogError("No se encontró ninguna orden para el código: {codItem}", codItem);
-                return Ok($"No se encontró una orden para el código: {codItem}");
+                _logger.LogError("No se encontró ninguna orden activa para el código: {codItem}", codItem);
+                var responseError = new
+                {
+                    CodigoEscaneado = codItem,
+                    NumeroOrden = $"No se encontró ninguna orden activa para el código: {codItem}",
+                    Salida = Error // Salida de error
+                };
+                return Ok(responseError);
             }
 
             /*
@@ -140,34 +137,147 @@ namespace APISenad.controllers
             {
                 // Retornar la salida de error
                 _logger.LogWarning("No se encontro familia activa para la orden: {NumOrden}, Familia: {Familia}", ordenEncontrada.numOrden, ordenEncontrada.familia);
-               // Console.WriteLine($"No se encontró una familia para la orden: {ordenEncontrada.numOrden}, Familia: {ordenEncontrada.familia}");
                 var repuestaError = new
                 {
                     codigoIngresado = codItem,
-                    numeroOrden = "No hay FAMILIA activa",
+                    numeroOrden = "No hay más Ordenes con FAMILIA activa ó Ordenes para el código actual COMPLETAS",
                     salida = Error, // Salida de error
                 };
                 _logger.LogWarning("No se encontró una familia ACTIVADA para la orden");
                 return Ok(repuestaError);
             }
 
-
             _logger.LogInformation("Familia activa: {familiasActivas.Familia}", familiasActivas.Familia);
 
 
             if (ordenEncontrada.codMastr == codItem)
             {
-                _logger.LogInformation("Orden: {ordenEncontrada.numOrder} con codigo de producto: {codItem} es Master", ordenEncontrada.numOrden, codItem);
+                _logger.LogInformation("Orden: {ordenEncontrada.numOrden} con codigo de producto: {codItem} es Master", ordenEncontrada.numOrden, codItem);
                 tipoCodigo = "Master";
                 cantidadProcesada = ordenEncontrada.cantMastr + ordenEncontrada.cantidadProcesada;
+
+                // Verifica si la cantidad procesada supera la cantidad total permitida solo para Master
+                if (cantidadProcesada > ordenEncontrada.cantidadLPN)
+                {
+                    _logger.LogInformation("La cantidad procesada supera la cantidad en el LPN para el código Master");
+                    var cantidadExcedente = cantidadProcesada - ordenEncontrada.cantidadLPN;
+                    _logger.LogInformation("Cantidad Excedente: {cantidadExcedente}", cantidadExcedente);
+                    cantidadProcesada = ordenEncontrada.cantidadLPN;  // Limitar la cantidad procesada
+
+                    _logger.LogInformation("Buscando Orden excedente...");
+
+                    var ordenExcedente = await _context.ordenesEnProceso
+                        .Where(o => o.estado == true &&
+                                    (o.codMastr == codItem || o.codInr == codItem || o.codProducto == codItem) &&
+                                    o.id != ordenEncontrada.id &&
+                                    (o.cantMastr + o.cantidadProcesada <= o.cantidadLPN))
+                        .OrderBy(o => o.id)
+                        .FirstOrDefaultAsync();
+
+                    if (ordenExcedente != null)
+                    {
+                        _logger.LogInformation("Orden excedente encontrada: {ordenExcedente.numOrden}", ordenExcedente.numOrden);
+                        // Verificar si la nueva orden tiene la capacidad para aceptar el excedente
+                        if (ordenExcedente.cantidadLPN - ordenExcedente.cantidadProcesada >= cantidadExcedente)
+                        {
+                            _logger.LogInformation("Transferencia del excedente a la orden: {ordenExcedente.numOrden}", ordenExcedente.numOrden);
+                            // Actualiza la cantidad procesada en la orden excedente
+                            ordenExcedente.cantidadProcesada = ordenExcedente.cantMastr + ordenExcedente.cantidadProcesada;
+                            if (ordenExcedente.cantidadProcesada == ordenExcedente.cantidadLPN)
+                            {
+                                _logger.LogInformation("Orden Excedente: {ordenExcedente.numOrden} se completó", ordenExcedente.numOrden);
+                                ordenExcedente.fechaProceso = DateTime.Now.AddHours(-2);
+                                ordenExcedente.estado = false;
+                            }
+
+                            _context.ordenesEnProceso.Update(ordenExcedente);
+                            _logger.LogInformation("Guardando datos en la BD...");
+                            await _context.SaveChangesAsync();
+
+                            var response = new
+                            {
+                                CodigoEscaneado = codItem,
+                                NumeroOrden = ordenExcedente.numOrden,
+                                Salida = ordenExcedente.numSalida
+                            };
+
+                            return Ok(response);
+                        }
+                        else
+                        {
+                            var responseError = new
+                            {
+                                CodigoEscaneado = codItem,
+                                NumeroOrden = "Cantidad solicitada no puede ser procesada",
+                                Salida = Reinsercion // Salida de reinserción
+                            };
+                            _logger.LogInformation("No se encontró orden que acepte la cantidad, enviando a reinserción");
+                            return Ok(responseError);
+                        }
+                    }
+                    else
+                    {
+                        var responseError = new
+                        {
+                            CodigoEscaneado = codItem,
+                            NumeroOrden = "No se encontró enviando a Reinserción",
+                            Salida = Reinsercion // Salida de reinserción
+                        };
+                        _logger.LogInformation("No se encontró una orden excedente, enviando a reinserción");
+                        return Ok(responseError);
+                    }
+                }
             }
+
+            // ACTUALIZACION al detectar inner o producto.
             else if (ordenEncontrada.codInr == codItem)
             {
-                _logger.LogInformation("Orden: {ordenEncontrada.numOrder} con codigo de producto: {codItem} es Inner", ordenEncontrada.numOrden, codItem);
-
+                _logger.LogInformation("Orden: {ordenEncontrada.numOrden} con código de producto: {codItem} es Inner", ordenEncontrada.numOrden, codItem);
                 tipoCodigo = "Inner";
-                cantidadProcesada = ordenEncontrada.cantInr + ordenEncontrada.cantidadProcesada;
+
+                // Se calcula la capacidad disponible en la orden encontrada
+                int capacidadDisponible = ordenEncontrada.cantidadLPN - ordenEncontrada.cantidadProcesada;
+
+                // Si la capacidad disponible es insuficiente para procesar la cantidad inner...
+                if (capacidadDisponible < ordenEncontrada.cantInr)
+                {
+                    _logger.LogInformation("La capacidad disponible ({0}) es inferior a la cantidad inner ({1}). Se buscará una orden alternativa.",
+                        capacidadDisponible, ordenEncontrada.cantInr);
+
+                    var ordenAlternativa = await _context.ordenesEnProceso
+                        .AsNoTracking()
+                        .Where(o => o.estado == true &&
+                                    o.codInr == codItem &&
+                                    o.id != ordenEncontrada.id &&
+                                    (o.cantidadLPN - o.cantidadProcesada) >= ordenEncontrada.cantInr)
+                        .OrderBy(o => o.id)
+                        .FirstOrDefaultAsync();
+
+                    if (ordenAlternativa != null)
+                    {
+                        _logger.LogInformation("Orden alternativa encontrada: {ordenAlternativa.numOrden}", ordenAlternativa.numOrden);
+                        cantidadProcesada = ordenAlternativa.cantInr + ordenAlternativa.cantidadProcesada;
+                        ordenEncontrada = ordenAlternativa;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("No hay más ordenes disponibles. Enviado a reinserción.");
+                        var responseError = new
+                        {
+                            CodigoEscaneado = codItem,
+                            NumeroOrden = "No hay más ordenes disponibles. Enviado a reinserción",
+                            Salida = Reinsercion // Salida de reinserción
+                        };
+                        return Ok(responseError);
+                    }
+                }
+                else
+                {
+                    cantidadProcesada = ordenEncontrada.cantInr + ordenEncontrada.cantidadProcesada;
+                }
             }
+
+
             else if (ordenEncontrada.codProducto == codItem)
             {
                 _logger.LogInformation("Orden: {ordenEncontrada.numOrder} con codigo de producto: {codItem} es Codigo de producto", ordenEncontrada.numOrden, codItem);
@@ -175,6 +285,54 @@ namespace APISenad.controllers
                 tipoCodigo = "Producto";
                 //cantidadProcesada = ordenEncontrada.cantidad + ordenEncontrada.cantidadProcesada;
             }
+
+            // ACTUALIZACION al detectar producto
+            /*
+            else if (ordenEncontrada.codProducto == codItem)
+            {
+                _logger.LogInformation("Orden: {ordenEncontrada.numOrden} con código de producto: {codItem} es Código de producto", ordenEncontrada.numOrden, codItem);
+                tipoCodigo = "Producto";
+
+                // Se calcula la capacidad disponible para el código de producto
+                int capacidadDisponible = ordenEncontrada.cantidadLPN - ordenEncontrada.cantidadProcesada;
+
+                // Si no hay capacidad para agregar una unidad de producto, buscar una orden alternativa
+                if (capacidadDisponible < 1)
+                {
+                    _logger.LogInformation("La orden {ordenEncontrada.numOrden} no tiene capacidad para procesar más 'Producto'. Buscando orden alternativa...", ordenEncontrada.numOrden);
+
+                    var ordenAlternativa = await _context.ordenesEnProceso
+                        .AsNoTracking()
+                        .Where(o => o.estado == true &&
+                                    o.codProducto == codItem &&
+                                    o.id != ordenEncontrada.id &&
+                                    (o.cantidadLPN - o.cantidadProcesada) >= 1)
+                        .OrderBy(o => o.id)
+                        .FirstOrDefaultAsync();
+
+                    if (ordenAlternativa != null)
+                    {
+                        _logger.LogInformation("Orden alternativa encontrada: {ordenAlternativa.numOrden}", ordenAlternativa.numOrden);
+                        ordenEncontrada = ordenAlternativa;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("No hay orden disponible para el código de producto: {codItem}", codItem);
+                        var responseError = new
+                        {
+                            CodigoEscaneado = codItem,
+                            NumeroOrden = $"No hay orden disponible para el código de producto: {CodigoEscaneado}",
+                            Salida = Error // Salida de error
+                        };
+                        return Ok(responseError);
+                    }
+                }
+
+                // Incrementar la cantidad procesada en una unidad
+                cantidadProcesada = ordenEncontrada.cantidadProcesada + 1;
+            }
+            */
+
 
             // Si el tipo de Codigo es Producto, se envía a la salida de ERROR
             if (tipoCodigo == "Producto")
@@ -190,110 +348,13 @@ namespace APISenad.controllers
                 };
 
                 _logger.LogInformation("Codigo de producto detectado enviando a Salida de ERROR");
-                Console.WriteLine("Codigo de Producto detectado. Enviando a ERROR ");
                 return Ok(responseError);
             }
 
-            // Verifica si la cantidad procesada supera la cantidad total permitida
-            if (cantidadProcesada > ordenEncontrada.cantidadLPN)
-            {
-                _logger.LogInformation("La cantidad procesada supera la cantidad en el lpn ");
-
-                var cantidadExcedente = cantidadProcesada - ordenEncontrada.cantidadLPN;
-
-                _logger.LogInformation("Cantidad Excedente: {cantidadExcedente} ", cantidadExcedente) ;
-
-                cantidadProcesada = ordenEncontrada.cantidadLPN;  // Establecer la cantidad procesada máxima permitida
 
 
-                _logger.LogInformation("Buscando Orden excedente...");
-
-                var ordenExcedente = await _context.ordenesEnProceso
-                    .Where(o => o.estado == true &&
-                          (o.codMastr == codItem || o.codInr == codItem || o.codProducto == codItem) &&
-                           o.id != ordenEncontrada.id && // Excluir la orden actual
-                          (o.cantMastr + o.cantidadProcesada <= o.cantidadLPN)) // Verificar que no sobrepase la cantidadLPN
-                    .OrderBy(o => o.id)
-                    .FirstOrDefaultAsync();
-
-                _logger.LogInformation("Orden excedente: {ordenExcedente}", ordenExcedente);
-
-                if (ordenExcedente != null)
-
-                {
-                    _logger.LogInformation("Orden excedente encontrada: {ordenExcedente.numOrden} ", ordenExcedente.numOrden);
-
-                    // Verifica si la nueva orden tiene suficiente capacidad para aceptar toda la cantidad excedente
-                    if (ordenExcedente.cantidadLPN - ordenExcedente.cantidadProcesada >= cantidadExcedente)
-                    {
-                        _logger.LogInformation("Orden excedente: {ordeExcedente.numOrden} Cantidad excedente: {cantidadExcedente} cantidad procesada: {ordenExcedente.cantidadProcesada}", ordenExcedente.numOrden,cantidadExcedente,ordenExcedente.cantidadProcesada);
-                        // Solo se transfiere el excedente a la nueva orden
-                        ordenExcedente.cantidadProcesada = ordenExcedente.cantMastr + ordenExcedente.cantidadProcesada;
-
-                        // Verifica si la nueva orden se ha completado
-                        if (ordenExcedente.cantidadProcesada == ordenExcedente.cantidadLPN)
-                        {
-
-                            _logger.LogInformation("Orden Excedente: {ordenExcedente.numOrden} Se cumplio la cantidad Solicitada: {ordenExcedente.cantidadLPN} ", ordenExcedente.numOrden, ordenExcedente.cantidadLPN);
-                            ordenExcedente.fechaProceso = DateTime.Now.AddHours(-2);
-                            ordenExcedente.estado = false; // Marca la nueva orden como completada
-                        }
-
-                        // La orden original no se modifica, sigue con su cantidad procesada original
-
-                        // Actualiza la nueva orden en la base de datos
-                        
-                        _context.ordenesEnProceso.Update(ordenExcedente);  // Asegúrate de actualizar la nueva orden
-
-                        _logger.LogInformation("Guardando datos en la BD...");
-                        // Guarda los cambios en la base de datos
-                        await _context.SaveChangesAsync();
-
-                        // Responde indicando que la cantidad fue movida a otra orden
-                        var response = new
-                        {
-                            CodigoEscaneado = codItem,
-                            NumeroOrden = ordenExcedente.numOrden,
-                            Salida = ordenExcedente.numSalida
-                        };
-
-                        return Ok(response);
-                    }
-
-                    else
-                    {
-                        
-                        // Si no cabe la cantidad excedente en la otra orden, se envía a la salida de REINSERCIÓN
-                        var responseError = new
-                        {
-                            CodigoEscaneado = codItem,
-                            NumeroOrden = "Cantidad solicitada no puede ser procesada",
-                            Salida = Reinsercion // Salida de reinsercion
-                        };
-                        _logger.LogInformation("No se encuentra orden que acepte la cantidad ");
-                        _logger.LogInformation("Enviando a reinsercíon...");
-                        Console.WriteLine("La cantidad solicitada no puede ser procesada en ninguna orden.");
-                        return Ok(responseError);
-                    }
-                }
-                else
-                {
-                    // Si no se encuentra una orden que acepte la cantidad excedente
-                    var responseError = new
-                    {
-                        CodigoEscaneado = codItem,
-                        NumeroOrden = "No se encontro enviando a Reinsercion",
-                        Salida = Reinsercion // Salida de reinsercion
-                    };
-                    _logger.LogInformation("No se encuentra orden que acepte la cantidad ");
-                    _logger.LogInformation("Enviando a reinsercíon...");
-                    Console.WriteLine("No se encontró una orden disponible para procesar la cantidad solicitada.");
-                    return Ok(responseError);
-                }
-            }
-
+            // Actualiza la cantidad procesada luego de escanear el código
             _logger.LogInformation("Procesando Cantidad: {cantidadProcesada} ", cantidadProcesada);
-            // Actualiza la cantidad procesada solo si no supera la cantidad total
             ordenEncontrada.cantidadProcesada = cantidadProcesada;
 
             // Verificar si se completó la orden entera

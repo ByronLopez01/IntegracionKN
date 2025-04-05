@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
+using Serilog.Events;
+using Serilog;
 
 
 
@@ -71,6 +73,16 @@ builder.Services.AddAuthorization(options => {
 ///
 
 
+
+// Config Logs
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .WriteTo.Console()
+    .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+// Agregar Serilog al host
+builder.Host.UseSerilog();
 
 
 

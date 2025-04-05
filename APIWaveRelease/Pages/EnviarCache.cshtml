@@ -37,7 +37,7 @@
 </div>
 
 <style>
-
+    
     body {
         overflow-y: hidden;
         margin: 0;
@@ -74,6 +74,7 @@
     }
 
     .modal-content {
+
         text-align: center;
         width: 300px;
         padding: 20px;
@@ -87,27 +88,27 @@
         margin-bottom: 15px;
     }
 
-    .input-modal {
+    .input-modal{
         width: 100%;
         padding: 10px;
         border: 1px solid #ced4da;
         border-radius: 5px;
-        font-size: 16px;
+        font-size: 16px; 
         box-sizing: border-box;
         transition: border-color 0.3s, box-shadow 0.3s;
         background-color: #fff;
     }
 
-        .input-modal:focus, .input-modal:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-            outline: none;
-        }
+    .input-modal:focus, .input-modal:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        outline: none;
+    }
 
-        .input-modal::placeholder, .input-modal::placeholder {
-            color: #6c757d;
-            opacity: 1;
-        }
+    .input-modal::placeholder, .input-modal::placeholder {
+        color: #6c757d;
+        opacity: 1;
+    }
 
     .validation-message {
         color: #dc3545;
@@ -141,9 +142,8 @@
         background-color: #ffffff;
         transition: box-shadow 0.3s ease;
     }
-
         .content:hover {
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
 
         .content h1 {
@@ -260,15 +260,11 @@
                 }
             });
 
-            const contentType = response.headers.get('content-type');
-            let data;
-
-            if (contentType?.includes('application/json')) {
-                data = await response.json();
-            } else {
-                const text = await response.text();
-                data = { mensaje: text, esError: true }
-            }
+            const texto = await response.text();
+            const data = {
+                mensaje: `${response.status} - ${texto}`,
+                esError: !response.ok
+            };
 
             const alertType = data.esError ? "alert-danger" : "alert-success";
             messageContainer.innerHTML = `
@@ -280,7 +276,7 @@
         } catch (error) {
             messageContainer.innerHTML = `
                 <div class="alert alert-danger">
-                    Error de conexión: ${error.message}
+                    Error de conexión al servidor: ${error.message}
                 </div>
             `;
         } finally {
