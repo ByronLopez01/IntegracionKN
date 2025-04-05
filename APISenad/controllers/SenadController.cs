@@ -137,7 +137,6 @@ namespace APISenad.controllers
             {
                 // Retornar la salida de error
                 _logger.LogWarning("No se encontro familia activa para la orden: {NumOrden}, Familia: {Familia}", ordenEncontrada.numOrden, ordenEncontrada.familia);
-               // Console.WriteLine($"No se encontró una familia para la orden: {ordenEncontrada.numOrden}, Familia: {ordenEncontrada.familia}");
                 var repuestaError = new
                 {
                     codigoIngresado = codItem,
@@ -349,7 +348,6 @@ namespace APISenad.controllers
                 };
 
                 _logger.LogInformation("Codigo de producto detectado enviando a Salida de ERROR");
-                Console.WriteLine("Codigo de Producto detectado. Enviando a ERROR ");
                 return Ok(responseError);
             }
 
