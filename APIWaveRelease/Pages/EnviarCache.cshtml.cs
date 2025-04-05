@@ -52,12 +52,17 @@ namespace APIWaveRelease.Pages
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 //response back
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return StatusCode((int)response.StatusCode, responseContent);
+                }
+
                 return Content(responseContent, "application/json");
             }
             catch (Exception ex)
             {
-                //Errores de conexion 
-                return new JsonResult(new { mensaje = $"Error de conexión: {ex.Message}", esError = true });
+                return StatusCode(500, new { mensaje = $"Error de conexión: {ex.Message}", esError = true });
             }
         }
     }

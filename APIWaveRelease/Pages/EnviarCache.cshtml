@@ -260,15 +260,11 @@
                 }
             });
 
-            const contentType = response.headers.get('content-type');
-            let data;
-
-            if (contentType?.includes('application/json')) {
-                data = await response.json();
-            } else {
-                const text = await response.text();
-                data = { mensaje: text, esError: true }
-            }
+            const texto = await response.text();
+            const data = {
+                mensaje: `${response.status} - ${texto}`,
+                esError: !response.ok
+            };
 
             const alertType = data.esError ? "alert-danger" : "alert-success";
             messageContainer.innerHTML = `
@@ -280,7 +276,7 @@
         } catch (error) {
             messageContainer.innerHTML = `
                 <div class="alert alert-danger">
-                    Error de conexión: ${error.message}
+                    Error de conexión al servidor: ${error.message}
                 </div>
             `;
         } finally {
