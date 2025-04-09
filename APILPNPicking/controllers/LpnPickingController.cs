@@ -287,60 +287,66 @@ namespace APILPNPicking.controllers
                             };
                             _context.LPNSorting.Add(lpnSorting);
 
-                            
-                            // CREACIÓN OBJETO JSON PARA ENVIO A LUCA
-                            var lucaRequest = new LucaRequest
+                            //FILTRO TEST.
+                            if (cantidadLPN >= waveRelease.CantInr)
                             {
-                                codMastr = waveRelease.CodMastr,
-                                codInr = waveRelease.CodInr,
-                                cantMastr = waveRelease.CantMastr,
-                                cantInr = waveRelease.CantInr,
-                                cantidad = cantidadLPN,
-                                familia = waveRelease.Familia,
-                                numOrden = waveRelease.NumOrden,
-                                codProducto = waveRelease.CodProducto,
-                                onda = waveRelease.Wave,
-                                numSalida = familyMaster.numSalida,
-                                numTanda = familyMaster.numTanda,
-                                dtlNumber = subnumSeg.dtlnum ?? string.Empty,
-                                subnum = subnumSeg.subnum ?? string.Empty,
-                                tienda = waveRelease.Tienda
-                            };
-
-                            
-                            // ENVÍO DE JSON A LUCA REGISTRO POR REGISTRO
-                            var jsonContent = JsonConvert.SerializeObject(lucaRequest);
-
-                            _logger.LogInformation("JSON LUCA CREADO");
-                            //_logger.LogInformation(jsonContent);
-
-                            var httpClient = _httpClientFactory.CreateClient("apiLuca");
-                            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-                            var urlLucaBase = _configuration["ServiceUrls:luca"];
-                            var urlLuca = $"{urlLucaBase}/api/sort/LpnSorter?sorterId={familyMaster.numSalida}";
-                            _logger.LogInformation("URL LUCA: " + urlLuca);
-
-
-                            try
-                            {
-                                var response = await httpClient.PostAsync(urlLuca, httpContent);
-                                if (response.IsSuccessStatusCode)
+                                // CREACIÓN OBJETO JSON PARA ENVIO A LUCA
+                                var lucaRequest = new LucaRequest
                                 {
-                                    _logger.LogInformation("Ok. El JSON fue enviado correctamente a LUCA.");
+                                    codMastr = waveRelease.CodMastr,
+                                    codInr = waveRelease.CodInr,
+                                    cantMastr = waveRelease.CantMastr,
+                                    cantInr = waveRelease.CantInr,
+                                    cantidad = cantidadLPN,
+                                    familia = waveRelease.Familia,
+                                    numOrden = waveRelease.NumOrden,
+                                    codProducto = waveRelease.CodProducto,
+                                    onda = waveRelease.Wave,
+                                    numSalida = familyMaster.numSalida,
+                                    numTanda = familyMaster.numTanda,
+                                    dtlNumber = subnumSeg.dtlnum ?? string.Empty,
+                                    subnum = subnumSeg.subnum ?? string.Empty,
+                                    tienda = waveRelease.Tienda
+                                };
+
+                            
+                                // ENVÍO DE JSON A LUCA REGISTRO POR REGISTRO
+                                var jsonContent = JsonConvert.SerializeObject(lucaRequest);
+
+                                _logger.LogInformation("JSON LUCA CREADO");
+                                //_logger.LogInformation(jsonContent);
+
+                                var httpClient = _httpClientFactory.CreateClient("apiLuca");
+                                var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                                var urlLucaBase = _configuration["ServiceUrls:luca"];
+                                var urlLuca = $"{urlLucaBase}/api/sort/LpnSorter?sorterId={familyMaster.numSalida}";
+                                _logger.LogInformation("URL LUCA: " + urlLuca);
+
+
+                                try
+                                {
+                                    var response = await httpClient.PostAsync(urlLuca, httpContent);
+                                    if (response.IsSuccessStatusCode)
+                                    {
+                                        _logger.LogInformation("Ok. El JSON fue enviado correctamente a LUCA.");
+                                    }
+                                    else
+                                    {
+                                        _logger.LogInformation("Error. Fallo al enviar el JSON a LUCA.");
+                                    }
                                 }
-                                else
+                                catch (Exception ex)
                                 {
-                                    _logger.LogInformation("Error. Fallo al enviar el JSON a LUCA.");
+                                    _logger.LogError($"Error. Fallo al enviar datos a LUCA: {ex.Message}");
+                                    return StatusCode(500, $"Error. Fallo al enviar datos a LUCA: {ex.Message}");
                                 }
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                _logger.LogError($"Error. Fallo al enviar datos a LUCA: {ex.Message}");
-                                return StatusCode(500, $"Error. Fallo al enviar datos a LUCA: {ex.Message}");
+                                _logger.LogInformation($"Registro con cantidadLPN {cantidadLPN} menor que cantInr {waveRelease.CantInr}. No se envía a LUCA.");
                             }
-                            
-                            
+                            // FILTRO TEST.
                         }
 
                         await _context.SaveChangesAsync();
