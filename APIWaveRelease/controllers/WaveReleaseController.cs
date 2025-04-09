@@ -220,24 +220,24 @@ namespace APIWaveRelease.controllers
                     _context.WaveRelease.AddRange(waveReleases);
                     await _context.SaveChangesAsync();
 
-                    // Envío de JSON a Luca dentro de la transacción
-                    var httpClientLuca = _httpClientFactory.CreateClient("apiLuca");
-                    SetAuthorizationHeader(httpClientLuca);
-                    var jsonContent = JsonSerializer.Serialize(waveReleaseKn);
-                    var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-                    var urlLucaBase = _configuration["ServiceUrls:luca"];
-                    var urlLuca = $"{urlLucaBase}/api/sort/waveRelease";
+                    //// Envío de JSON a Luca dentro de la transacción
+                    //var httpClientLuca = _httpClientFactory.CreateClient("apiLuca");
+                    //SetAuthorizationHeader(httpClientLuca);
+                    //var jsonContent = JsonSerializer.Serialize(waveReleaseKn);
+                    //var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                    //var urlLucaBase = _configuration["ServiceUrls:luca"];
+                    //var urlLuca = $"{urlLucaBase}/api/sort/waveRelease";
                     
-                    var responseLuca = await httpClientLuca.PostAsync(urlLuca, httpContent);
-                    _logger.LogInformation("URL LUCA: " + urlLuca);
+                    //var responseLuca = await httpClientLuca.PostAsync(urlLuca, httpContent);
+                    //_logger.LogInformation("URL LUCA: " + urlLuca);
 
-                    if (!responseLuca.IsSuccessStatusCode)
-                    {
-                        var errorDetails = await responseLuca.Content.ReadAsStringAsync();
-                        _logger.LogError($"Error. Fallo al enviar JSON a LUCA. Status: {responseLuca.StatusCode}. Detalles: {errorDetails}");
-                        throw new Exception($"Error. Fallo al enviar JSON a Luca. Status: {responseLuca.StatusCode}. Detalles: {errorDetails}");
-                    }
-                    _logger.LogInformation("El JSON fue enviado correctamente a Luca.");
+                    //if (!responseLuca.IsSuccessStatusCode)
+                    //{
+                    //    var errorDetails = await responseLuca.Content.ReadAsStringAsync();
+                    //    _logger.LogError($"Error. Fallo al enviar JSON a LUCA. Status: {responseLuca.StatusCode}. Detalles: {errorDetails}");
+                    //    throw new Exception($"Error. Fallo al enviar JSON a Luca. Status: {responseLuca.StatusCode}. Detalles: {errorDetails}");
+                    //}
+                    //_logger.LogInformation("El JSON fue enviado correctamente a Luca.");
                     
                     // Si el envío a Luca es correcto, confirmar la transacción
                     await transaction.CommitAsync();

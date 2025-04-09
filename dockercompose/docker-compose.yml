@@ -2,7 +2,6 @@ services:
   apiwaverelease:
     volumes:
        - ../externalproperties/ExternalProperties.json:/app/externalproperties/ExternalProperties.json
-       - ./keys:/app/keys
     build:
 
       context: ..
@@ -46,11 +45,6 @@ services:
     #  - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-
-
-#test
-      - ASPNETCORE_URLS=http://+:8080
-####################################################
     restart: unless-stopped
 
 

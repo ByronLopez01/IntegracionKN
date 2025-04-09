@@ -3,24 +3,29 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copiar solo el archivo de proyecto para aprovechar la caché
-COPY APIWaveRelease.csproj ./
-RUN dotnet restore "APIWaveRelease.csproj"
+COPY ["APIWaveRelease/APIWaveRelease.csproj", "APIWaveRelease/"]
 
-# Copiar el resto del código y el archivo de propiedades externas
-COPY . ./
+
+RUN dotnet restore "APIWaveRelease/APIWaveRelease.csproj"
+COPY APIWaveRelease/. APIWaveRelease/
+
 COPY externalproperties/ExternalProperties.json /app/externalproperties/
 
-# Compilar la aplicación en modo Release
+WORKDIR "/src/APIWaveRelease"
 RUN dotnet build "APIWaveRelease.csproj" -c Release -o /app/build
 
-# Etapa de publicación
+# Publicar la aplicaci�n en una carpeta
 FROM build AS publish
 RUN dotnet publish "APIWaveRelease.csproj" -c Release -o /app/publish
 
-# Etapa final (runtime) con imagen ASP.NET Core más liviana
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+# Crear la imagen final
+# FROM mcr.microsoft.com/dotnet/aspnet:8.0-windowsservercore-ltsc2019 AS final # W.S.2019
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+
 WORKDIR /app
+
 COPY --from=publish /app/publish .
+COPY externalproperties/ExternalProperties.json ./externalproperties/
+
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "APIWaveRelease.dll"]
