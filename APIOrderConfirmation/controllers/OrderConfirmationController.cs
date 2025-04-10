@@ -46,6 +46,18 @@ namespace APIOrderConfirmation.controllers
             return(familyMasterResponse);
         }
 
+
+        private async Task<HttpResponseMessage> activarSiguienteTandaAsyncFamily(int numTandaActual)
+        {
+            var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster/activarSiguienteTandaFamily?numTandaActual={numTandaActual}";
+            Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
+            // Llamamos con un POST el endpoint de FamilyMaster para activar la siguiente tanda
+            var familyMasterResponse = await _apiWaveReleaseClient.PostAsync(urlFamilyMaster, null);
+            Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
+            return (familyMasterResponse);
+        }
+
+
         private async Task<HttpResponseMessage> desactivarWaveAsync(String numOrden, String codProducto)
         {
             var DesactivarWave = "http://apiwaverelease:8080/api/WaveRelease/DesactivarWave";
@@ -158,7 +170,7 @@ namespace APIOrderConfirmation.controllers
 
             return Ok(response);
         }
-
+        
 
         // PROCESADO NUEVO!!!
         [HttpPost("Procesado")]
@@ -932,6 +944,85 @@ namespace APIOrderConfirmation.controllers
             }
         }
 
+        [HttpPost("CerrarSalida")]
+        public async Task<IActionResult> CerrarSalida([FromQuery] string familia, [FromQuery] int numSalida)
+        {
+            Console.WriteLine($"===> Recibida petición para cerrar salida {numSalida} de la familia {familia}");
+
+            try
+            {
+                // Buscar la salida activa
+                var salidaActual = await _context.FamilyMaster
+                    .FirstOrDefaultAsync(f => f.Familia == familia && f.NumSalida == numSalida && f.estado == true);
+
+                if (salidaActual == null)
+                {
+                    Console.WriteLine("No se encontró la salida activa especificada.");
+                    return NotFound("No se encontró la salida activa especificada.");
+                }
+
+                // Desactivar la salida
+                salidaActual.estado = false;
+                _context.FamilyMaster.Update(salidaActual);
+                await _context.SaveChangesAsync();
+                Console.WriteLine($"Salida {numSalida} de la familia {familia} cerrada correctamente.");
+
+                // Verificar si quedan otras salidas activas para esta familia
+                bool quedanSalidasActivas = await _context.FamilyMaster
+                    .AnyAsync(f => f.Familia == familia && f.estado == true);
+
+                if (quedanSalidasActivas)
+                {
+                    Console.WriteLine("Aún hay salidas activas para esta familia. No se activará la siguiente tanda.");
+                    return Ok("Salida cerrada. Aún hay otras salidas activas para esta familia.");
+                }
+
+                Console.WriteLine("Última salida cerrada. Se procede a cerrar órdenes y activar siguiente tanda.");
+
+                // Desactivar estadoWave solo para las órdenes activas de esta familia
+                var wavesFamilia = await _context.WaveRelease
+                    .Where(w => w.familia == familia && w.estadoWave == true)
+                    .ToListAsync();
+
+                foreach (var wave in wavesFamilia)
+                {
+                    wave.estadoWave = false;
+                }
+
+                _context.WaveRelease.UpdateRange(wavesFamilia);
+                await _context.SaveChangesAsync();
+
+                // Activar siguiente tanda
+                var tandaActual = salidaActual.NumTanda;
+
+                try
+                {
+                    SetAuthorizationHeader(_apiWaveReleaseClient);
+                    var response = await activarSiguienteTandaAsyncFamily(tandaActual);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Tanda {tandaActual} activada correctamente.");
+                        return Ok("Última salida cerrada y siguiente tanda activada correctamente.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error al activar la tanda. StatusCode: {response.StatusCode}");
+                        return StatusCode((int)response.StatusCode, "Error al activar la siguiente tanda.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Excepción al activar tanda: {ex.Message}");
+                    return StatusCode(500, "Error al activar la siguiente tanda: " + ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error general en CerrarSalida: {ex.Message}");
+                return StatusCode(500, "Error al procesar la solicitud: " + ex.Message);
+            }
+        }
 
 
 

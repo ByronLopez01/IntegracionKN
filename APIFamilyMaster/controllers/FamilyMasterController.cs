@@ -268,6 +268,38 @@ namespace APIFamilyMaster.controllers
                 return StatusCode(500, new { message = "Error interno del servidor.", error = ex.Message });
             }
         }
+
+
+        [HttpPost("activarSiguienteTandaFamily")]
+        public async Task<IActionResult> ActivarSiguienteTandaFamilyConfirm([FromQuery] int numTandaActual)
+        {
+            try
+            {
+                // Llama al método del servicio
+                var tandaActivada = await _familyMasterService.ActivarSiguienteTandaAsyncFamilyConfirm(numTandaActual);
+
+                if (!tandaActivada.NumTanda.HasValue)
+                {
+                    return Ok(new { message = "No se encontró una tanda siguiente o ya fue activada: " + numTandaActual });
+                }
+
+                return Ok(new
+                {
+                    message = $"Tanda {tandaActivada} activada correctamente.",
+                    tandaActivada = tandaActivada.NumTanda
+                });
+            }
+            catch (Exception ex)
+            {
+                // Manejo de errores
+                return StatusCode(500, new { message = "Error interno del servidor.", error = ex.Message });
+            }
+        }
+
+
+
+
+
         // Nuevo endpoint GET para obtener todos los registros de FamilyMaster
         [HttpGet("all")]
         public async Task<IActionResult> GetAllFamilyMasters()

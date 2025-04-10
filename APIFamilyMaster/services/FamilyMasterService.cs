@@ -24,12 +24,78 @@ namespace APIFamilyMaster.services
 
             return totalSalidas;
         }
+        /*
+                public async Task<List<int>> ActivarTandasAsync(int salidasDisponibles)
+                {
+                    await _context.Set<FamilyMaster>()
+                    .Where(f => f.estado == true)
+                    .ForEachAsync(f => f.estado = false);
+
+                    await _context.SaveChangesAsync();
+
+                    var waveFamilies = await _context.WaveReleases
+                        .Select(w => w.Familia)
+                        .Distinct()
+                        .ToListAsync();
+
+
+                    var tandas = await _context.Set<FamilyMaster>()
+                        .OrderBy(f => f.NumSalida)
+                        .GroupBy(f => f.NumTanda)
+                        .Select(g => new
+                        {
+                            NumTanda = g.Key,
+                            familia = g.First().Familia, 
+                            SalidasRequeridas = g.Select(f => f.NumSalida).Distinct().Count()
+                        })
+                        .ToListAsync();
+
+                    var tandasActivadas = new List<int>();
+                    var salidasRestantes = salidasDisponibles;
+
+                    foreach (var tanda in tandas)
+                    {
+
+                        if (!waveFamilies.Contains(tanda.familia))
+                        {
+                            continue; 
+                        }
+
+
+                        if (tanda.SalidasRequeridas <= salidasRestantes)
+                        {
+                            var registros = await _context.Set<FamilyMaster>()
+                                .Where(f => f.NumTanda == tanda.NumTanda)
+                                .ToListAsync();
+
+                            foreach (var registro in registros)
+                            {
+                                registro.estado = true;
+                            }
+
+                            tandasActivadas.Add(tanda.NumTanda);
+                            salidasRestantes -= tanda.SalidasRequeridas;
+                        }
+
+
+                        if (salidasRestantes <= 0)
+                        {
+                            break;
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+                    return tandasActivadas;
+                }
+
+                */
+
 
         public async Task<List<int>> ActivarTandasAsync(int salidasDisponibles)
         {
             await _context.Set<FamilyMaster>()
-            .Where(f => f.estado == true)
-            .ForEachAsync(f => f.estado = false);
+                .Where(f => f.estado == true)
+                .ForEachAsync(f => f.estado = false);
 
             await _context.SaveChangesAsync();
 
@@ -38,31 +104,31 @@ namespace APIFamilyMaster.services
                 .Distinct()
                 .ToListAsync();
 
-           
             var tandas = await _context.Set<FamilyMaster>()
                 .OrderBy(f => f.NumSalida)
                 .GroupBy(f => f.NumTanda)
                 .Select(g => new
                 {
                     NumTanda = g.Key,
-                    familia = g.First().Familia, 
-                    SalidasRequeridas = g.Select(f => f.NumSalida).Distinct().Count()
+                    Familia = g.First().Familia,
+                    Salidas = g.Select(f => f.NumSalida).Distinct().ToList()
                 })
                 .ToListAsync();
 
             var tandasActivadas = new List<int>();
             var salidasRestantes = salidasDisponibles;
+            var salidasUsadas = new HashSet<int>();
 
             foreach (var tanda in tandas)
             {
-               
-                if (!waveFamilies.Contains(tanda.familia))
-                {
-                    continue; 
-                }
+                if (!waveFamilies.Contains(tanda.Familia))
+                    continue;
 
-              
-                if (tanda.SalidasRequeridas <= salidasRestantes)
+                // Verifica si alguna salida ya fue usada
+                if (tanda.Salidas.Any(s => salidasUsadas.Contains(s)))
+                    continue;
+
+                if (tanda.Salidas.Count <= salidasRestantes)
                 {
                     var registros = await _context.Set<FamilyMaster>()
                         .Where(f => f.NumTanda == tanda.NumTanda)
@@ -71,23 +137,20 @@ namespace APIFamilyMaster.services
                     foreach (var registro in registros)
                     {
                         registro.estado = true;
+                        salidasUsadas.Add(registro.NumSalida); // Marcar salida como usada
                     }
 
                     tandasActivadas.Add(tanda.NumTanda);
-                    salidasRestantes -= tanda.SalidasRequeridas;
+                    salidasRestantes -= tanda.Salidas.Count;
                 }
 
-               
                 if (salidasRestantes <= 0)
-                {
                     break;
-                }
             }
 
             await _context.SaveChangesAsync();
             return tandasActivadas;
         }
-
 
 
         /*   public async Task<List<int>> ActivarTandasAsync(int salidasDisponibles)
@@ -269,9 +332,206 @@ namespace APIFamilyMaster.services
         }
         */
 
+
+        public async Task<(int? NumTanda, string? Familia, string Message)> ActivarSiguienteTandaAsyncFamilyConfirm(int numTandaActual)
+        {
+            // Obtener todas las salidas de la tanda actual (ignorar el estado)
+            var salidasTandaActual = await _context.Familias
+                .Where(f => f.NumTanda == numTandaActual)
+                .Select(f => f.NumSalida)
+                .Distinct()
+                .ToListAsync();
+
+            if (!salidasTandaActual.Any())
+            {
+                return (null, null, $"La tanda {numTandaActual} no tiene salidas definidas.");
+            }
+
+            // Obtener todas las familias de la tanda actual
+            var familiasActuales = await _context.Familias
+                .Where(f => f.NumTanda == numTandaActual)
+                .Select(f => f.Familia)
+                .Distinct()
+                .ToListAsync();
+
+            // Verificar si todavía quedan salidas activas para esas familias en la tanda actual
+            bool quedanSalidasActivas = await _context.Familias
+                .AnyAsync(f => f.NumTanda == numTandaActual && f.estado == true && familiasActuales.Contains(f.Familia));
+
+            if (quedanSalidasActivas)
+            {
+                return (null, null, "Aún quedan salidas activas en la tanda actual. No se puede activar la siguiente.");
+            }
+
+            // Desactivar todas las filas de la tanda actual
+            await _context.Familias
+                .Where(f => f.NumTanda == numTandaActual)
+                .ExecuteUpdateAsync(s => s.SetProperty(f => f.estado, false));
+
+            await _context.SaveChangesAsync();
+
+            // Obtener siguientes tandas que aún están inactivas
+            var siguientesTandas = await _context.Familias
+                .Where(f => f.NumTanda > numTandaActual)
+                .GroupBy(f => f.NumTanda)
+                .Select(g => new
+                {
+                    NumTanda = g.Key,
+                    Familias = g.Select(f => f.Familia).Distinct().ToList(),
+                    Salidas = g.Select(f => f.NumSalida).Distinct().ToList()
+                })
+                .OrderBy(g => g.NumTanda)
+                .ToListAsync();
+
+            foreach (var tanda in siguientesTandas)
+            {
+                // Comparar salidas sin importar estado: deben ser las mismas
+                var salidasSiguiente = tanda.Salidas;
+
+                bool mismasSalidas = !salidasTandaActual.Except(salidasSiguiente).Any() &&
+                                     !salidasSiguiente.Except(salidasTandaActual).Any();
+
+                if (mismasSalidas)
+                {
+                    // Verificar que alguna familia esté presente en WaveRelease
+                    bool familiaEnWaveRelease = await _context.WaveReleases
+                        .AnyAsync(wr => tanda.Familias.Contains(wr.Familia));
+
+                    if (familiaEnWaveRelease)
+                    {
+                        // Activar tanda
+                        await _context.Familias
+                            .Where(f => f.NumTanda == tanda.NumTanda)
+                            .ExecuteUpdateAsync(s => s.SetProperty(f => f.estado, true));
+
+                        await _context.SaveChangesAsync();
+
+                        return (tanda.NumTanda, tanda.Familias.FirstOrDefault(),
+                                $"Se activó la tanda {tanda.NumTanda} correctamente.");
+                    }
+                }
+            }
+
+            return (null, null, $"No se encontró una tanda siguiente o ya fue activada: {numTandaActual}");
+        }
+
+
+
+
+
+
+
+        /*  public async Task<(int? NumTanda, string? Familia, string Message)> ActivarSiguienteTandaAsync(int numTandaActual)
+          {
+
+              bool tandaActualInactiva = await _context.Familias
+                  .AnyAsync(f => f.NumTanda == numTandaActual && f.estado == false);
+
+              if (tandaActualInactiva)
+              {
+                  return (null, null, $"La tanda {numTandaActual} ya está inactiva, no se puede activar otra tanda.");
+              }
+
+              // Obtener las salidas de la tanda actual
+              var salidasActuales = await _context.Familias
+                  .Where(f => f.NumTanda == numTandaActual)
+                  .Select(f => f.NumSalida)
+                  .Distinct()
+                  .ToListAsync();
+
+              if (!salidasActuales.Any())
+              {
+                  return (null, null, "No hay datos en la tanda actual.");
+              }
+
+              // Desactivar la tanda actual
+              await _context.Familias
+                 .Where(f => f.NumTanda == numTandaActual)
+                 .ExecuteUpdateAsync(s => s.SetProperty(f => f.estado, false));
+
+              await _context.SaveChangesAsync(); // Guardar cambios
+
+              // !!!! Se desactivan los registros activos en WaveRelease para la familia de la tanda actual !!!!
+              // Se obtiene la familia a partir de la tanda actual
+              var familiaActual = await _context.Familias
+                  .Where(f => f.NumTanda == numTandaActual)
+                  .Select(f => f.Familia)
+                  .FirstOrDefaultAsync();
+
+              if (!string.IsNullOrEmpty(familiaActual))
+              {
+                  await _context.WaveReleases
+                      .Where(wr => wr.Familia == familiaActual && wr.estadoWave == true)
+                      .ExecuteUpdateAsync(wr => wr.SetProperty(w => w.estadoWave, false));
+
+              }
+              // FIN DE DESACTIVACIÓN DE REGISTROS EN WaveRelease
+
+
+              // Obtener las siguientes tandas inactivas (Estado == 0)
+              var siguientesTandas = await _context.Familias
+                  .Where(f => f.NumTanda > numTandaActual && f.estado == false) 
+                  .GroupBy(f => f.NumTanda)
+                  .Select(g => new
+                  {
+                      NumTanda = g.Key,
+                      Familias = g.Select(f => f.Familia).Distinct().ToList(),
+                      Salidas = g.Select(f => f.NumSalida).Distinct().ToList()
+                  })
+                  .OrderBy(g => g.NumTanda) 
+                  .ToListAsync();
+
+              bool tandaActivada = false; 
+
+
+              foreach (var tanda in siguientesTandas)
+              {
+                  if (!salidasActuales.Except(tanda.Salidas).Any() && !tanda.Salidas.Except(salidasActuales).Any())
+                  {
+                     bool familiaEnWaveRelease = await _context.WaveReleases
+                          .AnyAsync(wr => tanda.Familias.Contains(wr.Familia));
+
+                      if (familiaEnWaveRelease)
+                      {
+                          await _context.Familias
+                              .Where(f => f.NumTanda == tanda.NumTanda)
+                              .ExecuteUpdateAsync(s => s.SetProperty(f => f.estado, true));
+
+                           await _context.Familias
+                              .Where(f => f.NumTanda == numTandaActual)
+                              .ExecuteUpdateAsync(s => s.SetProperty(f => f.estado, false));
+
+                          await _context.SaveChangesAsync();
+
+
+                          tandaActivada = true;
+
+                          Console.WriteLine("EStado tandaActivada " + tandaActivada);
+
+                          return (tanda.NumTanda, tanda.Familias.FirstOrDefault(),
+                             $"Se activó la tanda {tanda.NumTanda} y se desactivó la tanda {numTandaActual}.");
+                      }
+                  }
+              }
+
+              Console.WriteLine("Estado tandaActivada fuera del for " + tandaActivada);
+
+              return (null, null, "Error inesperado.");
+          }
+
+          */
+
+
+
+
+
+
+
+
+
+
         public async Task<(int? NumTanda, string? Familia, string Message)> ActivarSiguienteTandaAsync(int numTandaActual)
         {
-
             bool tandaActualInactiva = await _context.Familias
                 .AnyAsync(f => f.NumTanda == numTandaActual && f.estado == false);
 
@@ -280,7 +540,6 @@ namespace APIFamilyMaster.services
                 return (null, null, $"La tanda {numTandaActual} ya está inactiva, no se puede activar otra tanda.");
             }
 
-            // Obtener las salidas de la tanda actual
             var salidasActuales = await _context.Familias
                 .Where(f => f.NumTanda == numTandaActual)
                 .Select(f => f.NumSalida)
@@ -292,33 +551,8 @@ namespace APIFamilyMaster.services
                 return (null, null, "No hay datos en la tanda actual.");
             }
 
-            // Desactivar la tanda actual
-            await _context.Familias
-               .Where(f => f.NumTanda == numTandaActual)
-               .ExecuteUpdateAsync(s => s.SetProperty(f => f.estado, false));
-
-            await _context.SaveChangesAsync(); // Guardar cambios
-
-            // !!!! Se desactivan los registros activos en WaveRelease para la familia de la tanda actual !!!!
-            // Se obtiene la familia a partir de la tanda actual
-            var familiaActual = await _context.Familias
-                .Where(f => f.NumTanda == numTandaActual)
-                .Select(f => f.Familia)
-                .FirstOrDefaultAsync();
-
-            if (!string.IsNullOrEmpty(familiaActual))
-            {
-                await _context.WaveReleases
-                    .Where(wr => wr.Familia == familiaActual && wr.estadoWave == true)
-                    .ExecuteUpdateAsync(wr => wr.SetProperty(w => w.estadoWave, false));
-
-            }
-            // FIN DE DESACTIVACIÓN DE REGISTROS EN WaveRelease
-
-
-            // Obtener las siguientes tandas inactivas (Estado == 0)
             var siguientesTandas = await _context.Familias
-                .Where(f => f.NumTanda > numTandaActual && f.estado == false) 
+                .Where(f => f.NumTanda > numTandaActual && f.estado == false)
                 .GroupBy(f => f.NumTanda)
                 .Select(g => new
                 {
@@ -326,47 +560,55 @@ namespace APIFamilyMaster.services
                     Familias = g.Select(f => f.Familia).Distinct().ToList(),
                     Salidas = g.Select(f => f.NumSalida).Distinct().ToList()
                 })
-                .OrderBy(g => g.NumTanda) 
+                .OrderBy(g => g.NumTanda)
                 .ToListAsync();
 
-            bool tandaActivada = false; 
-
-            
             foreach (var tanda in siguientesTandas)
             {
                 if (!salidasActuales.Except(tanda.Salidas).Any() && !tanda.Salidas.Except(salidasActuales).Any())
                 {
-                   bool familiaEnWaveRelease = await _context.WaveReleases
+                    // Verificamos si hay al menos una familia en WaveRelease
+                    bool familiaEnWaveRelease = await _context.WaveReleases
                         .AnyAsync(wr => tanda.Familias.Contains(wr.Familia));
 
-                    if (familiaEnWaveRelease)
+                    if (!familiaEnWaveRelease)
                     {
-                        await _context.Familias
-                            .Where(f => f.NumTanda == tanda.NumTanda)
-                            .ExecuteUpdateAsync(s => s.SetProperty(f => f.estado, true));
-
-                         await _context.Familias
-                            .Where(f => f.NumTanda == numTandaActual)
-                            .ExecuteUpdateAsync(s => s.SetProperty(f => f.estado, false));
-
-                        await _context.SaveChangesAsync();
-
-
-                        tandaActivada = true;
-
-                        Console.WriteLine("EStado tandaActivada " + tandaActivada);
-                        
-                        return (tanda.NumTanda, tanda.Familias.FirstOrDefault(),
-                           $"Se activó la tanda {tanda.NumTanda} y se desactivó la tanda {numTandaActual}.");
+                        Console.WriteLine($"Familias de la tanda {tanda.NumTanda} no tienen registros en WaveRelease. Se salta tanda.");
+                        continue; // Sigue buscando la siguiente tanda
                     }
+
+                    // Activar la tanda válida
+                    await _context.Familias
+                        .Where(f => f.NumTanda == tanda.NumTanda)
+                        .ExecuteUpdateAsync(s => s.SetProperty(f => f.estado, true));
+
+                    // Desactivar la tanda actual
+                    await _context.Familias
+                        .Where(f => f.NumTanda == numTandaActual)
+                        .ExecuteUpdateAsync(s => s.SetProperty(f => f.estado, false));
+
+                    await _context.SaveChangesAsync();
+
+                    // También desactivar wave release de la familia anterior
+                    var familiaActual = await _context.Familias
+                        .Where(f => f.NumTanda == numTandaActual)
+                        .Select(f => f.Familia)
+                        .FirstOrDefaultAsync();
+
+                    if (!string.IsNullOrEmpty(familiaActual))
+                    {
+                        await _context.WaveReleases
+                            .Where(wr => wr.Familia == familiaActual && wr.estadoWave == true)
+                            .ExecuteUpdateAsync(wr => wr.SetProperty(w => w.estadoWave, false));
+                    }
+
+                    return (tanda.NumTanda, tanda.Familias.FirstOrDefault(),
+                        $"Se activó la tanda {tanda.NumTanda} y se desactivó la tanda {numTandaActual}.");
                 }
             }
-            
-            Console.WriteLine("Estado tandaActivada fuera del for " + tandaActivada);
-           
-            return (null, null, "Error inesperado.");
-        }
 
+            return (null, null, "No se encontró una tanda siguiente válida con familias activas en WaveRelease.");
+        }
 
 
 

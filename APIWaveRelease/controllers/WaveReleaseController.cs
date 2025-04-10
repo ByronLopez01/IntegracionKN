@@ -487,6 +487,8 @@ namespace APIWaveRelease.controllers
                     Console.WriteLine("El JSON fue enviado correctamente a Luca.");
                     */
                     // Si el envío a Luca es correcto, confirmar la transacción
+
+
                     await transaction.CommitAsync();
 
                 }
