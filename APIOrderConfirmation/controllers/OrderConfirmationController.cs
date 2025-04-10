@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 namespace APIOrderConfirmation.controllers
 {
@@ -23,15 +24,23 @@ namespace APIOrderConfirmation.controllers
         private readonly OrderConfirmationContext _context;
         private readonly IConfiguration _configuration;
         //Variable secuencial para generar el subnum
-        private static int _numSubNum = 1;
+        //private static int _numSubNum = 1;
+        private readonly ILogger<OrderConfirmationController> _logger;
 
-        public OrderConfirmationController(IOrderConfirmationService orderConfirmationService, OrderConfirmationContext context, IConfiguration configuration, IHttpClientFactory httpClientFactory, HttpClient httpClient)
+        public OrderConfirmationController(
+            IOrderConfirmationService orderConfirmationService,
+            OrderConfirmationContext context,
+            IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
+            HttpClient httpClient,
+            ILogger<OrderConfirmationController> logger)
         {
             _httpClientFactory = httpClientFactory;
             _apiWaveReleaseClient = httpClientFactory.CreateClient("apiWaveRelease");
             _orderConfirmationService = orderConfirmationService;
             _context = context;
             _configuration = configuration;
+            _logger = logger;
         }
 
         private static List<int> _activatedTandas = new();
@@ -39,10 +48,10 @@ namespace APIOrderConfirmation.controllers
         private async Task<HttpResponseMessage> activarSiguienteTandaAsync(int numTandaActual)
         {
             var urlFamilyMaster = $"http://apifamilymaster:8080/api/FamilyMaster/activarSiguienteTanda?numTandaActual={numTandaActual}";
-            Console.WriteLine("URL FamilyMaster: " + urlFamilyMaster);
+            _logger.LogInformation("URL FamilyMaster: " + urlFamilyMaster);
             // Llamamos con un POST el endpoint de FamilyMaster para activar la siguiente tanda
             var familyMasterResponse = await _apiWaveReleaseClient.PostAsync(urlFamilyMaster, null);
-            Console.WriteLine($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
+            _logger.LogInformation($"Respuesta de FamilyMaster: {familyMasterResponse.StatusCode}");
             return(familyMasterResponse);
         }
 
@@ -62,7 +71,7 @@ namespace APIOrderConfirmation.controllers
         {
             var DesactivarWave = "http://apiwaverelease:8080/api/WaveRelease/DesactivarWave";
             var waveURL = $"{DesactivarWave}/{numOrden}/{codProducto}";
-            Console.WriteLine("URL: " + waveURL);
+            _logger.LogInformation("URL: " + waveURL);
             var desactivarWaveResponse = await _apiWaveReleaseClient.PostAsync(waveURL, null);
             return (desactivarWaveResponse);
         }
@@ -77,7 +86,7 @@ namespace APIOrderConfirmation.controllers
             }
             else
             {
-                Console.WriteLine($"La tanda {numTandaActual} ya fue activada en esta Wave.");
+                _logger.LogInformation("La tanda {NumTanda} ya fue activada en esta Wave.", numTandaActual);
                 // Devuelve un OK simulado.
                 return new HttpResponseMessage(System.Net.HttpStatusCode.OK);
             }
@@ -97,7 +106,7 @@ namespace APIOrderConfirmation.controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al escribir en el archivo de log: {ex.Message}");
+                _logger.LogInformation($"Error. Fallo al escribir en el archivo de log: {ex.Message}");
             }
         }
         private void SetAuthorizationHeader(HttpClient client)
@@ -113,12 +122,13 @@ namespace APIOrderConfirmation.controllers
         [HttpPost("ResetTandas")]
         public IActionResult ResetTandas()
         {
-            Console.WriteLine(_activatedTandas);
+            _logger.LogInformation("Tandas activadas actuales: {ActivatedTandas}", _activatedTandas);
             _activatedTandas.Clear();
-            Console.WriteLine("Reset de tandas activadas.");
+            _logger.LogInformation("Reset de tandas activadas.");
             return Ok(_activatedTandas);
         }
 
+        /*
         [HttpPost("")]
         public async Task<IActionResult> ProcessOrders()
         {
@@ -133,6 +143,8 @@ namespace APIOrderConfirmation.controllers
                 return BadRequest(new { message = "Error al procesar las órdenes.", detalles });
             }
         }
+
+        
         [HttpGet]
         public IActionResult GetSortComplete()
         {
@@ -170,19 +182,20 @@ namespace APIOrderConfirmation.controllers
 
             return Ok(response);
         }
-        
 
         // PROCESADO NUEVO!!!
         [HttpPost("Procesado")]
         public async Task<IActionResult> ProcesadoTest([FromBody] SortCompleteKN request)
         {
+            _logger.LogInformation("---------- INICIO PROCESADO ----------");
             var jsonLog = JsonConvert.SerializeObject(request);
             LogJsonToFile(jsonLog, "Procesado");
 
             if (request?.SORT_COMPLETE?.SORT_COMP_SEG?.LOAD_HDR_SEG?.LOAD_DTL_SEG == null ||
                 request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
             {
-                return BadRequest("Datos en formato incorrecto.");
+                _logger.LogInformation("Error. Datos en formato incorrecto.");
+                return BadRequest("Error. Datos en formato incorrecto.");
             }
 
             // Obtener la wave activa actual (fuera del bucle)
@@ -192,8 +205,8 @@ namespace APIOrderConfirmation.controllers
 
             if (waveActivaActual == null)
             {
-                Console.WriteLine("No se encontró la wave activa en WaveRelease.");
-                return NotFound("No se encontró la wave activa en WaveRelease.");
+                _logger.LogInformation("Error. No se encontró la wave activa en WaveRelease.");
+                return NotFound("Error. No se encontró la wave activa en WaveRelease.");
             }
 
             // Lista para almacenar las familias procesadas
@@ -212,19 +225,19 @@ namespace APIOrderConfirmation.controllers
 
                     if (orden == null)
                     {
-                        Console.WriteLine($"No se encontró la orden para dtlnum: {dtlnum}");
+                        _logger.LogInformation("No se encontró la orden para dtlnum: {Dtlnum}", dtlnum);
                         continue; // Si no se encuentra la orden, continuar con la siguiente
                     }
 
                     // Lógica de órdenes completadas y no completadas
                     if (orden.cantidadProcesada == orden.cantidadLPN)
                     {
-                        Console.WriteLine("PROCESANDO CON SORTER!!!");
+                        _logger.LogInformation("PROCESANDO CON SORTER!!!");
                         orden.estadoLuca = false; // Marcar como completada (KN)
                     }
                     else
                     {
-                        Console.WriteLine("PROCESANDO SIN SORTER!!!");
+                        _logger.LogInformation("PROCESANDO CON SORTER!!!");
                         orden.estadoLuca = false; // Marcar como completada (KN)
                         orden.estado = false; // Marcar como completada (Senad)
                         orden.fechaProceso = DateTime.UtcNow.AddHours(-2); // Actualizar fecha de proceso
@@ -240,20 +253,20 @@ namespace APIOrderConfirmation.controllers
 
                         if (!response.IsSuccessStatusCode)
                         {
-                            Console.WriteLine($"Orden {numOrden} ya desactivada!. StatusCode: {response.StatusCode}");
+                            _logger.LogInformation("Orden {NumOrden} ya desactivada!. StatusCode: {StatusCode}", numOrden, response.StatusCode);
                         }
                         else
                         {
-                            Console.WriteLine($"Wave de la orden {numOrden} desactivada correctamente.");
+                            _logger.LogInformation("Wave de la orden {NumOrden} desactivada correctamente.", numOrden);
                         }
                     }
                     catch (HttpRequestException httpEx)
                     {
-                        Console.WriteLine($"Ocurrió un error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
+                        _logger.LogError("Ocurrió un error HTTP al desactivar la wave de la orden {NumOrden}: {Message}", orden.numOrden, httpEx.Message);
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
+                        _logger.LogError("Ocurrió un error al desactivar la wave de la orden {NumOrden}: {Message}", orden.numOrden, ex.Message);
                     }
 
                     // Guardar la familia de la orden para su posterior verificación
@@ -273,7 +286,7 @@ namespace APIOrderConfirmation.controllers
 
                     // Verificar si todas las órdenes de la familia están completadas
                     bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
-                    Console.WriteLine($"PROCESADO - Todas las órdenes completadas de la familia {familia}: {todasOrdenesCompletadas}");
+                    _logger.LogInformation("PROCESADO - Todas las órdenes completadas de la familia {Familia}: {Completadas}", familia, todasOrdenesCompletadas); 
 
                     if (todasOrdenesCompletadas)
                     {
@@ -284,34 +297,35 @@ namespace APIOrderConfirmation.controllers
 
                         if (FamilyMaster == null)
                         {
-                            Console.WriteLine("No se encontró la familia en FamilyMaster.");
+                            _logger.LogInformation("No se encontró la familia en FamilyMaster.");
                             continue;
                         }
 
                         var numTandaActual = FamilyMaster.NumTanda;
 
-                        Console.WriteLine($"Wave actual: {waveActivaActual.Wave}");
-                        Console.WriteLine($"Tanda actual: {numTandaActual}");
+                        _logger.LogInformation("Wave actual: {Wave}", waveActivaActual.Wave);
+                        _logger.LogInformation("Tanda actual: {NumTanda}", numTandaActual);
 
                         SetAuthorizationHeader(_apiWaveReleaseClient);
+
                         try
                         {
                             // Activar la siguiente tanda
                             var response = await activarTandaSinActivadaAsync(numTandaActual);
-                            Console.WriteLine("ACTIVACIÓN DE SIGUIENTE TANDA!!!!!");
+                            _logger.LogInformation("ACTIVACIÓN DE SIGUIENTE TANDA!!!!!");
 
                             if (!response.IsSuccessStatusCode)
                             {
-                                Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster. StatusCode: {response.StatusCode}");
+                                _logger.LogInformation("Error. Fallo al activar la siguiente tanda en FamilyMaster. StatusCode: {StatusCode}", response.StatusCode);
                             }
                         }
                         catch (HttpRequestException ex)
                         {
-                            Console.WriteLine($"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                            _logger.LogError("Error HTTP al activar la siguiente tanda en FamilyMaster: {Message}", ex.Message);
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                            _logger.LogInformation($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
                         }
                     }
                 }
@@ -372,19 +386,18 @@ namespace APIOrderConfirmation.controllers
                 // Si no quedan detalles en la lista, no enviar a KN
                 if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
                 {
-                    Console.WriteLine("No hay detalles para enviar a KN.");
+                    _logger.LogInformation("No hay detalles (qty > 0) para enviar a KN.");
                     return Ok("No hay detalles para enviar a KN.");
                 }
 
                 var jsonFiltrado = JsonConvert.SerializeObject(requestFiltrado);
-                Console.WriteLine("Procesado - JSON FILTRADO: " + jsonFiltrado);
-
+                _logger.LogInformation("Procesado - JSON FILTRADO: {JsonFiltrado}", jsonFiltrado);
 
                 // Enviar datos a KN
                 try
                 {
                     var urlKN = _configuration["ExternalService:UrlKN"];
-                    Console.WriteLine("URL KN:" + urlKN);
+                    _logger.LogInformation("URL KN:" + urlKN);
 
                     using (var client = new HttpClient())
                     {
@@ -404,31 +417,31 @@ namespace APIOrderConfirmation.controllers
 
                         if (response.IsSuccessStatusCode)
                         {
-                            Console.WriteLine("Datos enviados correctamente a KN.");
+                            _logger.LogInformation("Datos enviados correctamente a KN.");
                             return Ok("Datos enviados correctamente a KN.");
                         }
                         else
                         {
-                            Console.WriteLine("Error al enviar datos a KN.");
-                            return StatusCode((int)response.StatusCode, "Error al enviar datos a KN.");
+                            _logger.LogError("Error. Fallo al enviar confirmación a KN.");
+                            return StatusCode((int)response.StatusCode, "Error. Fallo al enviar confirmación a KN.");
                         }
                     }
                 }
                 catch (HttpRequestException httpEx)
                 {
-                    Console.WriteLine("Ocurrió un error HTTP al enviar los datos a KN: " + httpEx.Message);
+                    _logger.LogError($"Ocurrió un error HTTP al enviar los datos a KN: Message: {httpEx.Message}, InnerException: {httpEx.InnerException}");
                     return StatusCode(500, $"Ocurrió un error HTTP al enviar los datos a KN: {httpEx.Message}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
+                    _logger.LogError($"Ocurrió un error al enviar los datos a KN: Message: {ex.Message}, InnerException: {ex.InnerException}");
                     return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
                 }
                 
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Ocurrió un error al procesar las órdenes: " + ex.Message);
+                _logger.LogError($"Ocurrió un error al procesar las órdenes: Message: {ex.Message}, InnerException: {ex.InnerException}");
                 return StatusCode(500, $"Ocurrió un error al procesar las órdenes: {ex.Message}");
             }
         }
@@ -691,7 +704,7 @@ namespace APIOrderConfirmation.controllers
         [HttpPost("Short")]
         public async Task<IActionResult> shortPickTest([FromBody] SortCompleteKN request)
         {
-            Console.WriteLine("------ SHORT PICK !!!!!! ----------");
+            _logger.LogError("---------- INICIO SHORT PICK ----------");
 
             var jsonLog = JsonConvert.SerializeObject(request);
             LogJsonToFile(jsonLog, "Short");
@@ -699,7 +712,8 @@ namespace APIOrderConfirmation.controllers
             if (request?.SORT_COMPLETE?.SORT_COMP_SEG?.LOAD_HDR_SEG?.LOAD_DTL_SEG == null ||
                 request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
             {
-                return BadRequest("Datos en formato incorrecto.");
+                _logger.LogError("Error. Datos en formato incorrecto.");
+                return BadRequest("Error. Datos en formato incorrecto.");
             }
 
             try
@@ -711,8 +725,8 @@ namespace APIOrderConfirmation.controllers
 
                 if (waveActivaActual == null)
                 {
-                    Console.WriteLine("No se encontró la wave activa en WaveRelease.");
-                    return NotFound("No se encontró la wave activa en WaveRelease.");
+                    _logger.LogError("Error. No se encontró la wave activa en WaveRelease.");
+                    return NotFound("Error. No se encontró la wave activa en WaveRelease.");
                 }
 
                 // Lista para almacenar las familias procesadas
@@ -729,14 +743,14 @@ namespace APIOrderConfirmation.controllers
 
                     if (orden == null)
                     {
-                        Console.WriteLine($"IF ORDEN NULL!!!!!!!!!!!!!!");
+                        _logger.LogError($"IF ORDEN NULL!!!!!!!!!!!!!!");
                         continue; // Si no se encuentra la orden, continuar con la siguiente
                     }
 
                     // Desactivar la orden
                     orden.estadoLuca = false; // Marcar como completada (KN)
                     orden.estado = false; // Marcar como completada (Senad)
-                    orden.fechaProceso = DateTime.UtcNow.AddHours(-2); // Actualizar fecha de proceso
+                    orden.fechaProceso = DateTime.UtcNow.AddHours(-3); // Actualizar fecha de proceso
 
                     // Guardar la familia de la orden para su posterior verificación
                     familiasProcesadas.Add(orden.familia);
@@ -751,20 +765,20 @@ namespace APIOrderConfirmation.controllers
 
                         if (!response.IsSuccessStatusCode)
                         {
-                            Console.WriteLine($"Orden {numOrden} ya desactivada!. StatusCode: {response.StatusCode}");
+                            _logger.LogInformation($"Orden {numOrden} ya desactivada!. StatusCode: {response.StatusCode}");
                         }
                         else
                         {
-                            Console.WriteLine($"Wave de la orden {numOrden} desactivada correctamente.");
+                            _logger.LogInformation($"Wave de la orden {numOrden} desactivada correctamente.");
                         }
                     }
                     catch (HttpRequestException httpEx)
                     {
-                        Console.WriteLine($"Ocurrió un error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
+                        _logger.LogError($"Ocurrió un error HTTP al desactivar la wave de la orden {orden.numOrden}: {httpEx.Message}");
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
+                        _logger.LogError($"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
                     }
                 }
 
@@ -781,7 +795,7 @@ namespace APIOrderConfirmation.controllers
 
                     // Verificar si todas las órdenes de la familia están completadas
                     bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
-                    Console.WriteLine($"SHORT - Todas las órdenes completadas de la familia {familia}: {todasOrdenesCompletadas}");
+                    _logger.LogInformation($"SHORT - Todas las órdenes completadas de la familia {familia}: {todasOrdenesCompletadas}");
 
                     if (todasOrdenesCompletadas)
                     {
@@ -792,35 +806,35 @@ namespace APIOrderConfirmation.controllers
 
                         if (FamilyMaster == null)
                         {
-                            Console.WriteLine("No se encontró la familia en FamilyMaster.");
-                            return NotFound("No se encontró la familia en FamilyMaster.");
+                            _logger.LogError("Error. No se encontró la familia en FamilyMaster.");
+                            return NotFound("Error. No se encontró la familia en FamilyMaster.");
                         }
 
                         var numTandaActual = FamilyMaster.NumTanda;
 
-                        Console.WriteLine($"Wave actual: {waveActivaActual.Wave}");
-                        Console.WriteLine($"Tanda actual: {numTandaActual}");
+                        _logger.LogInformation($"Wave actual: {waveActivaActual.Wave}");
+                        _logger.LogInformation($"Tanda actual: {numTandaActual}");
 
                         SetAuthorizationHeader(_apiWaveReleaseClient);
                         try
                         {
                             // Activar la siguiente tanda
                             var response = await activarTandaSinActivadaAsync(numTandaActual);
-                            Console.WriteLine("ACTIVACIÓN DE SIGUIENTE TANDA!!!!!");
+                            _logger.LogInformation("ACTIVACIÓN DE SIGUIENTE TANDA!!!!!");
 
                             if (!response.IsSuccessStatusCode)
                             {
-                                Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster. StatusCode: {response.StatusCode}");
+                                _logger.LogError($"Error. Fallo al activar la siguiente tanda en FamilyMaster. StatusCode: {response.StatusCode}");
                             }
                         }
                         catch (HttpRequestException ex)
                         {
-                            Console.WriteLine($"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                            _logger.LogError($"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
                             return StatusCode(500, $"Error HTTP al activar la siguiente tanda en FamilyMaster: {ex.Message}");
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
+                            _logger.LogError($"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
                             return StatusCode(500, $"Error al activar la siguiente tanda en FamilyMaster: {ex.Message}");
                         }
                     }
@@ -857,8 +871,7 @@ namespace APIOrderConfirmation.controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Ocurrió un error al procesar las órdenes: " + ex.Message);
-                Console.WriteLine("Inner Exception: " + ex.InnerException);
+                _logger.LogError($"Ocurrió un error al procesar las órdenes. Message: {ex.Message}, InnerException: {ex.InnerException}");
                 return StatusCode(500, $"Ocurrió un error al procesar las órdenes: {ex.Message}");
             }
 
@@ -889,20 +902,20 @@ namespace APIOrderConfirmation.controllers
             // Si no quedan detalles en la lista, no enviar a KN
             if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
             {
-                Console.WriteLine("No hay detalles para enviar a KN.");
+                _logger.LogInformation("No hay detalles para enviar a KN.");
                 return Ok("No hay detalles para enviar a KN.");
             }
 
 
             var jsonFiltrado = JsonConvert.SerializeObject(requestFiltrado);
-            Console.WriteLine("Short - JSON FILTRADO: " + jsonFiltrado);
+            _logger.LogInformation("Short - JSON FILTRADO: " + jsonFiltrado);
 
 
             // Enviar datos a KN
             try
             {
                 var urlKN = _configuration["ExternalService:UrlKN"];
-                Console.WriteLine("URL KN:" + urlKN);
+                _logger.LogInformation("URL KN:" + urlKN);
 
                 using (var client = new HttpClient())
                 {
@@ -922,24 +935,24 @@ namespace APIOrderConfirmation.controllers
 
                     if (response.IsSuccessStatusCode)
                     {
-                        Console.WriteLine("Datos enviados correctamente a KN.");
+                        _logger.LogInformation("Datos enviados correctamente a KN.");
                         return Ok("Datos enviados correctamente a KN.");
                     }
                     else
                     {
-                        Console.WriteLine("Error al enviar datos a KN.");
-                        return StatusCode((int)response.StatusCode, "Error al enviar datos a KN.");
+                        _logger.LogInformation("Error. Fallo al enviar confirmación a KN.");
+                        return StatusCode((int)response.StatusCode, "Error. Fallo al enviar confirmación a KN.");
                     }
                 }
             }
             catch (HttpRequestException httpEx)
             {
-                Console.WriteLine("Ocurrió un error HTTP al enviar los datos a KN: " + httpEx.Message);
+                _logger.LogError($"Ocurrió un error HTTP al enviar los datos a KN: Message: {httpEx.Message}, InnerException: {httpEx.InnerException}");
                 return StatusCode(500, $"Ocurrió un error HTTP al enviar los datos a KN: {httpEx.Message}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
+                _logger.LogError($"Ocurrió un error al enviar los datos a KN:  Message: {ex.Message}, InnerException: {ex.InnerException}");
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
         }
@@ -1029,7 +1042,7 @@ namespace APIOrderConfirmation.controllers
         [HttpPost("Split")]
         public async Task<IActionResult> splitPick([FromBody] SortCompleteKN request)
         {
-            Console.WriteLine("------ SPLIT PICK !!!!!! ----------");
+            _logger.LogInformation("---------- INICIO SPLIT PICK ----------");
 
             var jsonLog = JsonConvert.SerializeObject(request);
             LogJsonToFile(jsonLog, "Split");
@@ -1037,7 +1050,8 @@ namespace APIOrderConfirmation.controllers
             if (request?.SORT_COMPLETE?.SORT_COMP_SEG?.LOAD_HDR_SEG?.LOAD_DTL_SEG == null ||
                 !request.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Any())
             {
-                return BadRequest("Datos en formato incorrecto.");
+                _logger.LogError("Error. Datos en formato incorrecto.");
+                return BadRequest("Error. Datos en formato incorrecto.");
             }
             try
             {
@@ -1054,7 +1068,7 @@ namespace APIOrderConfirmation.controllers
                     if (orden == null)
                     {
                         // Not found si no encuentra la orden
-                        Console.WriteLine("IF ORDEN NULL!!!!!");
+                        _logger.LogInformation("IF ORDEN NULL!!!!!");
                         //return NotFound($"No se encontró ninguna orden con el dtlnum {dtlnum}.");
                         continue;
                     }
@@ -1098,7 +1112,7 @@ namespace APIOrderConfirmation.controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Ocurrió un error al procesar las órdenes: " + ex.Message);
+                _logger.LogError($"Ocurrió un error al procesar las órdenes: Message: {ex.Message}, InnerException: {ex.InnerException}");
                 return StatusCode(500, $"Ocurrió un error al procesar las órdenes: {ex.Message}");
             }
 
@@ -1132,20 +1146,20 @@ namespace APIOrderConfirmation.controllers
             //Si no quedan detalles en la lista, no enviar a KN
             if (requestFiltrado.SORT_COMPLETE.SORT_COMP_SEG.LOAD_HDR_SEG.LOAD_DTL_SEG.Count == 0)
             {
-                Console.WriteLine("No hay detalles para enviar a KN.");
+                _logger.LogInformation("No hay detalles para enviar a KN.");
                 return Ok("No hay detalles para enviar a KN.");
             }
 
             // Console WriteLine del json filtrado
             var jsonFiltrado = JsonConvert.SerializeObject(requestFiltrado);
-            Console.WriteLine("Split - JSON FILTRADO: " + jsonFiltrado);
+            _logger.LogInformation("Split - JSON FILTRADO: " + jsonFiltrado);
             
             
             //ENVIO DE DATOS A LA URL DE KN
             try
             {
                 var urlKN = _configuration["ExternalService:UrlKN"];
-                Console.WriteLine("URL KN:" + urlKN);
+                _logger.LogInformation("URL KN:" + urlKN);
 
                 using (var client = new HttpClient())
                 {
@@ -1165,25 +1179,25 @@ namespace APIOrderConfirmation.controllers
 
                     if (response.IsSuccessStatusCode)
                     {
-                        Console.WriteLine("Datos enviados correctamente a KN.");
+                        _logger.LogInformation("Datos enviados correctamente a KN.");
                         return Ok("Datos enviados correctamente a KN.");
                     }
                     else
                     {
-                        Console.WriteLine("Error al enviar datos a KN.");
-                        return StatusCode((int)response.StatusCode, "Error al enviar datos a KN.");
+                        _logger.LogError("Error. Fallo al enviar confirmación a KN.");
+                        return StatusCode((int)response.StatusCode, "Error. Fallo al enviar confirmación a KN.");
                     }
                 }
 
             }
             catch (HttpRequestException httpEx)
             {
-                Console.WriteLine("Ocurrió un error HTTP al enviar los datos a KN: " + httpEx.Message);
+                _logger.LogError($"Ocurrió un error HTTP al enviar los datos a KN: Message: {httpEx.Message}, InnerException: {httpEx.InnerException}");
                 return StatusCode(500, $"Ocurrió un error HTTP al enviar los datos a KN: {httpEx.Message}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Ocurrió un error al enviar los datos a KN: " + ex.Message);
+                _logger.LogError($"Ocurrió un error al enviar los datos a KN: Message: {ex.Message}, InnerException: {ex.InnerException}");
                 return StatusCode(500, $"Ocurrió un error al enviar los datos a KN: {ex.Message}");
             }
             
