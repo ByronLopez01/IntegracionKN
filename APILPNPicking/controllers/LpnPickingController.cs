@@ -275,6 +275,8 @@ namespace APILPNPicking.controllers
                                 _context.ordenesEnProceso.Add(ordenEnProceso);
                             }
 
+                            await _context.SaveChangesAsync();
+
                             // Guardar LPNSorting
                             var lpnSorting = new LPNSorting
                             {
@@ -287,7 +289,7 @@ namespace APILPNPicking.controllers
                             };
                             _context.LPNSorting.Add(lpnSorting);
 
-                            //FILTRO TEST.
+                            //FILTRO LPN A LUCA !!!!!!!!!!!!!!!! QUITAR MAS ADELANTE !!!!!
                             if (cantidadLPN >= waveRelease.CantInr)
                             {
                                 // CREACIÓN OBJETO JSON PARA ENVIO A LUCA
@@ -323,7 +325,7 @@ namespace APILPNPicking.controllers
                                 var urlLuca = $"{urlLucaBase}/api/sort/LpnSorter?sorterId={familyMaster.numSalida}";
                                 _logger.LogInformation("URL LUCA: " + urlLuca);
 
-
+                                
                                 try
                                 {
                                     var response = await httpClient.PostAsync(urlLuca, httpContent);
@@ -341,12 +343,30 @@ namespace APILPNPicking.controllers
                                     _logger.LogError($"Error. Fallo al enviar datos a LUCA: {ex.Message}");
                                     return StatusCode(500, $"Error. Fallo al enviar datos a LUCA: {ex.Message}");
                                 }
+                                
                             }
                             else
                             {
+                                // Buscar el registro en la tabla OrdenEnProceso
+                                var ordenFiltrada = _context.ordenesEnProceso
+                                    .FirstOrDefault(o => 
+                                    o.wave == waveRelease.Wave && 
+                                    o.numOrden == waveRelease.NumOrden && 
+                                    o.codProducto == waveRelease.CodProducto && 
+                                    o.dtlNumber == subnumSeg.dtlnum && 
+                                    o.subnum == subnumSeg.subnum);
+
+                                // Desactivar la orden si se encuentra
+                                if (ordenFiltrada != null)
+                                {
+                                    _logger.LogInformation($"Desactivando la orden {ordenFiltrada.numOrden} con dtlNumber {ordenFiltrada.dtlNumber}");
+                                    ordenFiltrada.estado = false;
+                                    ordenFiltrada.estadoLuca = false;
+                                    _context.ordenesEnProceso.Update(ordenFiltrada);
+                                }
+
                                 _logger.LogInformation($"Registro con cantidadLPN {cantidadLPN} menor que cantInr {waveRelease.CantInr}. No se envía a LUCA.");
                             }
-                            // FILTRO TEST.
                         }
 
                         await _context.SaveChangesAsync();
@@ -356,7 +376,7 @@ namespace APILPNPicking.controllers
                     catch (Exception ex)
                     {
                         _logger.LogError($"Error. Fallo al consultar FamilyMaster o enviar datos: {ex.Message}. InnerException: {ex.InnerException}");
-                        return StatusCode(500, $"Error al procesar datos: {ex.Message}");
+                        return StatusCode(500, $"Error. Fallo al consultar FamilyMaster o enviar datos: {ex.Message}");
                     }
                 }
             }

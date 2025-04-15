@@ -118,7 +118,6 @@ namespace APILPNPicking.data
                     .HasColumnName("subnum");
 
                 entity.Property(e => e.estado)
-                   .HasMaxLength(50)
                    .HasColumnName("estado");
 
                 entity.Property(e => e.tienda)
