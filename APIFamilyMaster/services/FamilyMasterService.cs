@@ -99,7 +99,21 @@ namespace APIFamilyMaster.services
 
             await _context.SaveChangesAsync();
 
+            // Obtener la wave activa actual
+            var waveActivaActual = await _context.WaveReleases
+                .AsNoTracking()
+                .FirstOrDefaultAsync(w => w.estadoWave == true);
+
+
+            if (waveActivaActual == null)
+            {
+                throw new InvalidOperationException("Error. FamilyMaster no encontró una Wave activa.");
+            }
+
+
+            // Conociendo la wave activa, obtener las familias asociadas a esa wave
             var waveFamilies = await _context.WaveReleases
+                .Where(w => w.Wave == waveActivaActual.Wave)
                 .Select(w => w.Familia)
                 .Distinct()
                 .ToListAsync();
