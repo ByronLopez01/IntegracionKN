@@ -532,6 +532,13 @@ namespace APIWaveRelease.controllers
                 {
                     return BadRequest("No hay datos en cache para enviar.");
                 }
+                bool hayWaveActiva = await _context.WaveRelease.AnyAsync(wr => wr.estadoWave == true);
+                if (hayWaveActiva)
+                {
+                    _logger.LogWarning("Intento de envío desde caché bloqueado: WaveRelease activa (estadoWave = 1).");
+                    return Conflict("Error al enviar datos, WaveRelease activa");
+                }
+                _logger.LogInformation("No hay WaveRelease activa. Procediendo a enviar datos desde caché.");
 
                 // Construcción del JSON esperado
                 var waveReleaseKn = new WaveReleaseKN
