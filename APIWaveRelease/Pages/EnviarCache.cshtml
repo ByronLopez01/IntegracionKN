@@ -33,6 +33,14 @@
                 Enviar Datos a WaveRelease
             </button>
         </form>
+        <!-- Botón para eliminar WaveCache -->
+        <hr class="separator">
+        <div class="secondary-action">
+            <p>Otras acciones:</p>
+            <button type="button" class="custom-button custom-button-outline" id="eliminarCacheBtn" onclick="eliminarCache()">
+                Eliminar Datos de WaveCache
+            </button>
+        </div>
     </div>
 </div>
 
@@ -199,6 +207,45 @@
         opacity: 1;
     }
 
+    /* Estilos del Boton eliminar Cache */
+    .separator {
+        border: 0;
+        height: 1px;
+        background: #eee;
+        margin: 30px 0;
+    }
+
+    .secondary-action {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+        .secondary-action p {
+            margin-bottom: 10px;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+    .custom-button-outline {
+        background-color: #ffffff;
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+        .custom-button-outline:hover {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .custom-button-outline:disabled {
+            background-color: #f8f9fa;
+            color: #adb5bd;
+            border-color: #ced4da;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
 </style>
 
 <script>
@@ -283,4 +330,52 @@
             btn.disabled = false;
         }
     });
+    /*
+        lOGICA BOTON ELIMINAR WAVECACHE
+    */
+    async function eliminarCache() {
+
+        const confirmacion = window.confirm("¿Estás realmente seguro de que deseas eliminar todos los datos de WaveCache? Esta acción no se puede deshacer.");
+        if (!confirmacion) {
+            return;
+        }
+        const messageContainer = document.getElementById('messageContainer');
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        const btn = document.getElementById('eliminarCacheBtn');
+
+        btn.disabled = true;
+        messageContainer.innerHTML = '';
+
+        try {
+            const response = await fetch('/api/WaveRelease/EliminarCache', {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'Authorization': 'Basic ' + btoa('senad:S3nad'),
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const texto = await response.text();
+            const data = {
+                mensaje: `${response.status} - ${texto}`,
+                esError: !response.ok
+            };
+
+            const alertType = data.esError ? "alert-danger" : "alert-success";
+            messageContainer.innerHTML = `
+                <div class="alert ${alertType}">
+                    ${data.mensaje}
+                </div>
+            `;
+        } catch (error) {
+            messageContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    Error de conexión al servidor: ${error.message}
+                </div>
+            `;
+        } finally {
+            btn.disabled = false;
+        }
+    }
 </script>
