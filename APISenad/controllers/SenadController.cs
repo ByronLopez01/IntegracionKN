@@ -261,12 +261,12 @@ namespace APISenad.controllers
                     }
                     else
                     {
-                        _logger.LogWarning("No hay más ordenes disponibles. Enviado a reinserción.");
+                        _logger.LogWarning("No hay más ordenes disponibles. Enviado a error.");
                         var responseError = new
                         {
                             CodigoEscaneado = codItem,
-                            NumeroOrden = "No hay más ordenes disponibles. Enviado a reinserción",
-                            Salida = Reinsercion // Salida de reinserción
+                            NumeroOrden = "No hay más ordenes disponibles. Enviado a error",
+                            Salida = Error // Salida de error
                         };
                         return Ok(responseError);
                     }
