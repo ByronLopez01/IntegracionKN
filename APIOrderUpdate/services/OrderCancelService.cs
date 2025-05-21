@@ -23,6 +23,8 @@ namespace APIOrderUpdate.services
                 return (OrderCancelResult.NotFound, new List<string>()); //Ordenes no encontradas
             }
 
+            // Verificar la Wave Activa Actual
+
             bool anyOrderCancelled = false;
             bool anyOrderNotCancelled = false;
             bool allOrdersInProcess = true;
@@ -34,10 +36,10 @@ namespace APIOrderUpdate.services
                 var ordnum = orderCancelSeg.ordnum;
 
                 var existingOrderInProcess = await _context.OrdenEnProceso
-                    .Where(o => o.numOrden == ordnum)
-                    .FirstOrDefaultAsync();
+                    .Where(o => o.numOrden == ordnum && o.wave == waveId)
+                    .ToListAsync();
 
-                if (existingOrderInProcess != null && existingOrderInProcess.cantidadProcesada > 0)
+                if (existingOrderInProcess.Any(o => o.cantidadProcesada > 0))
                 {
                     // Si la orden tiene producto procesados, no se puede cancelar
                     anyOrderNotCancelled = true;
@@ -48,16 +50,16 @@ namespace APIOrderUpdate.services
                 allOrdersInProcess = false; // Al menos una orden no está en proceso
 
                 var existingWaveRelease = await _context.WaveReleases
-                    .Where(w => w.Wave == waveId && w.NumOrden == ordnum)
+                    .Where(w => w.NumOrden == ordnum && w.Wave == waveId)
                     .ToListAsync();
 
-                if (existingWaveRelease != null)
+                if (existingWaveRelease.Any())
                 {
                     _context.WaveReleases.RemoveRange(existingWaveRelease);
 
-                    if (existingOrderInProcess != null)
+                    if (existingOrderInProcess.Any())
                     {
-                        _context.OrdenEnProceso.Remove(existingOrderInProcess);
+                        _context.OrdenEnProceso.RemoveRange(existingOrderInProcess);
                     }
 
                     var newOrderCancel = new OrderCancelEntity

@@ -220,9 +220,10 @@ namespace APIOrderConfirmation.controllers
                 {
                     var dtlnum = loadDtl.dtlnum;
 
-                    // Buscar la orden según su dtlnum
+                    // Buscar la orden según su dtlnum según la wave activa
                     var orden = await _context.ordenesEnProceso
-                        .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
+                        .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum && o.wave == waveActivaActual.Wave);
+
 
                     if (orden == null)
                     {
@@ -487,9 +488,9 @@ namespace APIOrderConfirmation.controllers
                 {
                     var dtlnum = loadDtl.dtlnum;
 
-                    // Buscar la orden según su dtlnum
+                    // Buscar la orden según su dtlnum según la wave activa
                     var orden = await _context.ordenesEnProceso
-                        .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
+                        .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum && o.wave == waveActivaActual.Wave);
 
                     if (orden == null)
                     {
@@ -825,9 +826,9 @@ namespace APIOrderConfirmation.controllers
                     var dtlnum = loadDtl.dtlnum;
                     var qty = loadDtl.qty;
 
-                    // Buscar la orden segun su dtlnum
+                    // Buscar la orden según su dtlnum según la wave activa
                     var orden = await _context.ordenesEnProceso
-                        .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum);
+                        .FirstOrDefaultAsync(o => o.dtlNumber == dtlnum && o.wave == waveActivaActual.Wave);
 
                     if (orden == null)
                     {
@@ -856,6 +857,7 @@ namespace APIOrderConfirmation.controllers
                             var codProducto = orden.codProducto;
                             SetAuthorizationHeader(_apiWaveReleaseClient);
                             var response = await desactivarWaveAsync(numOrden, codProducto);
+                            _logger.LogInformation($"Desactivando Wave de dtlnum {dtlnum} con orden {numOrden}, codProducto {codProducto}");
 
                             if (!response.IsSuccessStatusCode)
                             {
