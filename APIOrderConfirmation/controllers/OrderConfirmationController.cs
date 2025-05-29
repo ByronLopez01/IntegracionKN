@@ -92,6 +92,38 @@ namespace APIOrderConfirmation.controllers
             }
         }
 
+        // Método para desactivar todas las waves de una familia específica
+        private async Task DesactivarWavesDeFamiliaAsync(string familia)
+        {
+            _logger.LogInformation("Desactivando waves de la familia: {Familia}", familia);
+
+            // Obtener todas las waves activas para esta familia
+            var wavesFamilia = await _context.WaveRelease
+                .Where(w => w.familia == familia && w.estadoWave == true)
+                .ToListAsync();
+
+            if (wavesFamilia.Any())
+            {
+                _logger.LogInformation("Se encontraron {Count} waves activas para desactivar", wavesFamilia.Count);
+
+                // Marcar todas como inactivas
+                foreach (var wave in wavesFamilia)
+                {
+                    wave.estadoWave = false;
+                }
+
+                // Actualizar en la base de datos
+                _context.WaveRelease.UpdateRange(wavesFamilia);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Waves de la familia {Familia} desactivadas correctamente", familia);
+            }
+            else
+            {
+                _logger.LogInformation("No se encontraron waves activas de la familia {Familia}", familia);
+            }
+        }
+
         private void LogJsonToFile(string jsonContent, string endpoint)
         {
             var logFilePath = "/app/logs/confirm_log.txt"; // Ruta del archivo de log en el contenedor Docker
@@ -307,6 +339,13 @@ namespace APIOrderConfirmation.controllers
 
                         _logger.LogInformation("Wave actual: {Wave}", waveActivaActual.Wave);
                         _logger.LogInformation("Tanda actual: {NumTanda}", numTandaActual);
+
+
+
+                        // Desactivar todas las waves de esta familia antes de activar la siguiente tanda
+                        _logger.LogInformation("Procesado - Inicio func Desactivar waves de la familia: {Familia}", familia);
+                        await DesactivarWavesDeFamiliaAsync(familia);
+
 
                         SetAuthorizationHeader(_apiWaveReleaseClient);
 
@@ -565,6 +604,11 @@ namespace APIOrderConfirmation.controllers
 
                         _logger.LogInformation($"Wave actual: {waveActivaActual.Wave}");
                         _logger.LogInformation($"Tanda actual: {numTandaActual}");
+
+
+                        // Desactivar todas las waves de esta familia antes de activar la siguiente tanda
+                        _logger.LogInformation("Short - Inicio func Desactivar waves de la familia: {Familia}", familia);
+                        await DesactivarWavesDeFamiliaAsync(familia);
 
                         SetAuthorizationHeader(_apiWaveReleaseClient);
                         try
@@ -917,6 +961,11 @@ namespace APIOrderConfirmation.controllers
 
                         _logger.LogInformation($"Wave actual: {waveActivaActual.Wave}");
                         _logger.LogInformation($"Tanda actual: {numTandaActual}");
+
+
+                        // Desactivar todas las waves de esta familia antes de activar la siguiente tanda
+                        _logger.LogInformation("Split - Inicio Desactivar waves de la familia: {Familia}", familia);
+                        await DesactivarWavesDeFamiliaAsync(familia);
 
                         SetAuthorizationHeader(_apiWaveReleaseClient);
 
