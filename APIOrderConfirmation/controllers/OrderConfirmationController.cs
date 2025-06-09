@@ -321,7 +321,7 @@ namespace APIOrderConfirmation.controllers
                         .ToListAsync();
 
                     // Verificar si todas las órdenes de la familia están completadas
-                    bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
+                    bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estadoLuca == false);
                     _logger.LogInformation("PROCESADO - Todas las órdenes completadas de la familia {Familia}: {Completadas}", familia, todasOrdenesCompletadas); 
 
                     if (todasOrdenesCompletadas)
@@ -588,7 +588,7 @@ namespace APIOrderConfirmation.controllers
                         .ToListAsync();
 
                     // Verificar si todas las órdenes de la familia están completadas
-                    bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estado == false);
+                    bool todasOrdenesCompletadas = ordenesFamilia.All(o => o.estadoLuca == false);
                     _logger.LogInformation($"SHORT - Todas las órdenes completadas de la familia {familia}: {todasOrdenesCompletadas}");
 
                     if (todasOrdenesCompletadas)
