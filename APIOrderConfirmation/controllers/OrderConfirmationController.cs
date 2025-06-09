@@ -271,13 +271,13 @@ namespace APIOrderConfirmation.controllers
                     }
                     else
                     {
-                        _logger.LogInformation("PROCESANDO CON SORTER!!!");
+                        _logger.LogInformation("PROCESANDO SIN SORTER!!!");
                         orden.estadoLuca = false; // Marcar como completada (KN)
                         orden.estado = false; // Marcar como completada (Senad)
                         orden.fechaProceso = DateTime.UtcNow.AddHours(-2); // Actualizar fecha de proceso
                     }
 
-                    /*
+                    
                     // Desactivar la wave de la orden
                     try
                     {
@@ -303,7 +303,7 @@ namespace APIOrderConfirmation.controllers
                     {
                         _logger.LogError("Ocurrió un error al desactivar la wave de la orden {NumOrden}: {Message}", orden.numOrden, ex.Message);
                     }
-                    */
+                    
 
                     // Guardar la familia de la orden para su posterior verificación
                     familiasProcesadas.Add(orden.familia);
@@ -547,7 +547,7 @@ namespace APIOrderConfirmation.controllers
                     // Guardar la familia de la orden para su posterior verificación
                     familiasProcesadas.Add(orden.familia);
 
-                    /*
+                    
                     // Desactivar la wave de la orden
                     try
                     {
@@ -573,7 +573,7 @@ namespace APIOrderConfirmation.controllers
                     {
                         _logger.LogError($"Ocurrió un error al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
                     }
-                    */
+                    
                 }
 
                 // Guardar los cambios en la base de datos después de procesar todas las órdenes
@@ -897,7 +897,7 @@ namespace APIOrderConfirmation.controllers
                         //Guardar la familia para verificación posterior
                         familiasProcesadas.Add(orden.familia);
 
-                        /*
+                        
                         // Desactivar la wave de la orden
                         try
                         {
@@ -925,7 +925,7 @@ namespace APIOrderConfirmation.controllers
                         {
                             _logger.LogError($"Error. Problema al desactivar la wave de la orden {orden.numOrden}: {ex.Message}");
                         }
-                        */
+                        
                     }
                     else
                     {
