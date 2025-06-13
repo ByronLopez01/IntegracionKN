@@ -220,6 +220,7 @@ namespace APIWaveRelease.controllers
                     _context.WaveRelease.AddRange(waveReleases);
                     await _context.SaveChangesAsync();
 
+                    /*
                     // Envío de JSON a Luca dentro de la transacción
                     var httpClientLuca = _httpClientFactory.CreateClient("apiLuca");
                     SetAuthorizationHeader(httpClientLuca);
@@ -241,7 +242,7 @@ namespace APIWaveRelease.controllers
                     
                     // Si el envío a Luca es correcto, confirmar la transacción
 
-
+                    */
                     await transaction.CommitAsync();
 
                 }
