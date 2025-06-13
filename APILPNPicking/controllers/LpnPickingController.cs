@@ -315,35 +315,53 @@ namespace APILPNPicking.controllers
                                 // ENVÍO DE JSON A LUCA REGISTRO POR REGISTRO
                                 var jsonContent = JsonConvert.SerializeObject(lucaRequest);
 
-                                _logger.LogInformation("JSON LUCA CREADO");
-                                _logger.LogInformation(jsonContent);
-
-                                var httpClient = _httpClientFactory.CreateClient("apiLuca");
-                                var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-                                var urlLucaBase = _configuration["ServiceUrls:luca"];
-                                var urlLuca = $"{urlLucaBase}/api/sort/LpnSorter?sorterId={familyMaster.numSalida}";
-                                _logger.LogInformation("URL LUCA: " + urlLuca);
-
-                                
-                                try
+                                var documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                                var folderPath = Path.Combine(documentsPath, "LucaRequests");
+                                if (!Directory.Exists(folderPath))
                                 {
-                                    var response = await httpClient.PostAsync(urlLuca, httpContent);
-                                    if (response.IsSuccessStatusCode)
-                                    {
-                                        _logger.LogInformation("Ok. El JSON fue enviado correctamente a LUCA.");
-                                    }
-                                    else
-                                    {
-                                        _logger.LogInformation("Error. Fallo al enviar el JSON a LUCA.");
-                                    }
+                                    Directory.CreateDirectory(folderPath);
                                 }
-                                catch (Exception ex)
-                                {
-                                    _logger.LogError($"Error. Fallo al enviar datos a LUCA: {ex.Message}");
-                                    return StatusCode(500, $"Error. Fallo al enviar datos a LUCA: {ex.Message}");
-                                }
-                                
+
+                                var fileName = $"LucaRequest_{DateTime.Now:yyyyMMdd_HHmmss_fff}.json";
+                                var filePath = Path.Combine(folderPath, fileName);
+
+                                await System.IO.File.WriteAllTextAsync(filePath, jsonContent, Encoding.UTF8);
+
+                                _logger.LogInformation($"JSON guardado en: {filePath}");
+
+
+                                /* 
+                                 _logger.LogInformation("JSON LUCA CREADO");
+                                 _logger.LogInformation(jsonContent);
+
+                                 var httpClient = _httpClientFactory.CreateClient("apiLuca");
+                                 var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                                 var urlLucaBase = _configuration["ServiceUrls:luca"];
+                                 var urlLuca = $"{urlLucaBase}/api/sort/LpnSorter?sorterId={familyMaster.numSalida}";
+                                 _logger.LogInformation("URL LUCA: " + urlLuca);
+
+
+                                 try
+                                 {
+                                     var response = await httpClient.PostAsync(urlLuca, httpContent);
+                                     if (response.IsSuccessStatusCode)
+                                     {
+                                         _logger.LogInformation("Ok. El JSON fue enviado correctamente a LUCA.");
+                                     }
+                                     else
+                                     {
+                                         _logger.LogInformation("Error. Fallo al enviar el JSON a LUCA.");
+                                     }
+                                 }
+                                 catch (Exception ex)
+                                 {
+                                     _logger.LogError($"Error. Fallo al enviar datos a LUCA: {ex.Message}");
+                                     return StatusCode(500, $"Error. Fallo al enviar datos a LUCA: {ex.Message}");
+                                 }
+                                 */
+
+
                             }
                             else
                             {
