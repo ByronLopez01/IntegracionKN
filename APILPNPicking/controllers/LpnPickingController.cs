@@ -63,6 +63,8 @@ namespace APILPNPicking.controllers
                 return BadRequest("Error. Datos en formato incorrecto.");
             }
 
+            var lpn_rechazados = new List<string>();
+
 
             // Verificar si existen dtlnum duplicados en los datos recibidos
             var allDtlNumbers = request.SORT_INDUCTION.LOAD_HDR_SEG
@@ -162,7 +164,7 @@ namespace APILPNPicking.controllers
 
                     try
                     {
-                        _logger.LogInformation("Respuesta de WaveRelease: {Response}", waveReleaseResponse);
+                        //_logger.LogInformation("Respuesta de WaveRelease: {Response}", waveReleaseResponse);
 
                         waveReleaseData = JsonConvert.DeserializeObject<List<WaveRelease>>(waveReleaseResponse) ?? new List<WaveRelease>();
                         _logger.LogInformation("Deserialización exitosa. Cantidad de resultados: {Count}", waveReleaseData.Count);
@@ -231,6 +233,38 @@ namespace APILPNPicking.controllers
                             _logger.LogInformation($"Procesando SUBNUM_SEG con dtlnum: {subnumSeg.dtlnum} y subnum: {subnumSeg.subnum}");
 
                             var cantidadLPN = subnumSeg.untqty;
+
+
+                            
+                            // 1. Obtener la cantidad ya registrada para la orden y producto en la wave activa
+                            var cantidadRegistrada = _context.ordenesEnProceso
+                                .Where(o => o.wave == waveRelease.Wave
+                                    && o.numOrden == waveRelease.NumOrden
+                                    && o.codProducto == waveRelease.CodProducto)
+                                .Sum(o => o.cantidadLPN);
+
+                            _logger.LogInformation(
+                                "Verificación de cantidad para LPN: dtlnum={Dtlnum}, numOrden={NumOrden}, codProducto={CodProducto}, wave={Wave}. " +
+                                "Cantidad permitida en orden: {CantidadOrden}, Cantidad ya registrada: {CantidadRegistrada}, Cantidad recibida: {CantidadLPN}, Total después de agregar: {Total}",
+                                subnumSeg.dtlnum, waveRelease.NumOrden, waveRelease.CodProducto, waveRelease.Wave,
+                                waveRelease.Cantidad, cantidadRegistrada, cantidadLPN, cantidadRegistrada + cantidadLPN
+                            );
+
+                            // 2. Verificar si la suma de lo registrado + lo recibido excede la cantidad de la orden
+                            if (cantidadRegistrada + cantidadLPN > waveRelease.Cantidad)
+                            {
+                                var Msg = $"LPN rechazado: El LPN con dltnum ({subnumSeg.dtlnum}) excede la cantidad total ({waveRelease.Cantidad}) para la orden {waveRelease.NumOrden} y producto {waveRelease.CodProducto}.";
+                                _logger.LogWarning(Msg);
+                                if (!string.IsNullOrEmpty(subnumSeg.dtlnum)) 
+                                    lpn_rechazados.Add(subnumSeg.dtlnum);
+                                // Continúa con el siguiente LPN sin agregar este
+                                continue;
+                            }
+                            else
+                            {
+                                _logger.LogInformation("LPN ACEPTADO: Total después de agregar: {Total}", cantidadRegistrada + cantidadLPN);
+                            }
+
 
                             if (cantidadLPN > waveRelease.Cantidad)
                             {
@@ -316,7 +350,7 @@ namespace APILPNPicking.controllers
                                 var jsonContent = JsonConvert.SerializeObject(lucaRequest);
 
                                 _logger.LogInformation("JSON LUCA CREADO");
-                                _logger.LogInformation(jsonContent);
+                                //_logger.LogInformation(jsonContent);
 
                                 var httpClient = _httpClientFactory.CreateClient("apiLuca");
                                 var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
@@ -343,6 +377,7 @@ namespace APILPNPicking.controllers
                                     _logger.LogError($"Error. Fallo al enviar datos a LUCA: {ex.Message}");
                                     return StatusCode(500, $"Error. Fallo al enviar datos a LUCA: {ex.Message}");
                                 }
+                                
                                 
                             }
                             else
@@ -382,7 +417,11 @@ namespace APILPNPicking.controllers
             }
 
             _logger.LogInformation("Proceso de LPN completado.");
-            return Ok("Proceso de LPN completado.");
+            return Ok(new
+            {
+                msg = "Proceso de LPN completado.",
+                lpn_rechazados = lpn_rechazados.Count != 0 ? lpn_rechazados : ["No se rechazaron LPNs."],
+            });
         }
 
     }
