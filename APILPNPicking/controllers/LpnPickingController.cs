@@ -262,7 +262,7 @@ namespace APILPNPicking.controllers
                             }
                             else
                             {
-                                _logger.LogInformation("LPN ACEPTADO: Total después de agregar: {Total}", cantidadRegistrada + cantidadLPN);
+                                _logger.LogInformation("LPN aceptado: Total después de agregar: {Total}", cantidadRegistrada + cantidadLPN);
                             }
 
 
@@ -349,8 +349,7 @@ namespace APILPNPicking.controllers
                                 // ENVÍO DE JSON A LUCA REGISTRO POR REGISTRO
                                 var jsonContent = JsonConvert.SerializeObject(lucaRequest);
 
-                                _logger.LogInformation("JSON LUCA CREADO");
-                                //_logger.LogInformation(jsonContent);
+                                _logger.LogInformation($" JSON LUCA: {jsonContent}");
 
                                 var httpClient = _httpClientFactory.CreateClient("apiLuca");
                                 var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
@@ -365,17 +364,17 @@ namespace APILPNPicking.controllers
                                     var response = await httpClient.PostAsync(urlLuca, httpContent);
                                     if (response.IsSuccessStatusCode)
                                     {
-                                        _logger.LogInformation("Ok. El JSON fue enviado correctamente a LUCA.");
+                                        _logger.LogInformation($"Ok. DTLNUM {lucaRequest.dtlNumber} Enviado correctamente a LUCA.");
                                     }
                                     else
                                     {
-                                        _logger.LogInformation("Error. Fallo al enviar el JSON a LUCA.");
+                                        _logger.LogInformation($"Error. DTLNUM {lucaRequest.dtlNumber} Fallo al enviar a LUCA.");
                                     }
                                 }
                                 catch (Exception ex)
                                 {
-                                    _logger.LogError($"Error. Fallo al enviar datos a LUCA: {ex.Message}");
-                                    return StatusCode(500, $"Error. Fallo al enviar datos a LUCA: {ex.Message}");
+                                    _logger.LogError($"Error. Fallo al enviar datos del DTLNUM {lucaRequest.dtlNumber} a LUCA: {ex.Message}");
+                                    return StatusCode(500, $"Error. Fallo al enviar datos del DTLNUM {lucaRequest.dtlNumber} a LUCA: {ex.Message}");
                                 }
                                 
                                 
