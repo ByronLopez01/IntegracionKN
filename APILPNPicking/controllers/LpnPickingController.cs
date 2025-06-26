@@ -185,7 +185,7 @@ namespace APILPNPicking.controllers
 
                     if (waveRelease == null)
                     {
-                        _logger.LogInformation($"Error. No se encontró un WaveRelease coincidente para la orden {loadDtlSeg.ordnum} y producto {loadDtlSeg.prtnum}.");
+                        _logger.LogError($"Error. No se encontró un WaveRelease coincidente para la orden {loadDtlSeg.ordnum} y producto {loadDtlSeg.prtnum}.");
                         return NotFound($"Error. No se encontró un WaveRelease coincidente para la orden {loadDtlSeg.ordnum} y producto {loadDtlSeg.prtnum}.");
                     }
 
@@ -225,7 +225,7 @@ namespace APILPNPicking.controllers
                     }
                     catch (JsonException jsonEx)
                     {
-                        _logger.LogInformation($"Error. Fallo en la deserialización de FamilyMaster: {jsonEx.Message}");
+                        _logger.LogError($"Error. Fallo en la deserialización de FamilyMaster: {jsonEx.Message}");
                         return StatusCode(500, "Error. Fallo en la deserialización de FamilyMaster.");
                     }
 
@@ -239,7 +239,7 @@ namespace APILPNPicking.controllers
 
                     if (loadDtlSeg.SUBNUM_SEG == null || loadDtlSeg.SUBNUM_SEG.Count == 0)
                     {
-                        _logger.LogInformation("Error. No hay datos en SUBNUM_SEG.");
+                        _logger.LogError("Error. No hay datos en SUBNUM_SEG.");
                         return BadRequest("Error. No hay datos en SUBNUM_SEG.");
                     }
 
@@ -284,7 +284,7 @@ namespace APILPNPicking.controllers
                         if (cantidadLPN > waveRelease.Cantidad)
                         {
                             var errorMessage = $"Error. La cantidad a procesar ({cantidadLPN}) excede la cantidad total ({waveRelease.Cantidad}) de la orden {waveRelease.NumOrden} y producto {waveRelease.CodProducto}.";
-                            _logger.LogInformation(errorMessage);
+                            _logger.LogError(errorMessage);
                             return BadRequest(errorMessage);
                         }
 
@@ -425,7 +425,7 @@ namespace APILPNPicking.controllers
                                     _context.ordenesEnProceso.Update(ordenFiltrada);
                                 }
 
-                                _logger.LogInformation($"Registro con cantidadLPN {cantidadLPN} menor que cantInr {waveRelease.CantInr}. No se envía a LUCA.");
+                                _logger.LogError($"Registro con cantidadLPN {cantidadLPN} menor que cantInr {waveRelease.CantInr}. No se envía a LUCA.");
                             }
 
 
