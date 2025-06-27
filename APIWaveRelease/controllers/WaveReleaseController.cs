@@ -131,6 +131,21 @@ namespace APIWaveRelease.controllers
         }
 
 
+        //
+        [HttpGet("ObtenerNombreWaveCache")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ObtenerNombreWaveCache()
+        {
+            var waveCache = await _context.WaveReleaseCache.FirstOrDefaultAsync();
+
+            if (waveCache == null)
+            {
+                return Ok("No hay wave en caché");
+            }
+            return Ok(waveCache.Schbat);
+        }
+        //
+
 
         [HttpPost]
         public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveReleaseKn)

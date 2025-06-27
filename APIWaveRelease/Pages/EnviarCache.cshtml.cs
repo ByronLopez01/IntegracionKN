@@ -13,6 +13,10 @@ namespace APIWaveRelease.Pages
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
 
+        //
+        public string NombreWave { get; set; }
+        //
+
         public EnviarCacheModel(
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration)
@@ -21,7 +25,34 @@ namespace APIWaveRelease.Pages
             _configuration = configuration;
         }
 
-        public void OnGet() { }
+        //
+        public async Task OnGetAsync()
+        {
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var urlApi = _configuration["ApiUrl"];
+
+                var fullUrl = $"{urlApi}/WaveRelease/ObtenerNombreWaveCache";
+
+                var response = await httpClient.GetAsync(fullUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    NombreWave = await response.Content.ReadAsStringAsync();
+                }
+                else
+                {
+                    NombreWave = "Error al obtener nombre";
+                }
+            }
+            catch
+            {
+                NombreWave = "Error de conexión";
+            }
+        }
+
+        //
 
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnPostAsync()
