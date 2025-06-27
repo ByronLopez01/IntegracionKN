@@ -336,10 +336,16 @@
     */
     async function eliminarCache() {
 
-        //
+        const waveExiste = @Model.WaveExiste.ToString().ToLower();
+
+        if (!waveExiste) {
+            alert("La WaveCache ya está limpia. No hay datos para eliminar.");
+            return;
+        }
+
         const nombreWave = @Json.Serialize(Model.NombreWave);
         const confirmacion = window.confirm(`¿Estás seguro de que deseas eliminar todos los datos de la wave '${nombreWave}'? Esta acción no se puede deshacer.`);
-        //
+
         if (!confirmacion) {
             return;
         }

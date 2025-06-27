@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authorization;
+using System.Text.Json;
 
 namespace APIWaveRelease.Pages
 {
@@ -14,7 +15,9 @@ namespace APIWaveRelease.Pages
         private readonly IConfiguration _configuration;
 
         //
+        public bool WaveExiste { get; set; }
         public string NombreWave { get; set; }
+
         //
 
         public EnviarCacheModel(
@@ -32,22 +35,28 @@ namespace APIWaveRelease.Pages
             {
                 var httpClient = _httpClientFactory.CreateClient();
                 var urlApi = _configuration["ApiUrl"];
-
                 var fullUrl = $"{urlApi}/WaveRelease/ObtenerNombreWaveCache";
-
                 var response = await httpClient.GetAsync(fullUrl);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    NombreWave = await response.Content.ReadAsStringAsync();
+                    var jsonString = await response.Content.ReadAsStringAsync();
+
+                    using var jsonDoc = JsonDocument.Parse(jsonString);
+                    var root = jsonDoc.RootElement;
+
+                    WaveExiste = root.GetProperty("existe").GetBoolean();
+                    NombreWave = root.GetProperty("nombre").GetString();
                 }
                 else
                 {
-                    NombreWave = "Error al obtener nombre";
+                    WaveExiste = false;
+                    NombreWave = "Error al obtener datos";
                 }
             }
             catch
             {
+                WaveExiste = false;
                 NombreWave = "Error de conexión";
             }
         }

@@ -140,9 +140,9 @@ namespace APIWaveRelease.controllers
 
             if (waveCache == null)
             {
-                return Ok("No hay wave en caché");
+                return Ok(new { existe = false, nombre = "No hay wave en caché" });
             }
-            return Ok(waveCache.Schbat);
+            return Ok(new { existe = true, nombre = waveCache.Schbat });
         }
         //
 
