@@ -71,6 +71,29 @@ namespace APIWaveRelease.controllers
         }
         */
 
+        [HttpPost("EliminarCache")]
+        public async Task<IActionResult> EliminarCache()
+        {
+            try
+            {
+                var waveCache = await _context.WaveReleaseCache.ToListAsync();
+
+                if (!waveCache.Any())
+                {
+                    return Ok("La tabla WaveReleaseCache ya está vacía.");
+                }
+
+                _context.WaveReleaseCache.RemoveRange(waveCache);
+                await _context.SaveChangesAsync();
+                return Ok("Datos de WaveReleaseCache eliminados correctamente.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error al eliminar datos de WaveReleaseCache: {ex.Message}");
+                return StatusCode(500, "Error interno al eliminar los datos.");
+            }
+        }
+
         [HttpPost("GuardarCache")]
         public async Task<IActionResult> GuardarCache([FromBody] WaveReleaseKN waveReleaseKN)
         {

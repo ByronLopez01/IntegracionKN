@@ -33,11 +33,19 @@
                 Enviar Datos a WaveRelease
             </button>
         </form>
+        <!-- Botón para eliminar WaveCache -->
+        <hr class="separator">
+        <div class="secondary-action">
+            <p>Otras acciones:</p>
+            <button type="button" class="custom-button custom-button-outline" id="eliminarCacheBtn" onclick="eliminarCache()">
+                Eliminar Datos de WaveCache
+            </button>
+        </div>
     </div>
 </div>
 
 <style>
-    
+
     body {
         overflow-y: hidden;
         margin: 0;
@@ -75,7 +83,6 @@
     }
 
     .modal-content {
-
         text-align: center;
         width: 300px;
         padding: 20px;
@@ -89,27 +96,27 @@
         margin-bottom: 15px;
     }
 
-    .input-modal{
+    .input-modal {
         width: 100%;
         padding: 10px;
         border: 1px solid #ced4da;
         border-radius: 5px;
-        font-size: 16px; 
+        font-size: 16px;
         box-sizing: border-box;
         transition: border-color 0.3s, box-shadow 0.3s;
         background-color: #fff;
     }
 
-    .input-modal:focus, .input-modal:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        outline: none;
-    }
+        .input-modal:focus, .input-modal:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            outline: none;
+        }
 
-    .input-modal::placeholder, .input-modal::placeholder {
-        color: #6c757d;
-        opacity: 1;
-    }
+        .input-modal::placeholder, .input-modal::placeholder {
+            color: #6c757d;
+            opacity: 1;
+        }
 
     .validation-message {
         color: #dc3545;
@@ -143,8 +150,9 @@
         background-color: #ffffff;
         transition: box-shadow 0.3s ease;
     }
+
         .content:hover {
-                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
 
         .content h1 {
@@ -199,6 +207,45 @@
     .alert.show {
         opacity: 1;
     }
+
+    /* Estilos del Boton eliminar Cache */
+    .separator {
+        border: 0;
+        height: 1px;
+        background: #eee;
+        margin: 30px 0;
+    }
+
+    .secondary-action {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+        .secondary-action p {
+            margin-bottom: 10px;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+    .custom-button-outline {
+        background-color: #ffffff;
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+        .custom-button-outline:hover {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .custom-button-outline:disabled {
+            background-color: #f8f9fa;
+            color: #adb5bd;
+            border-color: #ced4da;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
 
 </style>
 
@@ -284,4 +331,52 @@
             btn.disabled = false;
         }
     });
+    /*
+        lOGICA BOTON ELIMINAR WAVECACHE
+    */
+    async function eliminarCache() {
+
+        const confirmacion = window.confirm("¿Estás realmente seguro de que deseas eliminar todos los datos de WaveCache? Esta acción no se puede deshacer.");
+        if (!confirmacion) {
+            return;
+        }
+        const messageContainer = document.getElementById('messageContainer');
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        const btn = document.getElementById('eliminarCacheBtn');
+
+        btn.disabled = true;
+        messageContainer.innerHTML = '';
+
+        try {
+            const response = await fetch('/api/WaveRelease/EliminarCache', {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'Authorization': 'Basic ' + btoa('senad:S3nad'),
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const texto = await response.text();
+            const data = {
+                mensaje: `${response.status} - ${texto}`,
+                esError: !response.ok
+            };
+
+            const alertType = data.esError ? "alert-danger" : "alert-success";
+            messageContainer.innerHTML = `
+                <div class="alert ${alertType}">
+                    ${data.mensaje}
+                </div>
+            `;
+        } catch (error) {
+            messageContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    Error de conexión al servidor: ${error.message}
+                </div>
+            `;
+        } finally {
+            btn.disabled = false;
+        }
+    }
 </script>
