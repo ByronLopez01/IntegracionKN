@@ -41,35 +41,149 @@ namespace APIWaveRelease.controllers
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encodedCredentials);
         }
 
-        /*
-        [HttpPost("EliminarCache")]
-        public async Task<IActionResult> BorrarCache()
+
+        // Endpoint para cerrar la Wave en WaveRelease
+        [HttpPost("CerrarWave")]
+        public async Task<IActionResult> CerrarWave()
         {
-            var waveCache = await _context.WaveReleaseCache.ToListAsync();
-            
-            if (!waveCache.Any())
-                return BadRequest("No hay datos en el cache");
-
-            _context.WaveReleaseCache.RemoveRange(waveCache);
-            await _context.SaveChangesAsync();
-            return Ok("Datos enviados correctamente.");
-        }
-
-        [HttpPost("EnviarCache")]
-        public async Task<IActionResult> EnviarCache()
-        {
-
-            var resultado = await EnviarPostEndpoint();
-
-            if (resultado is OkObjectResult)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                Console.WriteLine("OK. Cargando datos desde el cache ");
-                return Ok("se cargo desde el cache."); 
-            }
+                // Obtener wave activa actualmente
+                var waveActiva = await _context.WaveRelease
+                    .AsNoTracking()
+                    .Where(wr => wr.estadoWave == true)
+                    .Select(wr => wr.Wave)
+                    .FirstOrDefaultAsync();
 
-            return Ok();
+                if (string.IsNullOrEmpty(waveActiva))
+                {
+                    return Ok("No hay waves activas para cerrar!");
+                }
+
+                // Obtener los NumOrden distintos de la wave activa.
+                var ordenes = await _context.WaveRelease
+                    .Where(wr => wr.estadoWave == true && wr.Wave == waveActiva)
+                    .Select(wr => wr.NumOrden)
+                    .Distinct()
+                    .ToListAsync();
+
+                if (!ordenes.Any())
+                {
+                    return Ok("No hay órdenes activas para cancelar.");
+                }
+
+                // JSON A ENVIAR
+                var orderCancelSeg = ordenes.Select(ordnum => new
+                {
+                    cancod = "CANCEL-SHPALOCOPR-UNALLOC",
+                    ordnum = ordnum,
+                    schbat = waveActiva
+                }).ToList();
+
+                var payload = new
+                {
+                    ORDER_CANCEL = new
+                    {
+                        wh_id = "CLPUD01",
+                        wcs_id = "WCS_ID",
+                        ORDER_CANCEL_SEG = orderCancelSeg,
+                        msg_id = "MSG000000000100520",
+                        trandt = DateTime.UtcNow.AddHours(-3).ToString("yyyyMMddHHmmss")
+                    }
+                };
+
+
+
+                // URL de LUCA
+                var urlLucaBase = _configuration["ServiceURls:luca"];
+                var urlLuca = $"{urlLucaBase}/api/sort/OrderUpdate";
+
+
+                //POST a LUCA
+                var httpClient = _httpClientFactory.CreateClient("apiLuca");
+                SetAuthorizationHeader(httpClient);
+
+                var jsonContent = JsonSerializer.Serialize(payload);
+                _logger.LogInformation($"JSON a enviar a LUCA (CerrarWave): {jsonContent}");
+                var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                
+                var response = await httpClient.PostAsync(urlLuca, httpContent);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDetails = await response.Content.ReadAsStringAsync();
+                    _logger.LogError($"Error al enviar cancelación a Luca. Status: {response.StatusCode}. Detalles: {errorDetails}");
+                    return StatusCode((int)response.StatusCode, $"Error al enviar cancelación a Luca. Detalles: {errorDetails}");
+                }
+
+
+                
+                // Cambiar estado de la Wave en BD Sorter
+                var waveReleases = await _context.WaveRelease.Where(wr => wr.estadoWave == true).ToListAsync();
+
+                foreach (var waveRelease in waveReleases)
+                {
+                    waveRelease.estadoWave = false; // Cambiar el estado a procesado
+                    
+                }
+                _context.WaveRelease.UpdateRange(waveReleases);
+                //await _context.SaveChangesAsync();
+
+                var ordenesEnProceso = await _context.OrdenEnProceso
+                    .Where(o => o.wave == waveActiva && o.estado == true)
+                    .ToListAsync();
+
+                if (ordenesEnProceso.Count != 0)
+                {
+                    _logger.LogInformation("Se encontraron Dtlnum activos para la wave.");
+                    foreach (var orden in ordenesEnProceso)
+                    {
+                        _logger.LogInformation($"Procesando Dtlnum: {orden.dtlNumber}");
+                        orden.estado = false; // Cambiar el estado a procesado
+                        orden.estadoLuca = false; // Cambiar el estado a procesado en Luca
+                    }
+                    _context.OrdenEnProceso.UpdateRange(ordenesEnProceso);
+                    //await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    _logger.LogInformation("No se encontraron Dtlnum activos para la wave.");
+                }
+
+                    // Guardar los cambios en la base de datos
+                    await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                
+
+                return Ok($"La Wave ({waveActiva}) ha sido cerrada correctamente.");
+            }
+            catch (JsonException jsonEx)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError($"Error al serializar el JSON para enviar a Luca: {jsonEx.Message}");
+                return StatusCode(500, $"Error al serializar el JSON para enviar a Luca. {jsonEx.Message}");
+            }
+            catch (HttpRequestException httpEx)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError($"Error al enviar la cancelación a Luca: {httpEx.Message}");
+                return StatusCode(500, $"Error al enviar la cancelación a Luca. {httpEx.Message}");
+            }
+            catch (DbUpdateException dbEx)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError($"Error al cerrar las waves: {dbEx.Message}");
+                return StatusCode(500, $"Error al cerrar las waves. {dbEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError($"Error al cerrar las waves: {ex.Message}");
+                return StatusCode(500, $"Error interno al cerrar las waves. {ex.Message}");
+            }
         }
-        */
 
         [HttpPost("EliminarCache")]
         public async Task<IActionResult> EliminarCache()
@@ -345,6 +459,7 @@ namespace APIWaveRelease.controllers
         {
             var waveReleases = await _context.WaveRelease
                 .Where(w => w.NumOrden == idOrdenTrabajo)
+                .AsNoTracking() // Para mejorar el rendimiento de consultas de solo lectura
                 .ToListAsync();
 
             if (waveReleases == null || waveReleases.Count == 0)

@@ -68,17 +68,17 @@ namespace APILPNPicking.controllers
 
             // Verificar si existen dtlnum duplicados en los datos recibidos
             var allDtlNumbers = request.SORT_INDUCTION.LOAD_HDR_SEG
-                                        .SelectMany(hdr => hdr.LOAD_DTL_SEG)
-                                        .SelectMany(dtl => dtl.SUBNUM_SEG)
-                                        .Select(sub => sub.dtlnum)
-                                        .Where(dtlnum => !string.IsNullOrEmpty(dtlnum))
-                                        .ToList();
+                .SelectMany(hdr => hdr.LOAD_DTL_SEG)
+                .SelectMany(dtl => dtl.SUBNUM_SEG)
+                .Select(sub => sub.dtlnum)
+                .Where(dtlnum => !string.IsNullOrEmpty(dtlnum))
+                .ToList();
 
             var duplicateDtl = allDtlNumbers
-                                    .GroupBy(dtlnum => dtlnum)
-                                    .Where(g => g.Count() > 1)
-                                    .Select(g => g.Key)
-                                    .ToList();
+                .GroupBy(dtlnum => dtlnum)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
 
             if (duplicateDtl.Any())
             {
@@ -92,10 +92,11 @@ namespace APILPNPicking.controllers
 
             // Obtener la Wave activa actual
             var activeWave = await _context.WaveRelease
-                                    .Where(w => w.estadoWave)
-                                    .OrderBy(w => w.Id)
-                                    .Select(w => w.Wave)
-                                    .FirstOrDefaultAsync();
+                .Where(w => w.estadoWave)
+                .OrderBy(w => w.Id)
+                .Select(w => w.Wave)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
 
             if (string.IsNullOrEmpty(activeWave))
             {
@@ -108,12 +109,12 @@ namespace APILPNPicking.controllers
 
             // Extraer los dtlNumbers del request
             var dtlNumbers = request.SORT_INDUCTION.LOAD_HDR_SEG
-                                .SelectMany(hdr => hdr.LOAD_DTL_SEG)
-                                .SelectMany(dtl => dtl.SUBNUM_SEG)
-                                .Select(sub => sub.dtlnum)
-                                .Where(dtlnum => !string.IsNullOrEmpty(dtlnum))
-                                .Distinct()
-                                .ToList();
+                .SelectMany(hdr => hdr.LOAD_DTL_SEG)
+                .SelectMany(dtl => dtl.SUBNUM_SEG)
+                .Select(sub => sub.dtlnum)
+                .Where(dtlnum => !string.IsNullOrEmpty(dtlnum))
+                .Distinct()
+                .ToList();
 
             // Verificar si alguno de los dtlNumbers ya existe en la tabla OrdenEnProceso para la Wave activa
             if (dtlNumbers.Any())
@@ -122,6 +123,7 @@ namespace APILPNPicking.controllers
                     .Where(o => o.wave == activeWave && dtlNumbers.Contains(o.dtlNumber))
                     .Select(o => o.dtlNumber)
                     .Distinct()
+                    .AsNoTracking()
                     .ToListAsync();
 
                 if (existingNumbers.Count > 0)
@@ -189,6 +191,31 @@ namespace APILPNPicking.controllers
                         return NotFound($"Error. No se encontró un WaveRelease coincidente para la orden {loadDtlSeg.ordnum} y producto {loadDtlSeg.prtnum}.");
                     }
 
+
+                    // Verificar que la Wave de la orden está activa en WaveRelease
+                    if (waveRelease.EstadoWave == false)
+                    {
+                        _logger.LogInformation(
+                            "La familia {Familia} de la orden {Ordnum} está inactiva (estadoWave = 0). Rechazando dtlnum correspondientes.",
+                            waveRelease.Familia, loadDtlSeg.ordnum);
+
+                        // Se rechaza cada dtlnum asociado al detalle
+                        if (loadDtlSeg.SUBNUM_SEG != null)
+                        {
+                            foreach (var subnumSeg in loadDtlSeg.SUBNUM_SEG)
+                            {
+                                if (!string.IsNullOrEmpty(subnumSeg.dtlnum))
+                                {
+                                    lpn_rechazados.Add(subnumSeg.dtlnum);
+                                }
+                            }
+                        }
+                        _logger.LogInformation("Continuando con el siguiente detalle de carga ya que la Wave está inactiva.");
+                        continue; // Continuar con el siguiente detalle de carga si la Wave está inactiva
+                    }
+                    
+
+
                     // Consultar la API de FamilyMaster
                     _logger.LogInformation($"Consultando FamilyMaster para la tienda: {waveRelease.Tienda} y familia: {waveRelease.Familia}");
 
@@ -248,7 +275,6 @@ namespace APILPNPicking.controllers
                         _logger.LogInformation($"Procesando SUBNUM_SEG con dtlnum: {subnumSeg.dtlnum} y subnum: {subnumSeg.subnum}");
 
                         var cantidadLPN = subnumSeg.untqty;
-
 
 
                         // 1. Obtener la cantidad ya registrada para la orden y producto en la wave activa
@@ -365,7 +391,7 @@ namespace APILPNPicking.controllers
                                     tienda = waveRelease.Tienda
                                 };
 
-
+                                /*
                                 // ENVÍO DE JSON A LUCA REGISTRO POR REGISTRO
                                 var jsonContent = JsonConvert.SerializeObject(lucaRequest);
 
@@ -384,26 +410,8 @@ namespace APILPNPicking.controllers
                                 {
                                     throw new Exception($"Error al enviar datos del DTLNUM {lucaRequest.dtlNumber} a LUCA. StatusCode: {response.StatusCode}");
                                 }
+                                */
                                 
-
-                                /*
-                                try
-                                {
-                                    var response = await httpClient.PostAsync(urlLuca, httpContent);
-                                    if (response.IsSuccessStatusCode)
-                                    {
-                                        _logger.LogInformation($"Ok. DTLNUM {lucaRequest.dtlNumber} Enviado correctamente a LUCA.");
-                                    }
-                                    else
-                                    {
-                                        _logger.LogInformation($"Error. DTLNUM {lucaRequest.dtlNumber} Fallo al enviar a LUCA.");
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    _logger.LogError($"Error. Fallo al enviar datos del JSON a LUCA: {ex.Message}");
-                                    return StatusCode(500, $"Error. Fallo al enviar datos del JSON a LUCA: {ex.Message}");
-                                }*/
                             }
                             else
                             {
@@ -446,10 +454,32 @@ namespace APILPNPicking.controllers
                 }
             }
 
+
+            // Contar el total de LPN recibidos
+            var totalLpnRecibidos = request.SORT_INDUCTION.LOAD_HDR_SEG
+                .SelectMany(hdr => hdr.LOAD_DTL_SEG)
+                .SelectMany(dtl => dtl.SUBNUM_SEG)
+                .Select(sub => sub.dtlnum)
+                .Where(dtlnum => !string.IsNullOrEmpty(dtlnum))
+                .Distinct()
+                .Count();
+
+            // Si todos los LPN fueron rechazados, devolver un mensaje de error
+            if (lpn_rechazados.Count == totalLpnRecibidos && totalLpnRecibidos > 0)
+            {
+                _logger.LogInformation($"Error. Todos los LPN fueron rechazados. LPNs Rechazados: {string.Join(", ", lpn_rechazados)}");
+                return BadRequest(new
+                {
+                    msg = "Todos los LPNs fueron rechazados.",
+                    lpn_rechazados
+                });
+            }
+
+            // Si se lograron procesar, devolver un mensaje de éxito con los LPN rechazados si los hay
             _logger.LogInformation($"Proceso de LPN completado. LPNs Rechazados: {string.Join(", ", lpn_rechazados)}");
             return Ok(new
             {
-                msg = "Proceso de LPN completado.",
+                msg = "Ok. Proceso de LPN completado.",
                 lpn_rechazados = lpn_rechazados.Count != 0 ? lpn_rechazados : ["No se rechazaron LPNs."],
             });
         }

@@ -16,6 +16,8 @@ namespace APIWaveRelease.data
 
         public DbSet<WaveReleaseCache> WaveReleaseCache { get; set; }
 
+        public DbSet<OrdenEnProceso> OrdenEnProceso { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -169,6 +171,53 @@ namespace APIWaveRelease.data
                 entity.Property(e => e.MovZoneCode).HasMaxLength(50);
                 entity.Property(e => e.Conveyable).HasMaxLength(50);
                 entity.Property(e => e.CubicVol).HasColumnType("decimal(18,2)");
+            });
+
+
+            modelBuilder.Entity<OrdenEnProceso>(entity =>
+            {
+                entity.ToTable("OrdenEnProceso");
+                entity.HasKey(e => e.id);
+                entity.Property(e => e.codMastr)
+                    .IsRequired()
+                    .HasMaxLength(50);
+                entity.Property(e => e.codInr)
+                    .IsRequired()
+                    .HasMaxLength(50);
+                entity.Property(e => e.cantMastr)
+                    .IsRequired();
+                entity.Property(e => e.cantInr)
+                    .IsRequired();
+                entity.Property(e => e.cantidad)
+                    .IsRequired();
+                entity.Property(e => e.familia)
+                    .IsRequired()
+                    .HasMaxLength(50);
+                entity.Property(e => e.numOrden)
+                    .IsRequired()
+                    .HasMaxLength(50);
+                entity.Property(e => e.codProducto)
+                    .IsRequired()
+                    .HasMaxLength(50);
+                entity.Property(e => e.wave)
+                   .IsRequired()
+                   .HasMaxLength(50);
+                entity.Property(e => e.cantidadProcesada)
+                   .IsRequired();
+                entity.Property(e => e.cantidadLPN)
+                   .IsRequired();
+                entity.Property(e => e.numSalida)
+                   .IsRequired();
+                entity.Property(e => e.numTanda)
+                   .IsRequired();
+                entity.Property(e => e.dtlNumber)
+                   .HasMaxLength(50);
+                entity.Property(e => e.subnum)
+                   .HasMaxLength(50);
+                entity.Property(e => e.estadoLuca)
+                   .IsRequired();
+                entity.Property(e => e.tienda) 
+                  .HasMaxLength(50);
             });
 
         }
