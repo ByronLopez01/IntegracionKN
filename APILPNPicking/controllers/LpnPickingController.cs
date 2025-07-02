@@ -373,7 +373,7 @@ namespace APILPNPicking.controllers
                                     tienda = waveRelease.Tienda
                                 };
 
-                                /*
+                                
                                 // ENVÍO DE JSON A LUCA REGISTRO POR REGISTRO
                                 var jsonContent = JsonConvert.SerializeObject(lucaRequest);
 
@@ -392,7 +392,7 @@ namespace APILPNPicking.controllers
                                 {
                                     throw new Exception($"Error al enviar datos del DTLNUM {lucaRequest.dtlNumber} a LUCA. StatusCode: {response.StatusCode}");
                                 }
-                                */
+                                
                                 
                             }
                             else
