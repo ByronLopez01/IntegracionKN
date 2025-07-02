@@ -92,11 +92,11 @@ namespace APILPNPicking.controllers
 
             // Obtener la Wave activa actual
             var activeWave = await _context.WaveRelease
-                                    .Where(w => w.estadoWave)
-                                    .OrderBy(w => w.Id)
-                                    .Select(w => w.Wave)
-                                    .AsNoTracking()
-                                    .FirstOrDefaultAsync();
+                .Where(w => w.estadoWave)
+                .OrderBy(w => w.Id)
+                .Select(w => w.Wave)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
 
             if (string.IsNullOrEmpty(activeWave))
             {
@@ -201,11 +201,11 @@ namespace APILPNPicking.controllers
                             {
                                 if (!string.IsNullOrEmpty(subnumSeg.dtlnum))
                                 {
+                                    _logger.LogInformation($"DTLNUM ({subnumSeg.dtlnum}) rechazado. Continuando con el siguiente detalle de carga ya que la Familia esta completa.");
                                     lpn_rechazados.Add(subnumSeg.dtlnum);
                                 }
                             }
                         }
-                        _logger.LogInformation("Continuando con el siguiente detalle de carga ya que la Wave está inactiva.");
                         continue; // Continuar con el siguiente detalle de carga si la Wave está inactiva
                     }
                     
@@ -399,7 +399,7 @@ namespace APILPNPicking.controllers
                                     tienda = waveRelease.Tienda
                                 };
 
-                                /*
+                                
                                 // ENVÍO DE JSON A LUCA REGISTRO POR REGISTRO
                                 var jsonContent = JsonConvert.SerializeObject(lucaRequest);
 
@@ -418,7 +418,7 @@ namespace APILPNPicking.controllers
                                 {
                                     throw new Exception($"Error al enviar datos del DTLNUM {lucaRequest.dtlNumber} a LUCA. StatusCode: {response.StatusCode}");
                                 }
-                                */
+                                
                                 
                             }
                             else
