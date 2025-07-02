@@ -95,6 +95,7 @@ namespace APILPNPicking.controllers
                                     .Where(w => w.estadoWave)
                                     .OrderBy(w => w.Id)
                                     .Select(w => w.Wave)
+                                    .AsNoTracking()
                                     .FirstOrDefaultAsync();
 
             if (string.IsNullOrEmpty(activeWave))
@@ -115,21 +116,17 @@ namespace APILPNPicking.controllers
                                 .Distinct()
                                 .ToList();
 
-            // Verificar si alguno de los dtlNumbers ya existe en la tabla OrdenEnProceso para la Wave activa
-            if (dtlNumbers.Any())
+
+            // Obtener los dtlNumbers ya existentes en la Base de Datos.
+            var existingNumbers = new HashSet<string>();
+            if (dtlNumbers.Count() != 0)
             {
-                var existingNumbers = await _context.ordenesEnProceso
+                existingNumbers = _context.ordenesEnProceso
                     .Where(o => o.wave == activeWave && dtlNumbers.Contains(o.dtlNumber))
+                    .AsNoTracking()
                     .Select(o => o.dtlNumber)
                     .Distinct()
-                    .ToListAsync();
-
-                if (existingNumbers.Count > 0)
-                {
-                    var msg = $"Error. El dtlnum '{string.Join(", ", existingNumbers)}' ya existe en la Wave activa ({activeWave}) de OrdenEnProceso.";
-                    _logger.LogError(msg);
-                    return BadRequest(msg);
-                }
+                    .ToHashSet();
             }
 
             _logger.LogInformation("Datos válidos. Procesando el encabezado de carga.");
@@ -247,15 +244,26 @@ namespace APILPNPicking.controllers
                     {
                         _logger.LogInformation($"Procesando SUBNUM_SEG con dtlnum: {subnumSeg.dtlnum} y subnum: {subnumSeg.subnum}");
 
+
+
+                        // Verificar si el dtlnum ya existe en la base de datos (DTLNUM DUPLICADO)
+                        if (!string.IsNullOrEmpty(subnumSeg.dtlnum) && existingNumbers.Contains(subnumSeg.dtlnum))
+                        {
+                            _logger.LogWarning($"LPN rechazado: El dtlnum '{subnumSeg.dtlnum}' ya existe en la Wave activa ({activeWave}) de OrdenEnProceso.");
+                            lpn_rechazados.Add(subnumSeg.dtlnum);
+                            continue; // Saltar este dtlnum y seguir con el siguiente
+                        }
+
+
+
                         var cantidadLPN = subnumSeg.untqty;
-
-
 
                         // 1. Obtener la cantidad ya registrada para la orden y producto en la wave activa
                         var cantidadRegistrada = _context.ordenesEnProceso
                             .Where(o => o.wave == waveRelease.Wave
                                 && o.numOrden == waveRelease.NumOrden
                                 && o.codProducto == waveRelease.CodProducto)
+                            .AsNoTracking()
                             .Sum(o => o.cantidadLPN);
 
                         _logger.LogInformation(
@@ -365,11 +373,11 @@ namespace APILPNPicking.controllers
                                     tienda = waveRelease.Tienda
                                 };
 
-
+                                /*
                                 // ENVÍO DE JSON A LUCA REGISTRO POR REGISTRO
                                 var jsonContent = JsonConvert.SerializeObject(lucaRequest);
 
-                                _logger.LogInformation($"JSON LUCA: {jsonContent}");
+                                //_logger.LogInformation($"JSON LUCA: {jsonContent}");
 
                                 var httpClient = _httpClientFactory.CreateClient("apiLuca");
                                 var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
@@ -384,31 +392,14 @@ namespace APILPNPicking.controllers
                                 {
                                     throw new Exception($"Error al enviar datos del DTLNUM {lucaRequest.dtlNumber} a LUCA. StatusCode: {response.StatusCode}");
                                 }
+                                */
                                 
-
-                                /*
-                                try
-                                {
-                                    var response = await httpClient.PostAsync(urlLuca, httpContent);
-                                    if (response.IsSuccessStatusCode)
-                                    {
-                                        _logger.LogInformation($"Ok. DTLNUM {lucaRequest.dtlNumber} Enviado correctamente a LUCA.");
-                                    }
-                                    else
-                                    {
-                                        _logger.LogInformation($"Error. DTLNUM {lucaRequest.dtlNumber} Fallo al enviar a LUCA.");
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    _logger.LogError($"Error. Fallo al enviar datos del JSON a LUCA: {ex.Message}");
-                                    return StatusCode(500, $"Error. Fallo al enviar datos del JSON a LUCA: {ex.Message}");
-                                }*/
                             }
                             else
                             {
                                 // Buscar el registro en la tabla OrdenEnProceso
                                 var ordenFiltrada = _context.ordenesEnProceso
+                                    .AsNoTracking()
                                     .FirstOrDefault(o =>
                                     o.wave == waveRelease.Wave &&
                                     o.numOrden == waveRelease.NumOrden &&
