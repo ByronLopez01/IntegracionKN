@@ -61,17 +61,13 @@ namespace APIWaveRelease.controllers
                     return Ok("No hay waves activas para cerrar!");
                 }
 
-                // Obtener los NumOrden distintos de la wave activa.
+
+                // Obtener los NumOrden unicos de la wave activa.
                 var ordenes = await _context.WaveRelease
                     .Where(wr => wr.estadoWave == true && wr.Wave == waveActiva)
                     .Select(wr => wr.NumOrden)
                     .Distinct()
                     .ToListAsync();
-
-                if (!ordenes.Any())
-                {
-                    return Ok("No hay órdenes activas para cancelar.");
-                }
 
                 // JSON A ENVIAR
                 var orderCancelSeg = ordenes.Select(ordnum => new
@@ -119,25 +115,34 @@ namespace APIWaveRelease.controllers
                 }
 
 
-                
-                // Cambiar estado de la Wave en BD Sorter
+
+
+
+                // Cambiar estado de todas las ordenes en WaveRelease a procesado
                 var waveReleases = await _context.WaveRelease.Where(wr => wr.estadoWave == true).ToListAsync();
 
                 foreach (var waveRelease in waveReleases)
                 {
                     waveRelease.estadoWave = false; // Cambiar el estado a procesado
-                    
+
                 }
                 _context.WaveRelease.UpdateRange(waveReleases);
                 //await _context.SaveChangesAsync();
 
+                /*
                 var ordenesEnProceso = await _context.OrdenEnProceso
                     .Where(o => o.wave == waveActiva && o.estado == true)
+                    .ToListAsync();
+                */
+
+                // Cambiar el estado de las ordenes en OrdenEnProceso a procesado
+                var ordenesEnProceso = await _context.OrdenEnProceso
+                    .Where(o => o.estado == true)
                     .ToListAsync();
 
                 if (ordenesEnProceso.Count != 0)
                 {
-                    _logger.LogInformation("Se encontraron Dtlnum activos para la wave.");
+                    _logger.LogInformation("Se encontraron Dtlnum activos.");
                     foreach (var orden in ordenesEnProceso)
                     {
                         _logger.LogInformation($"Procesando Dtlnum: {orden.dtlNumber}");
@@ -149,11 +154,14 @@ namespace APIWaveRelease.controllers
                 }
                 else
                 {
-                    _logger.LogInformation("No se encontraron Dtlnum activos para la wave.");
+                    _logger.LogInformation("No se encontraron Dtlnum activos.");
                 }
 
-                    // Guardar los cambios en la base de datos
-                    await _context.SaveChangesAsync();
+
+
+
+                // Guardar los cambios en la base de datos
+                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
                 
 
