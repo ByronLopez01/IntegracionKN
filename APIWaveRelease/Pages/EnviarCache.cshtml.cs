@@ -1,24 +1,23 @@
+using APIWaveRelease.models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
 using System.Text;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
 
 namespace APIWaveRelease.Pages
 {
     [AllowAnonymous]
+    [IgnoreAntiforgeryToken(Order = 1001)]
     public class EnviarCacheModel : PageModel
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
 
-        //
-        public bool WaveExiste { get; set; }
-        public string NombreWave { get; set; }
-
-        //
+        // Las propiedades WaveExiste y NombreWave ya no son necesarias aquí
+        public string AdminPassword { get; private set; }
 
         public EnviarCacheModel(
             IHttpClientFactory httpClientFactory,
@@ -28,40 +27,33 @@ namespace APIWaveRelease.Pages
             _configuration = configuration;
         }
 
-        //
-        public async Task OnGetAsync()
+        // El método OnGet ahora es síncrono y más simple
+        public void OnGet()
         {
-            try
-            {
-                var httpClient = _httpClientFactory.CreateClient();
-                var urlApi = _configuration["ApiUrl"];
-                var fullUrl = $"{urlApi}/WaveRelease/ObtenerNombreWaveCache";
-                var response = await httpClient.GetAsync(fullUrl);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var jsonString = await response.Content.ReadAsStringAsync();
-
-                    using var jsonDoc = JsonDocument.Parse(jsonString);
-                    var root = jsonDoc.RootElement;
-
-                    WaveExiste = root.GetProperty("existe").GetBoolean();
-                    NombreWave = root.GetProperty("nombre").GetString();
-                }
-                else
-                {
-                    WaveExiste = false;
-                    NombreWave = "Error al obtener datos";
-                }
-            }
-            catch
-            {
-                WaveExiste = false;
-                NombreWave = "Error de conexión";
-            }
+            // Lógica para obtener la contraseña del administrador
+            var usuariosPermitidos = _configuration.GetSection("UsuariosPermitidos").Get<List<UsuarioConfig>>();
+            var adminUser = usuariosPermitidos?.FirstOrDefault(u => u.Usuario == "kn");
+            AdminPassword = adminUser?.Contrasena ?? string.Empty;
         }
 
-        //
+        // Page Handler para validar credenciales de login
+        public IActionResult OnPostValidarUsuario([FromBody] UsuarioModel credenciales)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var usuariosPermitidos = _configuration.GetSection("UsuariosPermitidos")
+                                                  .Get<List<UsuarioConfig>>();
+
+            var usuarioValido = usuariosPermitidos?.FirstOrDefault(u =>
+                u.Usuario == credenciales.Usuario &&
+                u.Contrasena == credenciales.Contrasena);
+
+            return usuarioValido != null ? new OkResult() : new UnauthorizedResult();
+        }
+
 
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnPostAsync()

@@ -1,6 +1,21 @@
 ﻿@page "/api/WaveRelease/EnviarWave"
 @model APIWaveRelease.Pages.EnviarCacheModel
 
+@section Scripts {
+    <link rel="stylesheet" href="~/css/styles.css" />
+}
+
+<!-- Contenedor del Modal -->
+<div id="customModalOverlay" class="modal-overlay" style="display: none;">
+    <div id="customModalContent" class="modal-content">
+        <h3 id="customModalTitle"></h3>
+        <p id="customModalMessage"></p>
+        <div id="customModalActions" class="modal-actions">
+            <!-- botones -->
+        </div>
+    </div>
+</div>
+
 <!-- Popup de Login -->
 <div id="loginModal" class="modal">
     <div class="modal-content">
@@ -17,240 +32,75 @@
             <div class="validation-message" id="passError"></div>
         </div>
 
-        <button type="submit" onclick="validarCredenciales()" class="custom-button">Ingresar</button>
+        <button type="submit" onclick="validarCredenciales()" class="custom-button custom-button-filled">Ingresar</button>
     </div>
 </div>
+
+
 <!-- html -->
 <div class="container" id="mainContent" style="display: none;">
-    <div class="content">
-        <h1>Envío de WaveCache a WaveRelease</h1>
+    <div class="tabs-container">
+        <div class="tabs">
+            <div class="tab active" id="tabEnviar" onclick="showTab('enviar')">Enviar a WaveRelease</div>
+            <div class="tab" id="tabExtra" onclick="showAdminTab()">
+                Wave Admin <span id="adminLockIcon" class="lock-icon"></span>
+            </div>
+            <!-- <div class="tab" id="tabDB" onclick="showTab('db')">???</div> -->
+        </div>
+        <div class="tab-content" id="tabContentEnviar">
+            <h1>Envío de WaveCache a WaveRelease</h1>
 
-        <div id="messageContainer"></div>
+            @await Component.InvokeAsync("WaveStatus")
 
-        <form method="post" id="myForm">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="custom-button" id="submitBtn">
-                Enviar Datos a WaveRelease
-            </button>
-        </form>
-        <!-- Botón para eliminar WaveCache -->
-        <hr class="separator">
-        <div class="secondary-action">
-            <p>Otras acciones:</p>
-            <button type="button" class="custom-button custom-button-outline" id="eliminarCacheBtn" onclick="eliminarCache()">
-                Eliminar Datos de WaveCache
-            </button>
+            <div id="messageContainer"></div>
+            <div class="loader" id="loaderEnviar" style="display: none;"></div>
+            <form method="post" id="myForm" class="tab-form">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="custom-button custom-button-filled" id="submitBtn">
+                    Enviar Datos a WaveRelease
+                </button>
+            </form>
+        </div>
+        <div class="tab-content" id="tabContentExtra" style="display:none;">
+            <h1>Acciones Admin Wave</h1>
+            <div class="alert alert-warning" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                </svg>
+                <div>
+                    <strong>Cuidado:</strong> Las siguientes acciones son irreversibles.
+                </div>
+            </div>
+            <div id="messageContainerExtra"></div>
+            <div class="loader" id="loaderExtra" style="display: none;"></div>
+            <div class="action-group">
+                <button type="button" class="custom-button custom-button-outline custom-button-danger" id="eliminarCacheBtn" onclick="eliminarCache()">
+                    Eliminar Datos de WaveCache
+                </button>
+                <hr class="separator">
+                <button type="button" class="custom-button custom-button-outline custom-button-danger" id="cerrarWaveBtn" onclick="cerrarWave()">
+                    Cerrar WaveRelease
+                </button>
+            </div>
+        </div>
+        <div class="tab-content" id="tabContentDB" style="display:none;">
+            <h2>Acciones Vistas BD</h2>
+            <div id="messageContainerDB"></div>
+            <div class="loader" id="loaderDB" style="display: none;"></div>
         </div>
     </div>
 </div>
 
-<style>
 
-    body {
-        overflow-y: hidden;
-        margin: 0;
-        padding: 0;
-        /* background-color: #002868; */
-        background-color: #001434;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    .navbar {
-        display: none;
-    }
-
-    .footer {
-        display: none;
-    }
-
-    h3 {
-        font-size: 20px;
-    }
-
-    /* Estilos del login-POPUP */
-
-    .modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        background: transparent;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-    }
-
-    .modal-content {
-        text-align: center;
-        width: 300px;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-        background-color: #f9f9f9;
-        margin: 0 10px;
-    }
-
-    .form-group {
-        margin-bottom: 15px;
-    }
-
-    .input-modal {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ced4da;
-        border-radius: 5px;
-        font-size: 16px;
-        box-sizing: border-box;
-        transition: border-color 0.3s, box-shadow 0.3s;
-        background-color: #fff;
-    }
-
-        .input-modal:focus, .input-modal:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-            outline: none;
-        }
-
-        .input-modal::placeholder, .input-modal::placeholder {
-            color: #6c757d;
-            opacity: 1;
-        }
-
-    .validation-message {
-        color: #dc3545;
-        font-size: 0.875em;
-        height: 20px;
-    }
-
-    .message-error {
-        color: #dc3545;
-        margin-bottom: 15px;
-        min-height: 20px;
-    }
-
-    /* Estilos del HTML */
-
-    .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        flex-direction: column;
-    }
-
-    .content {
-        text-align: center;
-        max-width: 600px;
-        width: 100%;
-        padding: 40px;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        border-radius: 8px;
-        background-color: #ffffff;
-        transition: box-shadow 0.3s ease;
-    }
-
-        .content:hover {
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
-
-        .content h1 {
-            font-size: 24px;
-            color: #343a40;
-            margin-bottom: 20px;
-        }
-
-    .custom-button {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-        position: relative;
-        transition: background-color 0.3s, box-shadow 0.3s;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-
-        .custom-button:hover {
-            background-color: #0056b3;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        }
-
-        .custom-button:disabled {
-            background-color: #6c757d;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-    .alert {
-        padding: 15px;
-        margin-bottom: 20px;
-        border: 1px solid transparent;
-        border-radius: 4px;
-    }
-
-    .alert-success {
-        color: #155724;
-        background-color: #d4edda;
-        border-color: #c3e6cb;
-    }
-
-    .alert-danger {
-        color: #721c24;
-        background-color: #f8d7da;
-        border-color: #f5c6cb;
-    }
-
-    .alert.show {
-        opacity: 1;
-    }
-
-    /* Estilos del Boton eliminar Cache */
-    .separator {
-        border: 0;
-        height: 1px;
-        background: #eee;
-        margin: 30px 0;
-    }
-
-    .secondary-action {
-        margin-top: 20px;
-        text-align: center;
-    }
-
-        .secondary-action p {
-            margin-bottom: 10px;
-            color: #6c757d;
-            font-size: 0.9em;
-        }
-
-    .custom-button-outline {
-        background-color: #ffffff;
-        color: #dc3545;
-        border: 1px solid #dc3545;
-    }
-
-        .custom-button-outline:hover {
-            background-color: #f8d7da;
-            color: #721c24;
-            border-color: #f5c6cb;
-        }
-
-        .custom-button-outline:disabled {
-            background-color: #f8f9fa;
-            color: #adb5bd;
-            border-color: #ced4da;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-</style>
 
 <script>
-        async function validarCredenciales() {
+    let isAdminAuthenticated = false;
+    const icons = {
+        locked: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/></svg>`,
+        unlocked: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-unlock-fill" viewBox="0 0 16 16"><path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2"/></svg>`
+    };
+
+    async function validarCredenciales() {
         // Resetear mensajes de error
         document.querySelectorAll('.validation-message').forEach(e => e.textContent = '');
         document.getElementById('loginMessage').textContent = '';
@@ -284,17 +134,34 @@
         }
     }
 
+    // Habilitar envío con "Enter" en el modal de login
+    document.getElementById('username').addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Evita el comportamiento por defecto
+            validarCredenciales();
+        }
+    });
+
+    document.getElementById('password').addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Evita el comportamiento por defecto
+            validarCredenciales();
+        }
+    });
+
     /*
-      lOGICA BOTON
+      LOGICA ENVIAR CACHE
     */
-    document.getElementById('myForm').addEventListener('submit', async function(e) {
+    document.getElementById('myForm').addEventListener('submit', async function (e) {
         e.preventDefault();
 
         const btn = document.getElementById('submitBtn');
+        const loader = document.getElementById('loaderEnviar');
         const messageContainer = document.getElementById('messageContainer');
         const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
         btn.disabled = true;
+        loader.style.display = 'block';
         messageContainer.innerHTML = '';
 
         try {
@@ -329,33 +196,56 @@
             `;
         } finally {
             btn.disabled = false;
+            loader.style.display = 'none';
         }
     });
     /*
-        lOGICA BOTON ELIMINAR WAVECACHE
+        LOGICA BOTON ELIMINAR WAVECACHE
     */
     async function eliminarCache() {
 
-        const waveExiste = @Model.WaveExiste.ToString().ToLower();
-
-        if (!waveExiste) {
-            alert("La WaveCache ya está limpia. No hay datos para eliminar.");
-            return;
-        }
-
-        const nombreWave = @Json.Serialize(Model.NombreWave);
-        const confirmacion = window.confirm(`¿Estás seguro de que deseas eliminar todos los datos de la wave '${nombreWave}'? Esta acción no se puede deshacer.`);
-
-        if (!confirmacion) {
-            return;
-        }
-        const messageContainer = document.getElementById('messageContainer');
+        const messageContainer = document.getElementById('messageContainerExtra');
+        const loader = document.getElementById('loaderExtra');
         const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
         const btn = document.getElementById('eliminarCacheBtn');
 
         btn.disabled = true;
+        loader.style.display = 'block';
         messageContainer.innerHTML = '';
 
+        let cacheInfo;
+        try {
+            const response = await fetch('/api/WaveRelease/ObtenerNombreWaveCache');
+            if (!response.ok) {
+                throw new Error('No se pudo verificar el estado de la caché.');
+            }
+            cacheInfo = await response.json();
+        } catch (error) {
+            messageContainer.innerHTML = `<div class="alert alert-danger">Error al verificar la caché: ${error.message}</div>`;
+            loader.style.display = 'none';
+            btn.disabled = false;
+            return;
+        }
+
+        // Si la caché no existe, mostrar mensaje y salir
+        if (!cacheInfo.existe) {
+            showCustomAlert("Información", "La WaveCache ya está limpia. No hay datos para eliminar.");
+            loader.style.display = 'none';
+            btn.disabled = false;
+            return;
+        }
+
+        // Si la caché existe, preguntar confirmación
+        const confirmacion = await showCustomConfirm("Confirmar Eliminación", `¿Estás seguro de que deseas eliminar todos los datos de la wave (${cacheInfo.nombre})? Esta acción no se puede deshacer.`);
+
+        if (!confirmacion) {
+            loader.style.display = 'none';
+            btn.disabled = false;
+            return;
+        }
+
+
+        // Si se confirma, proceder a eliminar la caché
         try {
             const response = await fetch('/api/WaveRelease/EliminarCache', {
                 method: 'POST',
@@ -386,6 +276,208 @@
             `;
         } finally {
             btn.disabled = false;
+            loader.style.display = 'none';
         }
     }
+
+    /*
+        LOGICA BOTON CERRAR WAVERELEASE
+    */
+    async function cerrarWave() {
+        const confirmacion = await showCustomConfirm("Confirmar Cierre", "¿Estás seguro de que deseas cerrar la WaveRelease activa? Esto afectará a todas las órdenes en proceso.");
+
+        if (!confirmacion) {
+            return;
+        }
+
+        const messageContainer = document.getElementById('messageContainerExtra');
+        const loader = document.getElementById('loaderExtra');
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        const btn = document.getElementById('cerrarWaveBtn');
+
+        btn.disabled = true;
+        loader.style.display = 'block';
+        messageContainer.innerHTML = '';
+
+        try {
+            const response = await fetch('/api/WaveRelease/CerrarWave', {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'Authorization': 'Basic ' + btoa('senad:S3nad'),
+                    'Content-Type': 'application/json'
+                }
+            });
+            const texto = await response.text();
+            const data = {
+                mensaje: `${response.status} - ${texto}`,
+                esError: !response.ok
+            };
+            const alertType = data.esError ? "alert-danger" : "alert-success";
+            messageContainer.innerHTML = `
+                <div class="alert ${alertType}">
+                    ${data.mensaje}
+                </div>
+            `;
+        } catch (error) {
+            messageContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    Error de conexión al servidor: ${error.message}
+                </div>
+            `;
+        } finally {
+            btn.disabled = false;
+            loader.style.display = 'none';
+        }
+    }
+
+    /*
+        LÓGICA DE MODALES PERSONALIZADOS
+    */
+    const modalOverlay = document.getElementById('customModalOverlay');
+    const modalTitle = document.getElementById('customModalTitle');
+    const modalMessage = document.getElementById('customModalMessage');
+    const modalActions = document.getElementById('customModalActions');
+
+    function showCustomAlert(title, message) {
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        modalActions.innerHTML = '<button class="custom-button custom-button-filled">Aceptar</button>';
+
+        modalOverlay.style.display = 'flex';
+
+        modalActions.querySelector('button').onclick = () => {
+            modalOverlay.style.display = 'none';
+        };
+    }
+
+    function showCustomConfirm(title, message) {
+        return new Promise(resolve => {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalActions.innerHTML = `
+                <button id="confirmBtn" class="custom-button custom-button-filled">Confirmar</button>
+                <button id="cancelBtn" class="custom-button custom-button-filled custom-button-danger">Cancelar</button>
+            `;
+
+            modalOverlay.style.display = 'flex';
+
+            document.getElementById('confirmBtn').onclick = () => {
+                modalOverlay.style.display = 'none';
+                resolve(true);
+            };
+
+            document.getElementById('cancelBtn').onclick = () => {
+                modalOverlay.style.display = 'none';
+                resolve(false);
+            };
+        });
+    }
+
+    function showAdminPasswordPrompt() {
+        return new Promise(resolve => {
+            modalTitle.textContent = 'Acceso Restringido';
+            modalMessage.innerHTML = `
+                <p>Por favor, ingrese la contraseña para acceder a las opciones de administrador.</p>
+                <div class="form-group">
+                    <input class="input-modal" type="password" id="adminPassword" placeholder="Contraseña" required>
+                    <div class="validation-message" id="adminPassError"></div>
+                </div>
+            `;
+            modalActions.innerHTML = `
+                <button id="adminConfirmBtn" class="custom-button custom-button-filled">Ingresar</button>
+                <button id="adminCancelBtn" class="custom-button custom-button-filled custom-button-danger">Cancelar</button>
+            `;
+
+            const modalContent = document.getElementById('customModalContent');
+            modalContent.style.maxWidth = '300px';
+            modalOverlay.style.display = 'flex';
+
+            const adminPasswordField = document.getElementById('adminPassword');
+            const adminPassError = document.getElementById('adminPassError');
+            const adminConfirmBtn = document.getElementById('adminConfirmBtn');
+
+
+            // Función para manejar la confirmación
+            const handleConfirm = () => {
+                if (adminPasswordField.value === '@Model.AdminPassword') {
+                    modalOverlay.style.display = 'none';
+                    resolve(true);
+                } else {
+                    adminPassError.textContent = 'Contraseña incorrecta.';
+                }
+            };
+
+            // Acción al hacer clic en el botón
+            adminConfirmBtn.onclick = handleConfirm;
+
+            // Acción al presionar "Enter" en el campo de contraseña
+            adminPasswordField.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    handleConfirm();
+                }
+            });
+
+            document.getElementById('adminConfirmBtn').onclick = () => {
+                // Si la contraseña es correcta, cerrar el modal y resolver la promesa
+                if (adminPasswordField.value === '@Model.AdminPassword') {
+                    modalOverlay.style.display = 'none';
+                    resolve(true);
+                } else {
+                    adminPassError.textContent = 'Contraseña incorrecta.';
+                }
+            };
+
+            document.getElementById('adminCancelBtn').onclick = () => {
+                modalOverlay.style.display = 'none';
+                resolve(false);
+            };
+        });
+    }
+
+    // Tabs JS
+    function showTab(tabName) {
+        // Ocultar todos los contenidos de las pestañas
+        document.getElementById('tabContentEnviar').style.display = 'none';
+        document.getElementById('tabContentExtra').style.display = 'none';
+        document.getElementById('tabContentDB').style.display = 'none';
+
+        // Quitar la clase 'active' de todas las pestañas
+        document.getElementById('tabEnviar').classList.remove('active');
+        document.getElementById('tabExtra').classList.remove('active');
+        // document.getElementById('tabDB').classList.remove('active');
+
+        // Mostrar el contenido y activar la pestaña seleccionada
+        if (tabName === 'enviar') {
+            document.getElementById('tabContentEnviar').style.display = 'flex';
+            document.getElementById('tabEnviar').classList.add('active');
+        } else if (tabName === 'extra') {
+            document.getElementById('tabContentExtra').style.display = 'flex';
+            document.getElementById('tabExtra').classList.add('active');
+        } else if (tabName === 'db') {
+            document.getElementById('tabContentDB').style.display = 'flex';
+            // document.getElementById('tabDB').classList.add('active');
+        }
+    }
+
+    async function showAdminTab() {
+        if (isAdminAuthenticated) {
+            showTab('extra');
+            return;
+        }
+
+        const isAuthenticated = await showAdminPasswordPrompt();
+        if (isAuthenticated) {
+            isAdminAuthenticated = true;
+            document.getElementById('adminLockIcon').innerHTML = icons.unlocked;
+            showTab('extra');
+        }
+    }
+
+    // Mostrar la primera pestaña por defecto y configurar el icono del candado
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('adminLockIcon').innerHTML = icons.locked;
+        showTab('enviar');
+    });
 </script>

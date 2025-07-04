@@ -90,7 +90,7 @@ namespace APIWaveRelease.controllers
                 };
 
 
-
+                /*
                 // URL de LUCA
                 var urlLucaBase = _configuration["ServiceURls:luca"];
                 var urlLuca = $"{urlLucaBase}/api/sort/OrderUpdate";
@@ -113,6 +113,7 @@ namespace APIWaveRelease.controllers
                     _logger.LogError($"Error al enviar cancelación a Luca. Status: {response.StatusCode}. Detalles: {errorDetails}");
                     return StatusCode((int)response.StatusCode, $"Error al enviar cancelación a Luca. Detalles: {errorDetails}");
                 }
+                */
 
 
 
@@ -127,6 +128,7 @@ namespace APIWaveRelease.controllers
 
                 }
                 _context.WaveRelease.UpdateRange(waveReleases);
+
                 //await _context.SaveChangesAsync();
 
                 /*
@@ -165,30 +167,30 @@ namespace APIWaveRelease.controllers
                 await transaction.CommitAsync();
                 
 
-                return Ok($"La Wave ({waveActiva}) ha sido cerrada correctamente.");
+                return Ok($"La Wave ({waveActiva}) y todos los LPN activos han sido cerrados correctamente en SORTER y LUCA.");
             }
             catch (JsonException jsonEx)
             {
                 await transaction.RollbackAsync();
-                _logger.LogError($"Error al serializar el JSON para enviar a Luca: {jsonEx.Message}");
+                _logger.LogError($"No se realizó el cierre. Error al serializar el JSON para enviar a Luca: {jsonEx.Message}");
                 return StatusCode(500, $"Error al serializar el JSON para enviar a Luca. {jsonEx.Message}");
             }
             catch (HttpRequestException httpEx)
             {
                 await transaction.RollbackAsync();
-                _logger.LogError($"Error al enviar la cancelación a Luca: {httpEx.Message}");
+                _logger.LogError($"No se realizó el cierre. Error al enviar la cancelación a Luca: {httpEx.Message}");
                 return StatusCode(500, $"Error al enviar la cancelación a Luca. {httpEx.Message}");
             }
             catch (DbUpdateException dbEx)
             {
                 await transaction.RollbackAsync();
-                _logger.LogError($"Error al cerrar las waves: {dbEx.Message}");
+                _logger.LogError($"No se realizó el cierre. Error en la BD al cerrar la wave: {dbEx.Message}");
                 return StatusCode(500, $"Error al cerrar las waves. {dbEx.Message}");
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                _logger.LogError($"Error al cerrar las waves: {ex.Message}");
+                _logger.LogError($"No se realizó el cierre. Error interno al cerrar la wave: {ex.Message}");
                 return StatusCode(500, $"Error interno al cerrar las waves. {ex.Message}");
             }
         }
@@ -380,6 +382,7 @@ namespace APIWaveRelease.controllers
                     _context.WaveRelease.AddRange(waveReleases);
                     await _context.SaveChangesAsync();
 
+                    /*
                     // Envío de JSON a Luca dentro de la transacción
                     var httpClientLuca = _httpClientFactory.CreateClient("apiLuca");
                     SetAuthorizationHeader(httpClientLuca);
@@ -400,7 +403,7 @@ namespace APIWaveRelease.controllers
                     _logger.LogInformation("El JSON fue enviado correctamente a Luca.");
                     
                     // Si el envío a Luca es correcto, confirmar la transacción
-
+                    */
 
                     await transaction.CommitAsync();
 
