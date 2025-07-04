@@ -28,12 +28,5 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 COPY --from=build /src/externalproperties/ExternalProperties.json ./externalproperties/
 
-# Aggressive cleanup to minimize image size
-RUN find . -name "*.pdb" -delete && \
-    find . -name "*.xml" -delete && \
-    rm -rf /usr/share/dotnet && \
-    apk del libc6-compat && \
-    rm -rf /tmp/* /var/tmp/*
-
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "APIWaveRelease.dll"]

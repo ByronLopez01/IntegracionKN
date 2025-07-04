@@ -28,13 +28,6 @@ WORKDIR /app
 # Copy published files from publish stage
 COPY --from=publish /app/publish .
 
-# Cleanup to reduce image size
-RUN find . -name "*.pdb" -delete && \
-    find . -name "*.xml" -delete && \
-    rm -rf /usr/share/dotnet && \
-    apk del libc6-compat && \
-    rm -rf /tmp/* /var/tmp/*
-
 # Expose ports and entrypoint
 EXPOSE 8080
 EXPOSE 8081

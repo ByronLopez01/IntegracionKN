@@ -29,12 +29,5 @@ WORKDIR /app
 # Copiar los archivos publicados desde la etapa de publish
 COPY --from=publish /app/publish .
 
-# Limpieza agresiva para minimizar tamaño de la imagen
-RUN find . -name "*.pdb" -delete && \
-    find . -name "*.xml" -delete && \
-    rm -rf /usr/share/dotnet && \
-    apk del libc6-compat && \
-    rm -rf /tmp/* /var/tmp/*
-
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "APISenad.dll"]

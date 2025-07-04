@@ -32,12 +32,5 @@ COPY --from=publish /app/publish .
 # Copy ExternalProperties.json from build stage
 COPY --from=build /src/externalproperties/ExternalProperties.json ./externalproperties/
 
-# Cleanup to reduce image size
-RUN find . -name "*.pdb" -delete && \
-    find . -name "*.xml" -delete && \
-    rm -rf /usr/share/dotnet && \
-    apk del libc6-compat && \
-    rm -rf /tmp/* /var/tmp/*
-
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "APIOrderUpdate.dll"]
