@@ -1,26 +1,41 @@
-# Utiliza el SDK de .NET 8.0 basado en Windows Server Core 2019
-#FROM mcr.microsoft.com/dotnet/sdk:8.0-windowsservercore-ltsc2019 AS build 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Multi-stage build with Alpine Linux for minimal footprint
+
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /src
 
-# Copiar el archivo de proyecto y restaurar dependencias
-COPY APIOrderConfirmation.csproj ./
+# Copy and restore project files first (better layer caching)
+COPY ["APIOrderConfirmation.csproj", "./"]
 RUN dotnet restore "APIOrderConfirmation.csproj"
 
-# Copiar el resto de los archivos y construir la aplicación
-COPY . ./
-WORKDIR /src
+# Copy everything else
+COPY . .
+
+# Build the project
 RUN dotnet build "APIOrderConfirmation.csproj" -c Release -o /app/build
 
-# Publicar la aplicación en una carpeta
+# Stage 2: Publish
 FROM build AS publish
-RUN dotnet publish "APIOrderConfirmation.csproj" -c Release -o /app/publish
-# Crear la imagen final
-#FROM mcr.microsoft.com/dotnet/aspnet:8.0-windowsservercore-ltsc2019 AS final
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+RUN dotnet publish "APIOrderConfirmation.csproj" -c Release -o /app/publish \
+    --no-restore \
+    --self-contained false
+#    --runtime alpine-x64
+
+# Stage 3: Final image (Alpine runtime)
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
 WORKDIR /app
+
+# Copy published files from publish stage
 COPY --from=publish /app/publish .
-RUN mkdir -p /app/logs
+
+# Cleanup to reduce image size
+RUN find . -name "*.pdb" -delete && \
+    find . -name "*.xml" -delete && \
+    rm -rf /usr/share/dotnet && \
+    apk del libc6-compat && \
+    rm -rf /tmp/* /var/tmp/*
+
+# Expose ports and entrypoint
 EXPOSE 8080
 EXPOSE 8081
 ENTRYPOINT ["dotnet", "APIOrderConfirmation.dll"]

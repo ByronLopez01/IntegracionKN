@@ -1,30 +1,43 @@
-# Usa la imagen base de .NET SDK 8.0
-# FROM mcr.microsoft.com/dotnet/sdk:8.0-windowsservercore-ltsc2019 AS build # W.S.2019
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Multi-stage build with Alpine Linux for minimal footprint
 
-# Establece el directorio de trabajo
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /src
 
-# Copia el archivo del proyecto y restaura las dependencias
-COPY APIOrderUpdate.csproj ./
-
+# Copy and restore project files first (for better layer caching)
+COPY ["APIOrderUpdate.csproj", "./"]
 RUN dotnet restore "APIOrderUpdate.csproj"
+# --runtime alpine-x64 is omitted because it's not recognized by default
 
-COPY externalproperties/ExternalProperties.json /app/externalproperties/
+# Copy everything else
+COPY . .
 
-# Copia el resto de los archivos y construye el proyecto
-COPY . ./
-WORKDIR /src
+# Build the project
 RUN dotnet build "APIOrderUpdate.csproj" -c Release -o /app/build
 
-# Publica la aplicación en una carpeta
+# Stage 2: Publish
 FROM build AS publish
-RUN dotnet publish "APIOrderUpdate.csproj" -c Release -o /app/publish
+RUN dotnet publish "APIOrderUpdate.csproj" -c Release -o /app/publish \
+    --no-restore \
+    --self-contained false
+# --runtime alpine-x64 is omitted
 
-# Crear la imagen final
-# FROM mcr.microsoft.com/dotnet/aspnet:8.0-windowsservercore-ltsc2019 AS final # W.S.2019
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+# Stage 3: Final image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
 WORKDIR /app
+
+# Copy published files from publish stage
 COPY --from=publish /app/publish .
+
+# Copy ExternalProperties.json from build stage
+COPY --from=build /src/externalproperties/ExternalProperties.json ./externalproperties/
+
+# Cleanup to reduce image size
+RUN find . -name "*.pdb" -delete && \
+    find . -name "*.xml" -delete && \
+    rm -rf /usr/share/dotnet && \
+    apk del libc6-compat && \
+    rm -rf /tmp/* /var/tmp/*
+
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "APIOrderUpdate.dll"]

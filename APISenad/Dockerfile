@@ -1,25 +1,40 @@
-# Usa el SDK de .NET 8.0 basado en Windows Server Core 2019
-# FROM mcr.microsoft.com/dotnet/sdk:8.0-windowsservercore-ltsc2019 AS build # W.S.2019
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Multi-stage build with Alpine Linux for minimal footprint
+
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /src
 
-# Copiar el archivo de proyecto y restaurar las dependencias
-COPY APISenad.csproj ./
+# Copiar y restaurar solo el archivo .csproj primero para mejor cache
+COPY ["APISenad.csproj", "./"]
 RUN dotnet restore "APISenad.csproj"
+# --runtime alpine-x64 fue comentado porque no es compatible por defecto
 
-# Copiar el resto de los archivos y compilar la aplicación
-COPY . ./
-WORKDIR /src
+# Copiar todo el código fuente
+COPY . .
+
+# Construir el proyecto
 RUN dotnet build "APISenad.csproj" -c Release -o /app/build
 
-# Publicar la aplicación en una carpeta
+# Stage 2: Publish
 FROM build AS publish
-RUN dotnet publish "APISenad.csproj" -c Release -o /app/publish
+RUN dotnet publish "APISenad.csproj" -c Release -o /app/publish \
+    --no-restore \
+    --self-contained false
+# --runtime alpine-x64 fue comentado
 
-# Crear la imagen final
-# FROM mcr.microsoft.com/dotnet/aspnet:8.0-windowsservercore-ltsc2019 AS final # W.S.2019
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+# Stage 3: Final image (Alpine runtime - 5x smaller than Windows)
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
 WORKDIR /app
+
+# Copiar los archivos publicados desde la etapa de publish
 COPY --from=publish /app/publish .
+
+# Limpieza agresiva para minimizar tamaño de la imagen
+RUN find . -name "*.pdb" -delete && \
+    find . -name "*.xml" -delete && \
+    rm -rf /usr/share/dotnet && \
+    apk del libc6-compat && \
+    rm -rf /tmp/* /var/tmp/*
+
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "APISenad.dll"]

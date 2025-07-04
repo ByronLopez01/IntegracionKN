@@ -1,26 +1,39 @@
-# Usa el SDK de .NET 8.0 basado en Windows Server Core 2019
-# FROM mcr.microsoft.com/dotnet/sdk:8.0-windowsservercore-ltsc2019 AS build # W.S.2019
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Multi-stage build with Alpine Linux for minimal footprint
+
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /src
 
-# Copiar solo el archivo de proyecto para aprovechar la caché
-COPY APIWaveRelease.csproj ./
+# Copy and restore project files first (better layer caching)
+COPY ["APIWaveRelease.csproj", "./"]
 RUN dotnet restore "APIWaveRelease.csproj"
+# Nota: --runtime alpine-x64 fue comentado porque puede causar errores si no está correctamente soportado
 
-# Copiar el resto del código y el archivo de propiedades externas
-COPY . ./
-COPY externalproperties/ExternalProperties.json /app/externalproperties/
-
-# Compilar la aplicación en modo Release
+# Copy everything else and build
+COPY . .
 RUN dotnet build "APIWaveRelease.csproj" -c Release -o /app/build
 
-# Etapa de publicación
+# Stage 2: Publish
 FROM build AS publish
-RUN dotnet publish "APIWaveRelease.csproj" -c Release -o /app/publish
+RUN dotnet publish "APIWaveRelease.csproj" -c Release -o /app/publish \
+    --no-restore \
+    --self-contained false
+# Nota: --runtime alpine-x64 comentado por compatibilidad
 
-# Etapa final (runtime) con imagen ASP.NET Core más liviana
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+# Stage 3: Final image (Alpine runtime - 5x smaller than Windows)
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
 WORKDIR /app
+
+# Copy only necessary files
 COPY --from=publish /app/publish .
+COPY --from=build /src/externalproperties/ExternalProperties.json ./externalproperties/
+
+# Aggressive cleanup to minimize image size
+RUN find . -name "*.pdb" -delete && \
+    find . -name "*.xml" -delete && \
+    rm -rf /usr/share/dotnet && \
+    apk del libc6-compat && \
+    rm -rf /tmp/* /var/tmp/*
+
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "APIWaveRelease.dll"]

@@ -1,123 +1,122 @@
 services:
-  apiwaverelease:
+  traefik:
+    image: traefik:v3.1
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
-       - ../externalproperties/ExternalProperties.json:/app/externalproperties/ExternalProperties.json
-       - ./keys:/app/keys
-    build:
-
-      context: ..
-      dockerfile: APIWaveRelease/Dockerfile
-    image: apiwaverelease:latest
-    ports:
-      - "5000:8080"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./dynamic:/etc/traefik/dynamic:ro"
     networks:
       - microservices-net
-    #env_file:
-     # - .env
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    restart: unless-stopped
-
-  apilpnpicking:
-    build:
-      context: ..
-      dockerfile: APILPNPicking/Dockerfile
-    image: apilpnpicking:latest
-    ports:
-      - "5001:8080"
-    networks:
-      - microservices-net
-    #env_file:
-     # - .env
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    restart: unless-stopped
 
   apifamilymaster:
+    image: apifamilymaster
     build:
-      context: ..
-      dockerfile: APIFamilyMaster/Dockerfile
-    image: apifamilymaster:latest
-    ports:
-      - "5002:8080" # Puerto externo 5002 mapeado al puerto interno 8080
+      context: ../APIFamilyMaster
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    volumes:
+      - family_data:/app/externalproperties
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.apifamilymaster.rule=PathPrefix(`/api/FamilyMaster`)"
+      - "traefik.http.routers.apifamilymaster.entrypoints=websecure"
+      - "traefik.http.services.apifamilymaster.loadbalancer.server.port=8080"
     networks:
       - microservices-net
-   #env_file:
-    #  - .env
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
 
-
-#test
-      - ASPNETCORE_URLS=http://+:8080
-####################################################
-    restart: unless-stopped
-
-
-  orderupdate:
+  apiwaverelease:
+    image: apiwaverelease
     build:
-      context: ..
-      dockerfile: APIOrderUpdate/Dockerfile
-    image: orderupdate:latest
-    ports:
-      - "5004:8080"
+      context: ../APIWaveRelease
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    volumes:
+      - wave_data:/app/externalproperties
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.apiwaverelease.rule=PathPrefix(`/api/WaveRelease`)"
+      - "traefik.http.routers.apiwaverelease.entrypoints=websecure"
+      - "traefik.http.services.apiwaverelease.loadbalancer.server.port=8080"
     networks:
       - microservices-net
-    #env_file:
-     # - .env
+
+  apilpnpicking:
+    image: apilpnpicking
+    build:
+      context: ../APILPNPicking
+      dockerfile: Dockerfile
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    restart: unless-stopped
+      - ASPNETCORE_ENVIRONMENT=Production
+    volumes:
+      - lpn_data:/app/externalproperties
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.apilpnpicking.rule=PathPrefix(`/api/LpnPicking`)"
+      - "traefik.http.routers.apilpnpicking.entrypoints=websecure"
+      - "traefik.http.services.apilpnpicking.loadbalancer.server.port=8080"
+    networks:
+      - microservices-net
+
+  apiorderupdate:
+    image: apiorderupdate
+    build:
+      context: ../APIOrderUpdate
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    volumes:
+      - order_update_data:/app/externalproperties
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.apiorderupdate.rule=PathPrefix(`/api/OrderCancel`)"
+      - "traefik.http.routers.apiorderupdate.entrypoints=websecure"
+      - "traefik.http.services.apiorderupdate.loadbalancer.server.port=8080"
+    networks:
+      - microservices-net
 
   apiorderconfirmation:
+    image: apiorderconfirmation
     build:
-      context: ..
-      dockerfile: APIOrderConfirmation/Dockerfile
-    image: apiorderconfirmation:latest
-    ports:
-      - "5005:8080"
+      context: ../APIOrderConfirmation
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    #volumes:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.apiorderconfirmation.rule=PathPrefix(`/api/OrderConfirmation`)"
+      - "traefik.http.routers.apiorderconfirmation.entrypoints=websecure"
+      - "traefik.http.services.apiorderconfirmation.loadbalancer.server.port=8080"
     networks:
       - microservices-net
-    #env_file:
-     # - .env
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    restart: unless-stopped
-
 
   apisenad:
+    image: apisenad
     build:
-      context: ..
-      dockerfile: APISenad/Dockerfile
-    image: apisenad:latest
-    ports:
-      - "5006:8080"
+      context: ../APISenad
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    #volumes:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.apisenad.rule=PathPrefix(`/api/Senad`)"
+      - "traefik.http.routers.apisenad.entrypoints=websecure"
+      - "traefik.http.services.apisenad.loadbalancer.server.port=8080"
     networks:
       - microservices-net
-    #env_file:
-      #- .env
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    restart: unless-stopped
 
-  #proxy-xlog:
-   # image: traefik:v2.7
-    #container_name: proxy-xlog
-    #ports:
-     # - "8010:80"
-      #- "4443:443"
-    #volumes:
-     # - /var/run/docker.sock:/var/run/docker.sock
-     # - ./traefik.toml:/traefik.toml
-      #- ./acme.json:/acme.json
-    #networks:
-    #  - web
-    #labels:
-     # - "traefik.enable=true"
-     # - "traefik.http.routers.proxy-xlog.rule=Host('127.0.0.1')"
-      #- "traefik.http.routers.proxy-xlog.tls=true"
-      #- "traefik.http.routers.proxy-xlog.tls.certresolver=myresolver"
-     # - "traefik.http.services.proxy-xlog.loadbalancer.server.url=http://otro_contenedor:puerto"
+volumes:
+  family_data:
+  wave_data:
+  lpn_data:
+  order_update_data:
+  order_confirm_data:
+  senad_data:
 
 networks:
   microservices-net:
