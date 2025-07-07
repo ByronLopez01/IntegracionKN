@@ -56,9 +56,33 @@ namespace APIWaveRelease.controllers
                     .Select(wr => wr.Wave)
                     .FirstOrDefaultAsync();
 
+
                 if (string.IsNullOrEmpty(waveActiva))
                 {
-                    return Ok("No hay waves activas para cerrar!");
+                    // No hay wave activa, verificar si hay órdenes en proceso remanentes
+                    var ordenesEnProcesoRemanentes = await _context.OrdenEnProceso
+                        .Where(o => o.estado == true)
+                        .ToListAsync();
+
+                    if (ordenesEnProcesoRemanentes.Any())
+                    {
+                        _logger.LogWarning("No se encontró una wave activa, pero sí órdenes en proceso remanentes. Procediendo a cerrarlas.");
+                        foreach (var orden in ordenesEnProcesoRemanentes)
+                        {
+                            orden.estado = false;
+                            orden.estadoLuca = false;
+                        }
+                        _context.OrdenEnProceso.UpdateRange(ordenesEnProcesoRemanentes);
+                        await _context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        return Ok("No había una wave activa, pero se cerraron las órdenes en proceso remanentes.");
+                    }
+                    else
+                    {
+                        // No hay nada que cerrar
+                        await transaction.RollbackAsync();
+                        return Ok("No hay ninguna wave activa ni órdenes en proceso para cerrar.");
+                    }
                 }
 
 
@@ -129,14 +153,6 @@ namespace APIWaveRelease.controllers
                 }
                 _context.WaveRelease.UpdateRange(waveReleases);
 
-                //await _context.SaveChangesAsync();
-
-                /*
-                var ordenesEnProceso = await _context.OrdenEnProceso
-                    .Where(o => o.wave == waveActiva && o.estado == true)
-                    .ToListAsync();
-                */
-
                 // Cambiar el estado de las ordenes en OrdenEnProceso a procesado
                 var ordenesEnProceso = await _context.OrdenEnProceso
                     .Where(o => o.estado == true)
@@ -158,8 +174,6 @@ namespace APIWaveRelease.controllers
                 {
                     _logger.LogInformation("No se encontraron Dtlnum activos.");
                 }
-
-
 
 
                 // Guardar los cambios en la base de datos
@@ -270,6 +284,26 @@ namespace APIWaveRelease.controllers
         }
         //
 
+
+        [HttpGet("WaveStatus")]
+        [AllowAnonymous]
+        public IActionResult GetWaveStatusComponent()
+        {
+            return new ViewComponentResult
+            {
+                ViewComponentName = "WaveStatus"
+            };
+        }
+
+        [HttpGet("WaveReleaseStatus")]
+        [AllowAnonymous]
+        public IActionResult GetWaveReleaseStatusComponent()
+        {
+            return new ViewComponentResult
+            {
+                ViewComponentName = "WaveReleaseStatus"
+            };
+        }
 
         [HttpPost]
         public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveReleaseKn)

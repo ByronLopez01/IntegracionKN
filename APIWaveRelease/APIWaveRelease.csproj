@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\css\styles.css" />
+    <None Include="wwwroot\css\enviarCache.css" />
   </ItemGroup>
 
   <ItemGroup>

@@ -16,7 +16,7 @@ namespace APIWaveRelease.Pages
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
 
-        // Las propiedades WaveExiste y NombreWave ya no son necesarias aquí
+
         public string AdminPassword { get; private set; }
 
         public EnviarCacheModel(
@@ -27,7 +27,11 @@ namespace APIWaveRelease.Pages
             _configuration = configuration;
         }
 
-        // El método OnGet ahora es síncrono y más simple
+        public IActionResult OnGetWaveStatusPartial()
+        {
+            return ViewComponent("WaveStatus");
+        }
+
         public void OnGet()
         {
             // Lógica para obtener la contraseña del administrador

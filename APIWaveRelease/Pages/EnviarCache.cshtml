@@ -2,7 +2,8 @@
 @model APIWaveRelease.Pages.EnviarCacheModel
 
 @section Scripts {
-    <link rel="stylesheet" href="~/css/styles.css" />
+    <link rel="stylesheet" href="~/css/enviarCache.css" />
+    <script src="~/js/enviarCache.js" defer></script>
 }
 
 <!-- Contenedor del Modal -->
@@ -15,6 +16,12 @@
         </div>
     </div>
 </div>
+
+<!-- Overlay de Carga Global -->
+<div id="globalLoaderOverlay" class="modal-overlay" style="display: none; background-color: rgba(0, 0, 0, 0.7); z-index: 2000;">
+    <div class="loader"></div>
+</div>
+
 
 <!-- Popup de Login -->
 <div id="loginModal" class="modal">
@@ -32,17 +39,17 @@
             <div class="validation-message" id="passError"></div>
         </div>
 
-        <button type="submit" onclick="validarCredenciales()" class="custom-button custom-button-filled">Ingresar</button>
+        <button type="submit" class="custom-button custom-button-filled">Ingresar</button>
     </div>
 </div>
 
 
 <!-- html -->
-<div class="container" id="mainContent" style="display: none;">
+<div class="container" id="mainContent" style="display: none;" data-admin-password='@Json.Serialize(Model.AdminPassword)'>
     <div class="tabs-container">
         <div class="tabs">
-            <div class="tab active" id="tabEnviar" onclick="showTab('enviar')">Enviar a WaveRelease</div>
-            <div class="tab" id="tabExtra" onclick="showAdminTab()">
+            <div class="tab active" id="tabEnviar">Enviar a WaveRelease</div>
+            <div class="tab" id="tabExtra">
                 Wave Admin <span id="adminLockIcon" class="lock-icon"></span>
             </div>
             <!-- <div class="tab" id="tabDB" onclick="showTab('db')">???</div> -->
@@ -50,7 +57,14 @@
         <div class="tab-content" id="tabContentEnviar">
             <h1>Envío de WaveCache a WaveRelease</h1>
 
-            @await Component.InvokeAsync("WaveStatus")
+            <div>
+                <div id="waveStatusContainer">
+                    @await Component.InvokeAsync("WaveStatus")
+                </div>
+                <div id="waveReleaseStatusContainer">
+                    @await Component.InvokeAsync("WaveReleaseStatus")
+                </div>
+            </div>
 
             <div id="messageContainer"></div>
             <div class="loader" id="loaderEnviar" style="display: none;"></div>
@@ -74,11 +88,11 @@
             <div id="messageContainerExtra"></div>
             <div class="loader" id="loaderExtra" style="display: none;"></div>
             <div class="action-group">
-                <button type="button" class="custom-button custom-button-outline custom-button-danger" id="eliminarCacheBtn" onclick="eliminarCache()">
+                <button type="button" class="custom-button custom-button-outline custom-button-danger" id="eliminarCacheBtn">
                     Eliminar Datos de WaveCache
                 </button>
                 <hr class="separator">
-                <button type="button" class="custom-button custom-button-outline custom-button-danger" id="cerrarWaveBtn" onclick="cerrarWave()">
+                <button type="button" class="custom-button custom-button-outline custom-button-danger" id="cerrarWaveBtn">
                     Cerrar WaveRelease
                 </button>
             </div>
@@ -90,394 +104,3 @@
         </div>
     </div>
 </div>
-
-
-
-<script>
-    let isAdminAuthenticated = false;
-    const icons = {
-        locked: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/></svg>`,
-        unlocked: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-unlock-fill" viewBox="0 0 16 16"><path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2"/></svg>`
-    };
-
-    async function validarCredenciales() {
-        // Resetear mensajes de error
-        document.querySelectorAll('.validation-message').forEach(e => e.textContent = '');
-        document.getElementById('loginMessage').textContent = '';
-
-        // Validacion front
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
-
-        if (!username || !password) {
-            if (!username) document.getElementById('userError').textContent = 'Usuario es requerido';
-            if (!password) document.getElementById('passError').textContent = 'Contraseña es requerida';
-            return;
-        }
-
-        // Validacion back
-        try {
-            const response = await fetch('/api/WaveRelease/ValidarUsuario', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ Usuario: username, Contrasena: password })
-            });
-
-            if (response.ok) {
-                document.getElementById('loginModal').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'flex';
-            } else {
-                document.getElementById('loginMessage').textContent = "Credenciales incorrectas";
-            }
-        } catch (error) {
-            document.getElementById('loginMessage').textContent = "Error de conexión";
-        }
-    }
-
-    // Habilitar envío con "Enter" en el modal de login
-    document.getElementById('username').addEventListener('keydown', function (event) {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Evita el comportamiento por defecto
-            validarCredenciales();
-        }
-    });
-
-    document.getElementById('password').addEventListener('keydown', function (event) {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Evita el comportamiento por defecto
-            validarCredenciales();
-        }
-    });
-
-    /*
-      LOGICA ENVIAR CACHE
-    */
-    document.getElementById('myForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        const btn = document.getElementById('submitBtn');
-        const loader = document.getElementById('loaderEnviar');
-        const messageContainer = document.getElementById('messageContainer');
-        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-
-        btn.disabled = true;
-        loader.style.display = 'block';
-        messageContainer.innerHTML = '';
-
-        try {
-
-            const response = await fetch('/api/WaveRelease/EnviarCache', {
-                method: 'POST',
-                headers: {
-                    'RequestVerificationToken': token,
-                    'Authorization': 'Basic ' + btoa('senad:S3nad'),
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            const texto = await response.text();
-            const data = {
-                mensaje: `${response.status} - ${texto}`,
-                esError: !response.ok
-            };
-
-            const alertType = data.esError ? "alert-danger" : "alert-success";
-            messageContainer.innerHTML = `
-                <div class="alert ${alertType}">
-                    ${data.mensaje}
-                </div>
-            `;
-
-        } catch (error) {
-            messageContainer.innerHTML = `
-                <div class="alert alert-danger">
-                    Error de conexión al servidor: ${error.message}
-                </div>
-            `;
-        } finally {
-            btn.disabled = false;
-            loader.style.display = 'none';
-        }
-    });
-    /*
-        LOGICA BOTON ELIMINAR WAVECACHE
-    */
-    async function eliminarCache() {
-
-        const messageContainer = document.getElementById('messageContainerExtra');
-        const loader = document.getElementById('loaderExtra');
-        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-        const btn = document.getElementById('eliminarCacheBtn');
-
-        btn.disabled = true;
-        loader.style.display = 'block';
-        messageContainer.innerHTML = '';
-
-        let cacheInfo;
-        try {
-            const response = await fetch('/api/WaveRelease/ObtenerNombreWaveCache');
-            if (!response.ok) {
-                throw new Error('No se pudo verificar el estado de la caché.');
-            }
-            cacheInfo = await response.json();
-        } catch (error) {
-            messageContainer.innerHTML = `<div class="alert alert-danger">Error al verificar la caché: ${error.message}</div>`;
-            loader.style.display = 'none';
-            btn.disabled = false;
-            return;
-        }
-
-        // Si la caché no existe, mostrar mensaje y salir
-        if (!cacheInfo.existe) {
-            showCustomAlert("Información", "La WaveCache ya está limpia. No hay datos para eliminar.");
-            loader.style.display = 'none';
-            btn.disabled = false;
-            return;
-        }
-
-        // Si la caché existe, preguntar confirmación
-        const confirmacion = await showCustomConfirm("Confirmar Eliminación", `¿Estás seguro de que deseas eliminar todos los datos de la wave (${cacheInfo.nombre})? Esta acción no se puede deshacer.`);
-
-        if (!confirmacion) {
-            loader.style.display = 'none';
-            btn.disabled = false;
-            return;
-        }
-
-
-        // Si se confirma, proceder a eliminar la caché
-        try {
-            const response = await fetch('/api/WaveRelease/EliminarCache', {
-                method: 'POST',
-                headers: {
-                    'RequestVerificationToken': token,
-                    'Authorization': 'Basic ' + btoa('senad:S3nad'),
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            const texto = await response.text();
-            const data = {
-                mensaje: `${response.status} - ${texto}`,
-                esError: !response.ok
-            };
-
-            const alertType = data.esError ? "alert-danger" : "alert-success";
-            messageContainer.innerHTML = `
-                <div class="alert ${alertType}">
-                    ${data.mensaje}
-                </div>
-            `;
-        } catch (error) {
-            messageContainer.innerHTML = `
-                <div class="alert alert-danger">
-                    Error de conexión al servidor: ${error.message}
-                </div>
-            `;
-        } finally {
-            btn.disabled = false;
-            loader.style.display = 'none';
-        }
-    }
-
-    /*
-        LOGICA BOTON CERRAR WAVERELEASE
-    */
-    async function cerrarWave() {
-        const confirmacion = await showCustomConfirm("Confirmar Cierre", "¿Estás seguro de que deseas cerrar la WaveRelease activa? Esto afectará a todas las órdenes en proceso.");
-
-        if (!confirmacion) {
-            return;
-        }
-
-        const messageContainer = document.getElementById('messageContainerExtra');
-        const loader = document.getElementById('loaderExtra');
-        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-        const btn = document.getElementById('cerrarWaveBtn');
-
-        btn.disabled = true;
-        loader.style.display = 'block';
-        messageContainer.innerHTML = '';
-
-        try {
-            const response = await fetch('/api/WaveRelease/CerrarWave', {
-                method: 'POST',
-                headers: {
-                    'RequestVerificationToken': token,
-                    'Authorization': 'Basic ' + btoa('senad:S3nad'),
-                    'Content-Type': 'application/json'
-                }
-            });
-            const texto = await response.text();
-            const data = {
-                mensaje: `${response.status} - ${texto}`,
-                esError: !response.ok
-            };
-            const alertType = data.esError ? "alert-danger" : "alert-success";
-            messageContainer.innerHTML = `
-                <div class="alert ${alertType}">
-                    ${data.mensaje}
-                </div>
-            `;
-        } catch (error) {
-            messageContainer.innerHTML = `
-                <div class="alert alert-danger">
-                    Error de conexión al servidor: ${error.message}
-                </div>
-            `;
-        } finally {
-            btn.disabled = false;
-            loader.style.display = 'none';
-        }
-    }
-
-    /*
-        LÓGICA DE MODALES PERSONALIZADOS
-    */
-    const modalOverlay = document.getElementById('customModalOverlay');
-    const modalTitle = document.getElementById('customModalTitle');
-    const modalMessage = document.getElementById('customModalMessage');
-    const modalActions = document.getElementById('customModalActions');
-
-    function showCustomAlert(title, message) {
-        modalTitle.textContent = title;
-        modalMessage.textContent = message;
-        modalActions.innerHTML = '<button class="custom-button custom-button-filled">Aceptar</button>';
-
-        modalOverlay.style.display = 'flex';
-
-        modalActions.querySelector('button').onclick = () => {
-            modalOverlay.style.display = 'none';
-        };
-    }
-
-    function showCustomConfirm(title, message) {
-        return new Promise(resolve => {
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-            modalActions.innerHTML = `
-                <button id="confirmBtn" class="custom-button custom-button-filled">Confirmar</button>
-                <button id="cancelBtn" class="custom-button custom-button-filled custom-button-danger">Cancelar</button>
-            `;
-
-            modalOverlay.style.display = 'flex';
-
-            document.getElementById('confirmBtn').onclick = () => {
-                modalOverlay.style.display = 'none';
-                resolve(true);
-            };
-
-            document.getElementById('cancelBtn').onclick = () => {
-                modalOverlay.style.display = 'none';
-                resolve(false);
-            };
-        });
-    }
-
-    function showAdminPasswordPrompt() {
-        return new Promise(resolve => {
-            modalTitle.textContent = 'Acceso Restringido';
-            modalMessage.innerHTML = `
-                <p>Por favor, ingrese la contraseña para acceder a las opciones de administrador.</p>
-                <div class="form-group">
-                    <input class="input-modal" type="password" id="adminPassword" placeholder="Contraseña" required>
-                    <div class="validation-message" id="adminPassError"></div>
-                </div>
-            `;
-            modalActions.innerHTML = `
-                <button id="adminConfirmBtn" class="custom-button custom-button-filled">Ingresar</button>
-                <button id="adminCancelBtn" class="custom-button custom-button-filled custom-button-danger">Cancelar</button>
-            `;
-
-            const modalContent = document.getElementById('customModalContent');
-            modalContent.style.maxWidth = '300px';
-            modalOverlay.style.display = 'flex';
-
-            const adminPasswordField = document.getElementById('adminPassword');
-            const adminPassError = document.getElementById('adminPassError');
-            const adminConfirmBtn = document.getElementById('adminConfirmBtn');
-
-
-            // Función para manejar la confirmación
-            const handleConfirm = () => {
-                if (adminPasswordField.value === '@Model.AdminPassword') {
-                    modalOverlay.style.display = 'none';
-                    resolve(true);
-                } else {
-                    adminPassError.textContent = 'Contraseña incorrecta.';
-                }
-            };
-
-            // Acción al hacer clic en el botón
-            adminConfirmBtn.onclick = handleConfirm;
-
-            // Acción al presionar "Enter" en el campo de contraseña
-            adminPasswordField.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    handleConfirm();
-                }
-            });
-
-            document.getElementById('adminConfirmBtn').onclick = () => {
-                // Si la contraseña es correcta, cerrar el modal y resolver la promesa
-                if (adminPasswordField.value === '@Model.AdminPassword') {
-                    modalOverlay.style.display = 'none';
-                    resolve(true);
-                } else {
-                    adminPassError.textContent = 'Contraseña incorrecta.';
-                }
-            };
-
-            document.getElementById('adminCancelBtn').onclick = () => {
-                modalOverlay.style.display = 'none';
-                resolve(false);
-            };
-        });
-    }
-
-    // Tabs JS
-    function showTab(tabName) {
-        // Ocultar todos los contenidos de las pestañas
-        document.getElementById('tabContentEnviar').style.display = 'none';
-        document.getElementById('tabContentExtra').style.display = 'none';
-        document.getElementById('tabContentDB').style.display = 'none';
-
-        // Quitar la clase 'active' de todas las pestañas
-        document.getElementById('tabEnviar').classList.remove('active');
-        document.getElementById('tabExtra').classList.remove('active');
-        // document.getElementById('tabDB').classList.remove('active');
-
-        // Mostrar el contenido y activar la pestaña seleccionada
-        if (tabName === 'enviar') {
-            document.getElementById('tabContentEnviar').style.display = 'flex';
-            document.getElementById('tabEnviar').classList.add('active');
-        } else if (tabName === 'extra') {
-            document.getElementById('tabContentExtra').style.display = 'flex';
-            document.getElementById('tabExtra').classList.add('active');
-        } else if (tabName === 'db') {
-            document.getElementById('tabContentDB').style.display = 'flex';
-            // document.getElementById('tabDB').classList.add('active');
-        }
-    }
-
-    async function showAdminTab() {
-        if (isAdminAuthenticated) {
-            showTab('extra');
-            return;
-        }
-
-        const isAuthenticated = await showAdminPasswordPrompt();
-        if (isAuthenticated) {
-            isAdminAuthenticated = true;
-            document.getElementById('adminLockIcon').innerHTML = icons.unlocked;
-            showTab('extra');
-        }
-    }
-
-    // Mostrar la primera pestaña por defecto y configurar el icono del candado
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('adminLockIcon').innerHTML = icons.locked;
-        showTab('enviar');
-    });
-</script>

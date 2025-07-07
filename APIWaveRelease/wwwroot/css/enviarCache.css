@@ -184,6 +184,32 @@ h3 {
         color: white;
     }
 
+/* Estilos generales para botones deshabilitados */
+button:disabled,
+.btn:disabled,
+.custom-button:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+[disabled] {
+    opacity: 0.65 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important; /* Desactiva todos los eventos del mouse, incluido el hover */
+}
+
+    /* Anular específicamente cualquier estilo hover para botones deshabilitados */
+    button:disabled:hover,
+    .btn:disabled:hover,
+    .custom-button:disabled:hover,
+    .custom-button-filled:disabled:hover,
+    .custom-button-outline:disabled:hover,
+    .custom-button-danger:disabled:hover,
+    input[type="button"]:disabled:hover,
+    input[type="submit"]:disabled:hover {
+        box-shadow: none !important;
+        transform: none !important;
+        /* Mantener el color deshabilitado */
+        transition: none !important;
+    }
 
 .alert {
     display: flex;
