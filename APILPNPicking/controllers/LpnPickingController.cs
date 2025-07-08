@@ -3,9 +3,9 @@ using APILPNPicking.models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Text; // Import para el Encoding
+using System.Text;
 using System.Net;
-using System.Net.Http.Headers; // Asegúrate de importar este espacio de nombres
+using System.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -416,6 +416,7 @@ namespace APILPNPicking.controllers
                                 var response = await httpClient.PostAsync(urlLuca, httpContent);
                                 if (!response.IsSuccessStatusCode)
                                 {
+                                    _logger.LogError($"Error al enviar datos del DTLNUM {lucaRequest.dtlNumber} a LUCA. StatusCode: {response.StatusCode}");
                                     throw new Exception($"Error al enviar datos del DTLNUM {lucaRequest.dtlNumber} a LUCA. StatusCode: {response.StatusCode}");
                                 }
                                 
