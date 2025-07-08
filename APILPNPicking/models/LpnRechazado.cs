@@ -1,5 +1,5 @@
 ﻿namespace APILPNPicking.models
 {
-    public record LpnRechazado(string Lpn, string Razon);
+    public record LpnRechazado(string Dtl, string Razon);
 
 }
