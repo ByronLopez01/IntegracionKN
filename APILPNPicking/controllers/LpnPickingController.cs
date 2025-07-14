@@ -408,7 +408,6 @@ namespace APILPNPicking.controllers
                                     throw new Exception($"Fallo al enviar a LUCA (Status: {response.StatusCode})");
                                 }
                                 
-                                
 
 
                             }
@@ -416,10 +415,10 @@ namespace APILPNPicking.controllers
                             {
                                 // Si la cantidadLPN es menor que CantInr, no se envía a LUCA y se desactiva.
                                 // Modificamos la instancia que ya tenemos en memoria ANTES de agregarla al contexto.
-                                _logger.LogInformation($"Desactivando la orden {ordenEnProceso.numOrden} con dtlNumber {ordenEnProceso.dtlNumber} por cantidad insuficiente.");
+                                _logger.LogInformation($"Desactivando orden con dtlNumber {ordenEnProceso.dtlNumber} por cantidadLPN menor que cantInr.");
                                 ordenEnProceso.estado = false;
                                 ordenEnProceso.estadoLuca = false;
-                                _logger.LogError($"Registro con cantidadLPN {cantidadLPN} menor que cantInr {waveRelease.CantInr}. No se envía a LUCA.");
+                                _logger.LogError($"Registro ({ordenEnProceso.dtlNumber}) con cantidadLPN {ordenEnProceso.cantidadLPN} menor que cantInr {ordenEnProceso.cantInr}. No se envía a LUCA.");
                             }
 
                             _context.ordenesEnProceso.Add(ordenEnProceso);
