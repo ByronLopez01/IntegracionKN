@@ -1,391 +1,901 @@
 ﻿@page "/api/WaveRelease/EnviarWave"
 @model APIWaveRelease.Pages.EnviarCacheModel
+@{
+    Layout = null;
+}
 
-<!-- Popup de Login -->
-<div id="loginModal" class="modal">
-    <div class="modal-content">
-        <h3>Autorización requerida para Enviar Wave</h3>
-        <div id="loginMessage" class="message-error"></div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enviar Wave Cache</title>
+    <style>
+        body {
+            overflow-y: hidden;
+            margin: 0;
+            padding: 0;
+            /* background-color: #002868; */
+            background-color: #001434;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-        <div class="form-group">
-            <input class="input-modal" type="text" id="username" placeholder="Usuario" required>
-            <div class="validation-message" id="userError"></div>
-        </div>
+        .navbar {
+            display: none;
+        }
 
-        <div class="form-group">
-            <input class="input-modal" type="password" id="password" placeholder="Contraseña" required>
-            <div class="validation-message" id="passError"></div>
-        </div>
+        .footer {
+            display: none;
+        }
 
-        <button type="submit" onclick="validarCredenciales()" class="custom-button">Ingresar</button>
-    </div>
-</div>
-<!-- html -->
-<div class="container" id="mainContent" style="display: none;">
-    <div class="content">
-        <h1>Envío de WaveCache a WaveRelease</h1>
+        h3 {
+            font-size: 20px;
+        }
 
-        <div id="messageContainer"></div>
+        /* Estilos del login-POPUP */
 
-        <form method="post" id="myForm">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="custom-button" id="submitBtn">
-                Enviar Datos a WaveRelease
-            </button>
-        </form>
-        <!-- Botón para eliminar WaveCache -->
-        <hr class="separator">
-        <div class="secondary-action">
-            <p>Otras acciones:</p>
-            <button type="button" class="custom-button custom-button-outline" id="eliminarCacheBtn" onclick="eliminarCache()">
-                Eliminar Datos de WaveCache
-            </button>
-        </div>
-    </div>
-</div>
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: transparent;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
 
-<style>
+        .modal-content {
+            text-align: center;
+            width: 300px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            margin: 0 10px;
+        }
 
-    body {
-        overflow-y: hidden;
-        margin: 0;
-        padding: 0;
-        /* background-color: #002868; */
-        background-color: #001434;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+        .form-group {
+            margin-bottom: 15px;
+        }
 
-    .navbar {
-        display: none;
-    }
+        .input-modal {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: #fff;
+        }
 
-    .footer {
-        display: none;
-    }
+            .input-modal:focus, .input-modal:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+                outline: none;
+            }
 
-    h3 {
-        font-size: 20px;
-    }
+            .input-modal::placeholder, .input-modal::placeholder {
+                color: #6c757d;
+                opacity: 1;
+            }
 
-    /* Estilos del login-POPUP */
+        .validation-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            height: 20px;
+        }
 
-    .modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        background: transparent;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-    }
+        .message-error {
+            color: #dc3545;
+            margin-bottom: 15px;
+            min-height: 20px;
+        }
 
-    .modal-content {
-        text-align: center;
-        width: 300px;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-        background-color: #f9f9f9;
-        margin: 0 10px;
-    }
+        /* Estilos del HTML */
 
-    .form-group {
-        margin-bottom: 15px;
-    }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
 
-    .input-modal {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ced4da;
-        border-radius: 5px;
-        font-size: 16px;
-        box-sizing: border-box;
-        transition: border-color 0.3s, box-shadow 0.3s;
-        background-color: #fff;
-    }
+        .content {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            background-color: #ffffff;
+            transition: box-shadow 0.3s ease;
+        }
 
-        .input-modal:focus, .input-modal:focus {
+            .content:hover {
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            }
+
+            .content h1 {
+                font-size: 24px;
+                color: #343a40;
+                margin-bottom: 20px;
+            }
+
+        /* --- ESTILOS DE BOTONES (REFACTORIZADOS) --- */
+
+        /* 1. Estilo Base Común para TODOS los botones */
+        .custom-button {
+            /* Propiedades de espaciado, fuente y forma */
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            border: 1px solid transparent; /* Borde base transparente */
+            /* Propiedades de transición y sombra */
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+            /* Estado deshabilitado (común a todos) */
+            .custom-button:disabled {
+                background-color: #6c757d;
+                border-color: #6c757d;
+                color: white;
+                cursor: not-allowed;
+                box-shadow: none;
+                opacity: 0.65;
+            }
+
+        /* 2. Estilo para Botones con Relleno (Primario por defecto) */
+        .custom-button-filled {
+            background-color: #007bff;
+            color: white;
             border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-            outline: none;
         }
 
-        .input-modal::placeholder, .input-modal::placeholder {
-            color: #6c757d;
-            opacity: 1;
+            .custom-button-filled:not(:disabled):hover {
+                background-color: #0056b3;
+                border-color: #0056b3;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            }
+
+        /* 3. Modificador de Peligro (Danger) */
+        .custom-button-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
         }
 
-    .validation-message {
-        color: #dc3545;
-        font-size: 0.875em;
-        height: 20px;
-    }
+            .custom-button-danger:not(:disabled):hover {
+                background-color: #c82333;
+                border-color: #bd2130;
+            }
 
-    .message-error {
-        color: #dc3545;
-        margin-bottom: 15px;
-        min-height: 20px;
-    }
-
-    /* Estilos del HTML */
-
-    .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        flex-direction: column;
-    }
-
-    .content {
-        text-align: center;
-        max-width: 600px;
-        width: 100%;
-        padding: 40px;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        border-radius: 8px;
-        background-color: #ffffff;
-        transition: box-shadow 0.3s ease;
-    }
-
-        .content:hover {
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        /* Estilos generales para botones deshabilitados */
+        button:disabled,
+        .btn:disabled,
+        .custom-button:disabled,
+        input[type="button"]:disabled,
+        input[type="submit"]:disabled,
+        [disabled] {
+            opacity: 0.65 !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important; /* Desactiva todos los eventos del mouse, incluido el hover */
         }
 
-        .content h1 {
-            font-size: 24px;
-            color: #343a40;
-            margin-bottom: 20px;
+            /* Anular específicamente cualquier estilo hover para botones deshabilitados */
+            button:disabled:hover,
+            .btn:disabled:hover,
+            .custom-button:disabled:hover,
+            .custom-button-filled:disabled:hover,
+            .custom-button-outline:disabled:hover,
+            .custom-button-danger:disabled:hover,
+            input[type="button"]:disabled:hover,
+            input[type="submit"]:disabled:hover {
+                box-shadow: none !important;
+                transform: none !important;
+                /* Mantener el color deshabilitado */
+                transition: none !important;
+            }
+
+        .alert {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: .375rem;
         }
 
-    .custom-button {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-        position: relative;
-        transition: background-color 0.3s, box-shadow 0.3s;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
 
-        .custom-button:hover {
-            background-color: #0056b3;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
         }
 
-        .custom-button:disabled {
-            background-color: #6c757d;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-    .alert {
-        padding: 15px;
-        margin-bottom: 20px;
-        border: 1px solid transparent;
-        border-radius: 4px;
-    }
-
-    .alert-success {
-        color: #155724;
-        background-color: #d4edda;
-        border-color: #c3e6cb;
-    }
-
-    .alert-danger {
-        color: #721c24;
-        background-color: #f8d7da;
-        border-color: #f5c6cb;
-    }
-
-    .alert.show {
-        opacity: 1;
-    }
-
-    /* Estilos del Boton eliminar Cache */
-    .separator {
-        border: 0;
-        height: 1px;
-        background: #eee;
-        margin: 30px 0;
-    }
-
-    .secondary-action {
-        margin-top: 20px;
-        text-align: center;
-    }
-
-        .secondary-action p {
-            margin-bottom: 10px;
-            color: #6c757d;
-            font-size: 0.9em;
-        }
-
-    .custom-button-outline {
-        background-color: #ffffff;
-        color: #dc3545;
-        border: 1px solid #dc3545;
-    }
-
-        .custom-button-outline:hover {
-            background-color: #f8d7da;
+        .alert-danger {
             color: #721c24;
+            background-color: #f8d7da;
             border-color: #f5c6cb;
         }
 
-        .custom-button-outline:disabled {
-            background-color: #f8f9fa;
-            color: #adb5bd;
-            border-color: #ced4da;
-            cursor: not-allowed;
-            box-shadow: none;
+        .alert.show {
+            opacity: 1;
         }
 
-</style>
-
-<script>
-        async function validarCredenciales() {
-        // Resetear mensajes de error
-        document.querySelectorAll('.validation-message').forEach(e => e.textContent = '');
-        document.getElementById('loginMessage').textContent = '';
-
-        // Validacion front
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
-
-        if (!username || !password) {
-            if (!username) document.getElementById('userError').textContent = 'Usuario es requerido';
-            if (!password) document.getElementById('passError').textContent = 'Contraseña es requerida';
-            return;
+        .alert-warning {
+            color: #664d03;
+            background-color: #fff3cd;
+            border-color: #ffecb5;
         }
 
-        // Validacion back
-        try {
-            const response = await fetch('/api/WaveRelease/ValidarUsuario', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ Usuario: username, Contrasena: password })
-            });
+        .alert .bi {
+            flex-shrink: 0; /* Evita que el icono se encoja */
+            margin-right: 0.75rem; /* Espacio entre el icono y el texto */
+            width: 20px; /* Ancho fijo para el icono */
+            height: 20px; /* Alto fijo para el icono */
+        }
 
-            if (response.ok) {
-                document.getElementById('loginModal').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'flex';
-            } else {
-                document.getElementById('loginMessage').textContent = "Credenciales incorrectas";
+        .action-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        /* Estilos del Boton eliminar Cache */
+        .separator {
+            border: 0;
+            height: 1px;
+            background: #eee;
+            margin: 0;
+            width: 80%;
+        }
+
+        .secondary-action {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+            .secondary-action p {
+                margin-bottom: 10px;
+                color: #6c757d;
+                font-size: 0.9em;
             }
-        } catch (error) {
-            document.getElementById('loginMessage').textContent = "Error de conexión";
+
+        /* Estilos para las pestañas */
+
+        .tabs-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 2rem auto;
+            display: flex;
+            flex-direction: column;
         }
-    }
 
-    /*
-      lOGICA BOTON
-    */
-    document.getElementById('myForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            gap: 5px;
+        }
 
-        const btn = document.getElementById('submitBtn');
-        const messageContainer = document.getElementById('messageContainer');
-        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            bottom: -1px;
+            flex: 1;
+            text-align: center;
+            color: #495057;
+            font-weight: 500;
+            border-top: 3px solid transparent;
+            display: flex; /* Añadido para alinear icono y texto */
+            justify-content: center; /* Añadido para alinear icono y texto */
+            align-items: center; /* Añadido para alinear icono y texto */
+            gap: 8px; /* Espacio entre texto e icono */
+        }
 
-        btn.disabled = true;
-        messageContainer.innerHTML = '';
+            .tab.active {
+                background: white;
+                border-bottom: 2px solid white;
+                color: #007bff;
+                font-weight: 500;
+                border-top: 3px solid #007bff;
+            }
 
-        try {
+        .tab-content {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 0 0 8px 8px;
+            border-top: none;
+            padding: 2rem; /* Padding aumentado para más espacio */
+            min-height: 350px;
+            min-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            text-align: center;
+        }
 
-            const response = await fetch('/api/WaveRelease/EnviarCache', {
-                method: 'POST',
-                headers: {
-                    'RequestVerificationToken': token,
-                    'Authorization': 'Basic ' + btoa('senad:S3nad'),
-                    'Content-Type': 'application/json'
-                }
-            });
+        .tab-form {
+            margin-top: 1.5rem;
+        }
 
-            const texto = await response.text();
-            const data = {
-                mensaje: `${response.status} - ${texto}`,
-                esError: !response.ok
+        #messageContainer, #messageContainerExtra, #messageContainerDB {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 1rem;
+        }
+
+        @@media (max-width: 700px) {
+            .tabs-container {
+                max-width: 98vw;
+            }
+
+            .tab {
+                min-width: 120px;
+                font-size: 14px;
+            }
+        }
+
+        .lock-icon svg {
+            display: block;
+        }
+
+        .warning-text {
+            color: #721c24;
+            font-weight: 500;
+            margin-top: -1rem;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Estilos para el Modal Personalizado */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1050;
+        }
+
+        #customModalContent {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        #customModalTitle {
+            margin-top: 0;
+            color: #333;
+        }
+
+        #customModalMessage {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* Estilos Loading Spinner */
+        .loader {
+            border: 6px solid #cacaca;
+            border-top: 6px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            margin-bottom: 1rem;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* --- Estilos para el Indicador de Estado --- */
+
+        .status-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .status-label {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35em 0.65em;
+            font-size: .9em;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 50rem; /* Píldora redondeada */
+        }
+
+            .status-badge svg {
+                margin-right: 0.4rem;
+                width: 1em;
+                height: 1em;
+            }
+
+        .status-active {
+            color: #0f5132;
+            background-color: #d1e7dd;
+        }
+
+        .status-inactive {
+            color: #41464b;
+            background-color: #e2e3e5;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Contenedor del Modal de Confirmación/Alerta -->
+    <div id="customModalOverlay" class="modal-overlay" style="display: none;">
+        <div id="customModalContent">
+            <h3 id="customModalTitle"></h3>
+            <p id="customModalMessage"></p>
+            <div id="customModalActions" class="modal-actions">
+                <!-- Botones se insertan dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay de Carga Global -->
+    <div id="globalLoaderOverlay" class="modal-overlay" style="display: none; background-color: rgba(0, 0, 0, 0.7); z-index: 2000;">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Popup de Login (visible por defecto) -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h3>Autorización Requerida</h3>
+            <div id="loginMessage" class="message-error"></div>
+            <div class="form-group">
+                <input class="input-modal" type="text" id="username" placeholder="Usuario" required>
+                <div class="validation-message" id="userError"></div>
+            </div>
+            <div class="form-group">
+                <input class="input-modal" type="password" id="password" placeholder="Contraseña" required>
+                <div class="validation-message" id="passError"></div>
+            </div>
+            <button type="button" id="loginButton" class="custom-button custom-button-filled">Ingresar</button>
+        </div>
+    </div>
+
+    <!-- Contenido principal (oculto por defecto) -->
+    <div class="container" id="mainContent" style="display: none;" data-admin-password='@Json.Serialize(Model.AdminPassword)'>
+        <div class="tabs-container">
+            <div class="tabs">
+                <div class="tab active" id="tabEnviar">Enviar a WaveRelease</div>
+                <div class="tab" id="tabExtra">
+                    Wave Admin <span id="adminLockIcon" class="lock-icon"></span>
+                </div>
+            </div>
+            <div class="tab-content active" id="tabContentEnviar">
+                <h1>Envío de WaveCache a WaveRelease</h1>
+                <div id="waveStatusContainer">
+                    @await Component.InvokeAsync("WaveStatus")
+                </div>
+                <div id="waveReleaseStatusContainer">
+                    @await Component.InvokeAsync("WaveReleaseStatus")
+                </div>
+                <div id="messageContainer"></div>
+                <form method="post" id="myForm" class="tab-form">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="custom-button custom-button-filled" id="submitBtn">
+                        Enviar Datos a WaveRelease
+                    </button>
+                </form>
+            </div>
+            <div class="tab-content" id="tabContentExtra">
+                <h1>Acciones Admin Wave</h1>
+                <div class="alert alert-warning" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                    </svg>
+                    <div>
+                        <strong>Cuidado:</strong> Las siguientes acciones son irreversibles.
+                    </div>
+                </div>
+                <div id="messageContainerExtra"></div>
+                <div class="action-group">
+                    <button type="button" class="custom-button custom-button-filled custom-button-danger" id="eliminarCacheBtn">
+                        Eliminar Datos de WaveCache
+                    </button>
+                    <hr class="separator">
+                    <button type="button" class="custom-button custom-button-filled custom-button-danger" id="cerrarWaveBtn">
+                        Cerrar WaveRelease
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+                // Se envuelve todo en un evento DOMContentLoaded para asegurar que el HTML esté cargado.
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Obtenemos la contraseña del admin desde un atributo de datos y la parseamos como JSON.
+            const adminPasswordJSON = document.querySelector('#mainContent').dataset.adminPassword;
+            const adminPassword = JSON.parse(adminPasswordJSON);
+            let isAdminAuthenticated = false;
+
+            const icons = {
+                locked: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/></svg>`,
+                unlocked: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-unlock-fill" viewBox="0 0 16 16"><path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2"/></svg>`
             };
 
-            const alertType = data.esError ? "alert-danger" : "alert-success";
-            messageContainer.innerHTML = `
-                <div class="alert ${alertType}">
-                    ${data.mensaje}
-                </div>
-            `;
+            const globalLoader = document.getElementById('globalLoaderOverlay');
 
-        } catch (error) {
-            messageContainer.innerHTML = `
-                <div class="alert alert-danger">
-                    Error de conexión al servidor: ${error.message}
-                </div>
-            `;
-        } finally {
-            btn.disabled = false;
-        }
-    });
-    /*
-        lOGICA BOTON ELIMINAR WAVECACHE
-    */
-    async function eliminarCache() {
+            // --- Asignación de eventos y funciones ---
+            // Se asignan aquí para asegurar que los elementos existan.
 
-        const waveExiste = @Model.WaveExiste.ToString().ToLower();
+            document.getElementById('username').addEventListener('keydown', handleLoginKeydown);
+            document.getElementById('password').addEventListener('keydown', handleLoginKeydown);
+            document.querySelector('#loginModal button').onclick = validarCredenciales;
 
-        if (!waveExiste) {
-            alert("La WaveCache ya está limpia. No hay datos para eliminar.");
-            return;
-        }
+            document.getElementById('myForm').addEventListener('submit', handleEnviarCacheSubmit);
 
-        const nombreWave = @Json.Serialize(Model.NombreWave);
-        const confirmacion = window.confirm(`¿Estás seguro de que deseas eliminar todos los datos de la wave '${nombreWave}'? Esta acción no se puede deshacer.`);
+            document.getElementById('eliminarCacheBtn').onclick = eliminarCache;
+            document.getElementById('cerrarWaveBtn').onclick = cerrarWave;
 
-        if (!confirmacion) {
-            return;
-        }
-        const messageContainer = document.getElementById('messageContainer');
-        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-        const btn = document.getElementById('eliminarCacheBtn');
+            document.getElementById('tabEnviar').onclick = () => showTab('enviar');
+            document.getElementById('tabExtra').onclick = showAdminTab;
 
-        btn.disabled = true;
-        messageContainer.innerHTML = '';
+            document.getElementById('adminLockIcon').innerHTML = icons.locked;
 
-        try {
-            const response = await fetch('/api/WaveRelease/EliminarCache', {
-                method: 'POST',
-                headers: {
-                    'RequestVerificationToken': token,
-                    'Authorization': 'Basic ' + btoa('senad:S3nad'),
-                    'Content-Type': 'application/json'
+
+            function handleLoginKeydown(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    validarCredenciales();
                 }
-            });
+            }
 
-            const texto = await response.text();
-            const data = {
-                mensaje: `${response.status} - ${texto}`,
-                esError: !response.ok
-            };
+            async function validarCredenciales() {
+                document.querySelectorAll('.validation-message').forEach(e => e.textContent = '');
+                document.getElementById('loginMessage').textContent = '';
 
-            const alertType = data.esError ? "alert-danger" : "alert-success";
-            messageContainer.innerHTML = `
-                <div class="alert ${alertType}">
-                    ${data.mensaje}
-                </div>
-            `;
-        } catch (error) {
-            messageContainer.innerHTML = `
-                <div class="alert alert-danger">
-                    Error de conexión al servidor: ${error.message}
-                </div>
-            `;
-        } finally {
-            btn.disabled = false;
-        }
-    }
-</script>
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+
+                if (!username || !password) {
+                    if (!username) document.getElementById('userError').textContent = 'Usuario es requerido';
+                    if (!password) document.getElementById('passError').textContent = 'Contraseña es requerida';
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/WaveRelease/ValidarUsuario', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ Usuario: username, Contrasena: password })
+                    });
+
+                    if (response.ok) {
+                        document.getElementById('loginModal').style.display = 'none';
+                        document.getElementById('mainContent').style.display = 'flex';
+                        showTab('enviar');
+                    } else {
+                        document.getElementById('loginMessage').textContent = "Credenciales incorrectas";
+                    }
+                } catch (error) {
+                    document.getElementById('loginMessage').textContent = "Error de conexión";
+                }
+            }
+
+            async function handleEnviarCacheSubmit(e) {
+                e.preventDefault();
+
+                const btn = document.getElementById('submitBtn');
+                const messageContainer = document.getElementById('messageContainer');
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                btn.disabled = true;
+                globalLoader.style.display = 'flex';
+                messageContainer.innerHTML = '';
+
+                try {
+                    const response = await fetch('/api/WaveRelease/EnviarCache', {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': token,
+                            'Authorization': 'Basic ' + btoa('senad:S3nad'),
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const texto = await response.text();
+                    const data = {
+                        mensaje: `${response.status} - ${texto}`,
+                        esError: !response.ok
+                    };
+
+                    const alertType = data.esError ? "alert-danger" : "alert-success";
+                    messageContainer.innerHTML = `<div class="alert ${alertType}">${data.mensaje}</div>`;
+
+                } catch (error) {
+                    messageContainer.innerHTML = `<div class="alert alert-danger">Error de conexión al servidor: ${error.message}</div>`;
+                } finally {
+                    btn.disabled = false;
+                    globalLoader.style.display = 'none';
+                    await actualizarWaveStatus();
+                    await actualizarWaveReleaseStatus();
+                }
+            }
+
+            async function eliminarCache() {
+                const messageContainer = document.getElementById('messageContainerExtra');
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const btn = document.getElementById('eliminarCacheBtn');
+
+                let cacheInfo;
+                try {
+                    const response = await fetch('/api/WaveRelease/ObtenerNombreWaveCache');
+                    if (!response.ok) throw new Error('No se pudo verificar el estado de la caché.');
+                    cacheInfo = await response.json();
+                } catch (error) {
+                    messageContainer.innerHTML = `<div class="alert alert-danger">Error al verificar la caché: ${error.message}</div>`;
+                    return;
+                }
+
+                if (!cacheInfo.existe) {
+                    showCustomAlert("Información", "La WaveCache ya está limpia. No hay datos para eliminar.");
+                    return;
+                }
+
+                const confirmacion = await showCustomConfirm("Confirmar Eliminación", `¿Estás seguro de que deseas eliminar todos los datos de la wave (${cacheInfo.nombre})? Esta acción no se puede deshacer.`);
+                if (!confirmacion) return;
+
+                btn.disabled = true;
+                globalLoader.style.display = 'flex';
+                messageContainer.innerHTML = '';
+
+                try {
+                    const response = await fetch('/api/WaveRelease/EliminarCache', {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': token,
+                            'Authorization': 'Basic ' + btoa('senad:S3nad'),
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const texto = await response.text();
+                    const data = { mensaje: `${response.status} - ${texto}`, esError: !response.ok };
+                    const alertType = data.esError ? "alert-danger" : "alert-success";
+                    messageContainer.innerHTML = `<div class="alert ${alertType}">${data.mensaje}</div>`;
+                } catch (error) {
+                    messageContainer.innerHTML = `<div class="alert alert-danger">Error de conexión al servidor: ${error.message}</div>`;
+                } finally {
+                    btn.disabled = false;
+                    globalLoader.style.display = 'none';
+                    await actualizarWaveStatus();
+                    await actualizarWaveReleaseStatus();
+                }
+            }
+
+            async function cerrarWave() {
+                const confirmacion = await showCustomConfirm("Confirmar Cierre", "¿Estás seguro de que deseas cerrar la WaveRelease activa? Esto afectará la Wave junto con todas las órdenes en proceso.");
+                if (!confirmacion) return;
+
+                const messageContainer = document.getElementById('messageContainerExtra');
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const btn = document.getElementById('cerrarWaveBtn');
+
+                btn.disabled = true;
+                globalLoader.style.display = 'flex';
+                messageContainer.innerHTML = '';
+
+                try {
+                    const response = await fetch('/api/WaveRelease/CerrarWave', {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': token,
+                            'Authorization': 'Basic ' + btoa('senad:S3nad'),
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const texto = await response.text();
+                    const data = { mensaje: `${response.status} - ${texto}`, esError: !response.ok };
+                    const alertType = data.esError ? "alert-danger" : "alert-success";
+                    messageContainer.innerHTML = `<div class="alert ${alertType}">${data.mensaje}</div>`;
+                } catch (error) {
+                    messageContainer.innerHTML = `<div class="alert alert-danger">Error de conexión al servidor: ${error.message}</div>`;
+                } finally {
+                    btn.disabled = false;
+                    globalLoader.style.display = 'none';
+                    await actualizarWaveStatus();
+                    await actualizarWaveReleaseStatus();
+                }
+            }
+
+            const modalOverlay = document.getElementById('customModalOverlay');
+            const modalTitle = document.getElementById('customModalTitle');
+            const modalMessage = document.getElementById('customModalMessage');
+            const modalActions = document.getElementById('customModalActions');
+
+            function showCustomAlert(title, message) {
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                modalActions.innerHTML = '<button class="custom-button custom-button-filled">Aceptar</button>';
+                modalOverlay.style.display = 'flex';
+                modalActions.querySelector('button').onclick = () => {
+                    modalOverlay.style.display = 'none';
+                };
+            }
+
+            function showCustomConfirm(title, message) {
+                return new Promise(resolve => {
+                    modalTitle.textContent = title;
+                    modalMessage.textContent = message;
+                    modalActions.innerHTML = `
+                        <button id="confirmBtn" class="custom-button custom-button-filled">Confirmar</button>
+                        <button id="cancelBtn" class="custom-button custom-button-filled custom-button-danger">Cancelar</button>
+                    `;
+                    modalOverlay.style.display = 'flex';
+                    document.getElementById('confirmBtn').onclick = () => {
+                        modalOverlay.style.display = 'none';
+                        resolve(true);
+                    };
+                    document.getElementById('cancelBtn').onclick = () => {
+                        modalOverlay.style.display = 'none';
+                        resolve(false);
+                    };
+                });
+            }
+
+            function showAdminPasswordPrompt() {
+                return new Promise(resolve => {
+                    modalTitle.textContent = 'Acceso Restringido';
+                    modalMessage.innerHTML = `
+                        <p>Por favor, ingrese la contraseña para acceder a las opciones de administrador.</p>
+                        <div class="form-group">
+                            <input class="input-modal" type="password" id="adminPassword" placeholder="Contraseña" required>
+                            <div class="validation-message" id="adminPassError"></div>
+                        </div>
+                    `;
+                    modalActions.innerHTML = `
+                        <button id="adminConfirmBtn" class="custom-button custom-button-filled">Ingresar</button>
+                        <button id="adminCancelBtn" class="custom-button custom-button-filled custom-button-danger">Cancelar</button>
+                    `;
+
+                    const modalContent = document.getElementById('customModalContent');
+                    modalContent.style.maxWidth = '300px';
+                    modalOverlay.style.display = 'flex';
+
+                    const adminPasswordField = document.getElementById('adminPassword');
+                    const adminPassError = document.getElementById('adminPassError');
+
+                    const handleConfirm = () => {
+                        if (adminPasswordField.value === adminPassword) { // Usar la variable JS
+                            modalOverlay.style.display = 'none';
+                            resolve(true);
+                        } else {
+                            adminPassError.textContent = 'Contraseña incorrecta.';
+                        }
+                    };
+
+                    document.getElementById('adminConfirmBtn').onclick = handleConfirm;
+                    adminPasswordField.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            handleConfirm();
+                        }
+                    });
+                    document.getElementById('adminCancelBtn').onclick = () => {
+                        modalOverlay.style.display = 'none';
+                        resolve(false);
+                    };
+                });
+            }
+
+            function showTab(tabName) {
+                document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+                document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+
+                if (tabName === 'enviar') {
+                    document.getElementById('tabContentEnviar').style.display = 'flex';
+                    document.getElementById('tabEnviar').classList.add('active');
+                } else if (tabName === 'extra' && isAdminAuthenticated) {
+                    document.getElementById('tabContentExtra').style.display = 'flex';
+                    document.getElementById('tabExtra').classList.add('active');
+                }
+            }
+
+            async function showAdminTab() {
+                if (isAdminAuthenticated) {
+                    showTab('extra');
+                    return;
+                }
+                const isAuthenticated = await showAdminPasswordPrompt();
+                if (isAuthenticated) {
+                    isAdminAuthenticated = true;
+                    document.getElementById('adminLockIcon').innerHTML = icons.unlocked;
+                    showTab('extra');
+                }
+            }
+
+            async function actualizarWaveStatus() {
+                try {
+                    const response = await fetch('/api/WaveRelease/WaveStatus');
+                    if (response.ok) {
+                        document.getElementById('waveStatusContainer').innerHTML = await response.text();
+                    } else {
+                        console.error('Error al actualizar el estado de la wave.');
+                    }
+                } catch (error) {
+                    console.error('Error de conexión al actualizar el estado de la wave:', error);
+                }
+            }
+
+            async function actualizarWaveReleaseStatus() {
+                try {
+                    const response = await fetch('/api/WaveRelease/WaveReleaseStatus');
+                    if (response.ok) {
+                        document.getElementById('waveReleaseStatusContainer').innerHTML = await response.text();
+                    } else {
+                        console.error('Error al actualizar el estado de WaveRelease.');
+                    }
+                } catch (error) {
+                    console.error('Error de conexión al actualizar el estado de WaveRelease:', error);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

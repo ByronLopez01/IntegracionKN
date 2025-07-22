@@ -61,6 +61,45 @@ namespace APIFamilyMaster.controllers
                 return BadRequest("Error. La lista de FamilyMaster está vacía o es nula.");
             }
 
+            // Aplicar trim a todas las propiedades string
+            foreach (var fm in familyMasters)
+            {
+                fm.Familia = fm.Familia?.Trim();
+                fm.Tienda1 = fm.Tienda1?.Trim();
+                fm.Tienda2 = fm.Tienda2?.Trim();
+                fm.Tienda3 = fm.Tienda3?.Trim();
+                fm.Tienda4 = fm.Tienda4?.Trim();
+                fm.Tienda5 = fm.Tienda5?.Trim();
+                fm.Tienda6 = fm.Tienda6?.Trim();
+                fm.Tienda7 = fm.Tienda7?.Trim();
+                fm.Tienda8 = fm.Tienda8?.Trim();
+                fm.Tienda9 = fm.Tienda9?.Trim();
+                fm.Tienda10 = fm.Tienda10?.Trim();
+                fm.Tienda11 = fm.Tienda11?.Trim();
+                fm.Tienda12 = fm.Tienda12?.Trim();
+
+                // Verificar que después del trim no queden strings vacíos
+                if (string.IsNullOrEmpty(fm.Familia))
+                {
+                    _logger.LogError($"Error. La propiedad 'Familia' quedaría vacía después de eliminar espacios.");
+                    return BadRequest($"Error. La propiedad 'Familia' no puede ser una cadena vacía.");
+                }
+
+                // Verificar que las tiendas no sean strings vacíos (si no son nulas)
+                if (fm.Tienda1 == "") { _logger.LogError($"Error. La tienda1 de la familia '{fm.Familia}' quedaría vacía."); return BadRequest($"Error. La tienda1 de la familia '{fm.Familia}' no puede ser una cadena vacía."); }
+                if (fm.Tienda2 == "") { _logger.LogError($"Error. La tienda2 de la familia '{fm.Familia}' quedaría vacía."); return BadRequest($"Error. La tienda2 de la familia '{fm.Familia}' no puede ser una cadena vacía."); }
+                if (fm.Tienda3 == "") { _logger.LogError($"Error. La tienda3 de la familia '{fm.Familia}' quedaría vacía."); return BadRequest($"Error. La tienda3 de la familia '{fm.Familia}' no puede ser una cadena vacía."); }
+                if (fm.Tienda4 == "") { _logger.LogError($"Error. La tienda4 de la familia '{fm.Familia}' quedaría vacía."); return BadRequest($"Error. La tienda4 de la familia '{fm.Familia}' no puede ser una cadena vacía."); }
+                if (fm.Tienda5 == "") { _logger.LogError($"Error. La tienda5 de la familia '{fm.Familia}' quedaría vacía."); return BadRequest($"Error. La tienda5 de la familia '{fm.Familia}' no puede ser una cadena vacía."); }
+                if (fm.Tienda6 == "") { _logger.LogError($"Error. La tienda6 de la familia '{fm.Familia}' quedaría vacía."); return BadRequest($"Error. La tienda6 de la familia '{fm.Familia}' no puede ser una cadena vacía."); }
+                if (fm.Tienda7 == "") { _logger.LogError($"Error. La tienda7 de la familia '{fm.Familia}' quedaría vacía."); return BadRequest($"Error. La tienda7 de la familia '{fm.Familia}' no puede ser una cadena vacía."); }
+                if (fm.Tienda8 == "") { _logger.LogError($"Error. La tienda8 de la familia '{fm.Familia}' quedaría vacía."); return BadRequest($"Error. La tienda8 de la familia '{fm.Familia}' no puede ser una cadena vacía."); }
+                if (fm.Tienda9 == "") { _logger.LogError($"Error. La tienda9 de la familia '{fm.Familia}' quedaría vacía."); return BadRequest($"Error. La tienda9 de la familia '{fm.Familia}' no puede ser una cadena vacía."); }
+                if (fm.Tienda10 == "") { _logger.LogError($"Error. La tienda10 de la familia '{fm.Familia}' quedaría vacía."); return BadRequest($"Error. La tienda10 de la familia '{fm.Familia}' no puede ser una cadena vacía."); }
+                if (fm.Tienda11 == "") { _logger.LogError($"Error. La tienda11 de la familia '{fm.Familia}' quedaría vacía."); return BadRequest($"Error. La tienda11 de la familia '{fm.Familia}' no puede ser una cadena vacía."); }
+                if (fm.Tienda12 == "") { _logger.LogError($"Error. La tienda12 de la familia '{fm.Familia}' quedaría vacía."); return BadRequest($"Error. La tienda12 de la familia '{fm.Familia}' no puede ser una cadena vacía."); }
+            }
+
             var familiasAgrupadas = familyMasters.GroupBy(fm => fm.Familia);
             foreach (var grupo in familiasAgrupadas)
             {
@@ -72,7 +111,7 @@ namespace APIFamilyMaster.controllers
                 }
             }
 
-                try
+            try
             {
                 var datosExistentes = _context.Familias.ToList();
                 if (datosExistentes.Any())
@@ -110,7 +149,7 @@ namespace APIFamilyMaster.controllers
                 _context.Familias.AddRange(familyMasterEntities);
                 await _context.SaveChangesAsync();
 
-
+                
                 // ENVIO DE JSON A LUCA!!
                 var jsonContent = JsonSerializer.Serialize(familyMasters);
                 var httpClient = _httpClientFactory.CreateClient("apiLuca");
@@ -124,7 +163,7 @@ namespace APIFamilyMaster.controllers
                 _logger.LogInformation("Enviando JSON a Luca en la URL: {UrlLuca}", urlLuca);
                 _logger.LogInformation("JSON a enviar: {JsonContent}", jsonContent);
 
-
+                
                 try
                 {
                     var response = await httpClient.PostAsync(urlLuca, httpContent);
@@ -149,7 +188,7 @@ namespace APIFamilyMaster.controllers
                     _logger.LogError("Ocurrió un error inesperado: {Message}", ex.Message);
                     return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
                 }               
-
+                
                 return Ok("Datos guardados correctamente.");
 
             }
