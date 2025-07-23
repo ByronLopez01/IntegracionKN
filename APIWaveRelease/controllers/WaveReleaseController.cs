@@ -61,7 +61,7 @@ namespace APIWaveRelease.controllers
                 {
                     // No hay wave activa, verificar si hay órdenes en proceso remanentes
                     var ordenesEnProcesoRemanentes = await _context.OrdenEnProceso
-                        .Where(o => o.estado == true)
+                        .Where(o => o.estado == true || o.estadoLuca == true)
                         .ToListAsync();
 
                     if (ordenesEnProcesoRemanentes.Any())
@@ -114,7 +114,7 @@ namespace APIWaveRelease.controllers
                 };
 
 
-                /*
+                
                 // URL de LUCA
                 var urlLucaBase = _configuration["ServiceURls:luca"];
                 var urlLuca = $"{urlLucaBase}/api/sort/OrderUpdate";
@@ -137,7 +137,7 @@ namespace APIWaveRelease.controllers
                     _logger.LogError($"Error al enviar cancelación a Luca. Status: {response.StatusCode}. Detalles: {errorDetails}");
                     return StatusCode((int)response.StatusCode, $"Error al enviar cancelación a Luca. Detalles: {errorDetails}");
                 }
-                */
+                
 
 
 
@@ -155,7 +155,7 @@ namespace APIWaveRelease.controllers
 
                 // Cambiar el estado de las ordenes en OrdenEnProceso a procesado
                 var ordenesEnProceso = await _context.OrdenEnProceso
-                    .Where(o => o.estado == true)
+                    .Where(o => o.estado == true || o.estadoLuca == true)
                     .ToListAsync();
 
                 if (ordenesEnProceso.Count != 0)
