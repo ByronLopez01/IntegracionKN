@@ -192,6 +192,14 @@ namespace APIOrderConfirmation.data
                     .IsRequired()
                     .HasMaxLength(50);
 
+                entity.Property(e => e.familia)
+                    .HasColumnName("Familia")
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+
+                
+
             });
         }
 

@@ -5,5 +5,6 @@
         public int Id { get; set; }
         public required string Wave { get; set; }
         public required bool estadoWave { get; set; }
+        public string familia { get; set; }
     }
 }

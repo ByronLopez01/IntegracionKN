@@ -16,5 +16,7 @@ namespace APILPNPicking.models
         public string Wave { get; set; }
         public string Tienda { get; set; }
 
+        public bool EstadoWave { get; set; }
+
     }
 }

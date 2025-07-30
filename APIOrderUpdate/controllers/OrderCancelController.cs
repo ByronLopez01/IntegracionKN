@@ -48,6 +48,11 @@ namespace APIOrderUpdate.controllers
                 return BadRequest("Error. El JSON recibido no es válido o no contiene la información necesaria.");
             }
 
+            foreach (var orderCancelSeg in orderCancelKn.ORDER_CANCEL.ORDER_CANCEL_SEG)
+            {
+                _logger.LogInformation("Recibido: ordnum={Ordnum}, schbat={Schbat}", orderCancelSeg.ordnum, orderCancelSeg.schbat);
+            }
+
             var (result, ordersNotCancelled) = await _orderCancelService.HandleOrderCancelAsync(orderCancelKn);
 
             var ordersToCancel = orderCancelKn.ORDER_CANCEL.ORDER_CANCEL_SEG
@@ -74,7 +79,8 @@ namespace APIOrderUpdate.controllers
 
                 _logger.LogInformation("URL Luca: {UrlLuca}", $"{urlLuca}/api/sort/OrderUpdate");
                 _logger.LogInformation("Contenido JSON: {Json}", JsonSerializer.Serialize(orderCancelJson));
-
+                
+                
                 // ENVIO A LUCA!!
                 var response = await _httpClient.PostAsync($"{urlLuca}/api/sort/OrderUpdate", jsonContent);
 
@@ -83,6 +89,7 @@ namespace APIOrderUpdate.controllers
                     _logger.LogError("Error. Fallo al enviar el OrderCancel a Luca. Código de estado: {StatusCode}", response.StatusCode);
                     return StatusCode((int)response.StatusCode, "Error. Fallo al enviar el OrderCancel a Luca.");
                 }
+                
                 
             }
 

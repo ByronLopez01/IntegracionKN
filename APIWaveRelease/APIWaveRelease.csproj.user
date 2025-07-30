@@ -3,5 +3,8 @@
   <PropertyGroup>
     <ActiveDebugProfile>Container (Dockerfile)</ActiveDebugProfile>
     <NameOfLastUsedPublishProfile>C:\Users\Byron\source\repos\IntegracionKN\IntegracionKN\APIWaveRelease\Properties\PublishProfiles\FolderProfile.pubxml</NameOfLastUsedPublishProfile>
+    <RazorPage_SelectedScaffolderID>RazorPageScaffolder</RazorPage_SelectedScaffolderID>
+    <RazorPage_SelectedScaffolderCategoryPath>root/Common/RazorPage</RazorPage_SelectedScaffolderCategoryPath>
+    <WebStackScaffolding_ViewDialogWidth>650</WebStackScaffolding_ViewDialogWidth>
   </PropertyGroup>
 </Project>
