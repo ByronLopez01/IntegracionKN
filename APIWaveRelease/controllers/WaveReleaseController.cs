@@ -132,7 +132,7 @@ namespace APIWaveRelease.controllers
                 SetAuthorizationHeader(httpClient);
 
                 var jsonContent = JsonSerializer.Serialize(payload);
-                // MEJORA: El JSON completo se loguea a nivel Debug para no saturar los logs de producción.
+                //
                 _logger.LogInformation("JSON a enviar a LUCA (CerrarWave): {Payload}", jsonContent);
                 //_logger.LogInformation($"JSON a enviar a LUCA (CerrarWave): {jsonContent}");
                 var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
