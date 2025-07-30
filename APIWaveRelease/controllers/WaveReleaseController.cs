@@ -46,6 +46,8 @@ namespace APIWaveRelease.controllers
         [HttpPost("CerrarWave")]
         public async Task<IActionResult> CerrarWave()
         {
+            //
+            _logger.LogInformation("Iniciando el proceso de CerrarWave.");
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -59,6 +61,8 @@ namespace APIWaveRelease.controllers
 
                 if (string.IsNullOrEmpty(waveActiva))
                 {
+                    //
+                    _logger.LogInformation("No se encontró una wave activa. Verificando órdenes en proceso remanentes.");
                     // No hay wave activa, verificar si hay órdenes en proceso remanentes
                     var ordenesEnProcesoRemanentes = await _context.OrdenEnProceso
                         .Where(o => o.estado == true || o.estadoLuca == true)
@@ -66,7 +70,8 @@ namespace APIWaveRelease.controllers
 
                     if (ordenesEnProcesoRemanentes.Any())
                     {
-                        _logger.LogWarning("No se encontró una wave activa, pero sí órdenes en proceso remanentes. Procediendo a cerrarlas.");
+                        //
+                        _logger.LogWarning("No se encontró una wave activa, pero sí {Count} órdenes en proceso remanentes. Procediendo a cerrarlas.", ordenesEnProcesoRemanentes.Count);
                         foreach (var orden in ordenesEnProcesoRemanentes)
                         {
                             orden.estado = false;
@@ -81,11 +86,13 @@ namespace APIWaveRelease.controllers
                     {
                         // No hay nada que cerrar
                         await transaction.RollbackAsync();
+                        //
+                        _logger.LogInformation("No se encontró wave activa ni órdenes en proceso para cerrar. Ninguna acción realizada.");
                         return Ok("No hay ninguna wave activa ni órdenes en proceso para cerrar.");
                     }
                 }
-
-
+                //
+                _logger.LogInformation("Wave activa encontrada: {WaveActiva}. Procediendo con el cierre.", waveActiva);
                 // Obtener los NumOrden unicos de la wave activa.
                 var ordenes = await _context.WaveRelease
                     .Where(wr => wr.estadoWave == true && wr.Wave == waveActiva)
@@ -113,8 +120,8 @@ namespace APIWaveRelease.controllers
                     }
                 };
 
-
-                
+                //
+                _logger.LogInformation("Preparando para enviar cancelación a Luca para {Count} órdenes de la Wave: {WaveActiva}", ordenes.Count, waveActiva);
                 // URL de LUCA
                 var urlLucaBase = _configuration["ServiceURls:luca"];
                 var urlLuca = $"{urlLucaBase}/api/sort/OrderUpdate";
@@ -125,7 +132,9 @@ namespace APIWaveRelease.controllers
                 SetAuthorizationHeader(httpClient);
 
                 var jsonContent = JsonSerializer.Serialize(payload);
-                _logger.LogInformation($"JSON a enviar a LUCA (CerrarWave): {jsonContent}");
+                // MEJORA: El JSON completo se loguea a nivel Debug para no saturar los logs de producción.
+                _logger.LogInformation("JSON a enviar a LUCA (CerrarWave): {Payload}", jsonContent);
+                //_logger.LogInformation($"JSON a enviar a LUCA (CerrarWave): {jsonContent}");
                 var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
                 
@@ -134,17 +143,21 @@ namespace APIWaveRelease.controllers
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorDetails = await response.Content.ReadAsStringAsync();
+
                     _logger.LogError($"Error al enviar cancelación a Luca. Status: {response.StatusCode}. Detalles: {errorDetails}");
+                    //await transaction.RollbackAsync(); HACER ROLLBACK SI LUCA FALLA????
                     return StatusCode((int)response.StatusCode, $"Error al enviar cancelación a Luca. Detalles: {errorDetails}");
                 }
-                
 
-
+                //
+                _logger.LogInformation("Cancelación enviada a Luca exitosamente. Procediendo a actualizar estados en la BD.");
 
 
 
                 // Cambiar estado de todas las ordenes en WaveRelease a procesado
                 var waveReleases = await _context.WaveRelease.Where(wr => wr.estadoWave == true).ToListAsync();
+                //
+                _logger.LogInformation("Actualizando {Count} registros en WaveRelease a estado 'procesado' (false).", waveReleases.Count);
 
                 foreach (var waveRelease in waveReleases)
                 {
@@ -179,8 +192,9 @@ namespace APIWaveRelease.controllers
                 // Guardar los cambios en la base de datos
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-                
 
+                //
+                _logger.LogInformation("Proceso CerrarWave para la Wave {WaveActiva} finalizado con éxito.", waveActiva);
                 return Ok($"La Wave ({waveActiva}) y todos los LPN activos han sido cerrados correctamente en SORTER y LUCA.");
             }
             catch (JsonException jsonEx)
@@ -212,22 +226,30 @@ namespace APIWaveRelease.controllers
         [HttpPost("EliminarCache")]
         public async Task<IActionResult> EliminarCache()
         {
+            //
+            _logger.LogInformation("Solicitud recibida para eliminar WaveReleaseCache.");
             try
             {
                 var waveCache = await _context.WaveReleaseCache.ToListAsync();
 
                 if (!waveCache.Any())
                 {
+                    //
+                    _logger.LogInformation("No se encontraron datos en WaveReleaseCache para eliminar.");
                     return Ok("La tabla WaveReleaseCache ya está vacía.");
                 }
 
                 _context.WaveReleaseCache.RemoveRange(waveCache);
                 await _context.SaveChangesAsync();
+                //
+                _logger.LogInformation("{Count} registros eliminados de WaveReleaseCache exitosamente.", waveCache.Count);
                 return Ok("Datos de WaveReleaseCache eliminados correctamente.");
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error al eliminar datos de WaveReleaseCache: {ex.Message}");
+                //
+                _logger.LogError(ex, "Error al eliminar datos de WaveReleaseCache.");
+                //_logger.LogError($"Error al eliminar datos de WaveReleaseCache: {ex.Message}");
                 return StatusCode(500, "Error interno al eliminar los datos.");
             }
         }
@@ -274,6 +296,8 @@ namespace APIWaveRelease.controllers
         [AllowAnonymous]
         public async Task<IActionResult> ObtenerNombreWaveCache()
         {
+            //
+            _logger.LogInformation("Solicitud recibida para ObtenerNombreWaveCache.");
             var waveCache = await _context.WaveReleaseCache.FirstOrDefaultAsync();
 
             if (waveCache == null)
@@ -289,6 +313,8 @@ namespace APIWaveRelease.controllers
         [AllowAnonymous]
         public IActionResult GetWaveStatusComponent()
         {
+            //
+            _logger.LogDebug("Solicitando ViewComponent WaveStatus.");
             return new ViewComponentResult
             {
                 ViewComponentName = "WaveStatus"
@@ -299,6 +325,8 @@ namespace APIWaveRelease.controllers
         [AllowAnonymous]
         public IActionResult GetWaveReleaseStatusComponent()
         {
+            //
+            _logger.LogDebug("Solicitando ViewComponent WaveReleaseStatus.");
             return new ViewComponentResult
             {
                 ViewComponentName = "WaveReleaseStatus"
@@ -308,14 +336,21 @@ namespace APIWaveRelease.controllers
         [HttpPost]
         public async Task<IActionResult> PostOrderTransmission([FromBody] WaveReleaseKN waveReleaseKn)
         {
+            //   
+            _logger.LogInformation("Iniciando PostOrderTransmission para la Wave: {WaveId}", waveReleaseKn.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.schbat);
+
             // Validación de la entrada
             if (waveReleaseKn?.ORDER_TRANSMISSION?.ORDER_TRANS_SEG?.ORDER_SEG == null ||
                 string.IsNullOrEmpty(waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat))
             {
+                //
+                _logger.LogWarning("La solicitud PostOrderTransmission tiene un formato no válido o schbat está vacío.");
                 return BadRequest("Datos en formato no válido.");
             }
 
             // Paso 1: Obtener información de FamilyMaster
+            //
+            _logger.LogInformation("Iniciando llamadas a APIs externas");
             int salidasDisponibles = 0;
             var httpClientFam = _httpClientFactory.CreateClient("apiFamilyMaster");
             SetAuthorizationHeader(httpClientFam);
@@ -324,15 +359,19 @@ namespace APIWaveRelease.controllers
             var resetList = await httpClientFam.PostAsync(urlConfirm, null);
             if (!resetList.IsSuccessStatusCode)
             {
+                //
+                _logger.LogWarning("La llamada a apiorderconfirmation/ResetTandas falló con status: {StatusCode}", resetList.StatusCode);
                 return StatusCode((int)resetList.StatusCode, "Error al resetear la lista de órdenes.");
             }
-
             var urlFamily = "http://apifamilymaster:8080/api/FamilyMaster/obtener-total-salidas";
             var respuesta = await httpClientFam.GetAsync(urlFamily);
             if (!respuesta.IsSuccessStatusCode)
             {
+                //
+                _logger.LogWarning("La llamada a apiFamilyMaster falló con status: {StatusCode}", respuesta.StatusCode);
                 return StatusCode((int)respuesta.StatusCode, "No hay FamilyMaster cargado o error al llamar a la API.");
             }
+
 
             var content = await respuesta.Content.ReadAsStringAsync();
             try
@@ -343,30 +382,41 @@ namespace APIWaveRelease.controllers
                 {
                     if (totalSalidas == 0)
                     {
+                        //
+                        _logger.LogWarning("FamilyMaster no tiene salidas disponibles (totalSalidas = 0).");
                         return StatusCode((int)respuesta.StatusCode, "No hay FamilyMaster cargado.");
                     }
                     salidasDisponibles = totalSalidas;
+                    //
+                    _logger.LogInformation("Salidas disponibles obtenidas de FamilyMaster: {SalidasDisponibles}", salidasDisponibles);
                 }
                 else
                 {
+                    //
+                    _logger.LogWarning("El formato de la respuesta de FamilyMaster no es válido. No se encontró la propiedad 'totalSalidas'. Contenido: {Content}", content);
                     return StatusCode((int)respuesta.StatusCode, "El formato de la respuesta no es válido.");
                 }
             }
             catch (JsonException ex)
             {
-                _logger.LogError($"Error al deserializar el JSON: {ex.Message}");
+                //
+                _logger.LogError(ex, "Error al deserializar la respuesta de FamilyMaster. Contenido: {Content}", content);
+                //_logger.LogError($"Error al deserializar el JSON: {ex.Message}");
                 return StatusCode(500, "Error al deserializar el JSON.");
             }
 
             // Paso 2: Operaciones en la BD dentro de una transacción incluyendo el envío a Luca
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
+                _logger.LogInformation("Iniciando transacción en la base de datos para la Wave: {WaveId}", waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat);
                 try
                 {
                     // Evitar guardar si hay órdenes activas
                     var ordenesActivas = await _context.WaveRelease.AnyAsync(wr => wr.estadoWave == true);
                     if (ordenesActivas)
                     {
+                        //
+                        _logger.LogWarning("Transacción para Wave {WaveId} RECHAZADA. Ya existen órdenes activas.", waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat);
                         return StatusCode(407, "Existen órdenes en proceso en estado activo (1). No se guardan datos.");
                     }
 
@@ -413,6 +463,8 @@ namespace APIWaveRelease.controllers
                     }
 
                     // Guardar en la base de datos
+                    //
+                    _logger.LogInformation("Guardando {Count} registros de WaveRelease en la base de datos.", waveReleases.Count);
                     _context.WaveRelease.AddRange(waveReleases);
                     await _context.SaveChangesAsync();
 
@@ -459,6 +511,8 @@ namespace APIWaveRelease.controllers
             // Fuera de la transacción
 
             // Paso 3: Activar tandas
+            //
+            _logger.LogInformation("Iniciando activación de tandas");
             try
             {
                 var httpClient = _httpClientFactory.CreateClient("apiLuca");
@@ -502,6 +556,8 @@ namespace APIWaveRelease.controllers
         [HttpGet("{idOrdenTrabajo}")]
         public async Task<IActionResult> GetWaveByIdOrdenTrabajo(string idOrdenTrabajo)
         {
+            //
+            _logger.LogInformation("Buscando Wave por idOrdenTrabajo: {IdOrdenTrabajo}", idOrdenTrabajo);
             var waveReleases = await _context.WaveRelease
                 .Where(w => w.NumOrden == idOrdenTrabajo)
                 .AsNoTracking() // Para mejorar el rendimiento de consultas de solo lectura
@@ -509,9 +565,12 @@ namespace APIWaveRelease.controllers
 
             if (waveReleases == null || waveReleases.Count == 0)
             {
+                //
+                _logger.LogWarning("No se encontró la orden {IdOrdenTrabajo} en WaveRelease.", idOrdenTrabajo);
                 return NotFound($"Orden no registrada en la wave {idOrdenTrabajo}");
             }
-
+            //
+            _logger.LogInformation("Se encontraron {Count} registros para la orden {IdOrdenTrabajo}.", waveReleases.Count, idOrdenTrabajo);
             return Ok(waveReleases);
         }
 
@@ -519,11 +578,15 @@ namespace APIWaveRelease.controllers
         [HttpPost("DesactivarWave/{numOrden}/{codProducto}")]
         public async Task<IActionResult> DesactivarWave(string numOrden, string codProducto)
         {
+            //
+            _logger.LogInformation("Intentando desactivar Wave para Orden: {NumOrden}, Producto: {CodProducto}", numOrden, codProducto);
             var waveRelease = await _context.WaveRelease
                 .FirstOrDefaultAsync(wr => wr.NumOrden == numOrden && wr.CodProducto == codProducto && wr.estadoWave == true);
 
             if (waveRelease == null)
             {
+                //
+                _logger.LogWarning("No se encontró Wave activa para desactivar. Orden: {NumOrden}, Producto: {CodProducto}", numOrden, codProducto);
                 return NotFound($"No se encontró una wave asociada a la orden {numOrden} y producto {codProducto}");
             }
 
@@ -531,6 +594,8 @@ namespace APIWaveRelease.controllers
             _context.WaveRelease.Update(waveRelease);
             await _context.SaveChangesAsync();
 
+            //
+            _logger.LogInformation("Wave para Orden: {NumOrden}, Producto: {CodProducto} ha sido desactivada exitosamente.", numOrden, codProducto);
             return Ok($"El estado de la wave asociada a la orden {numOrden} y producto {codProducto} ha sido actualizado a procesado.");
         }
 
@@ -550,6 +615,8 @@ namespace APIWaveRelease.controllers
 
         private async Task<IActionResult> GuardarWaveCache(WaveReleaseKN waveReleaseKn)
         {
+            //
+            _logger.LogInformation("Iniciando GuardarWaveCache");
             // Obtener datos existentes en la base de datos con clave de tipo tupla
             var existingCacheData = await _context.WaveReleaseCache
                 .ToDictionaryAsync(x => (x.Ordnum, x.Prtnum));
@@ -559,6 +626,8 @@ namespace APIWaveRelease.controllers
             var existingCache = existingCacheData.Values.FirstOrDefault();
             if (existingCache != null && existingCache.Schbat != waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat)
             {
+                //
+                _logger.LogWarning("Guardado en caché RECHAZADO. La Wave entrante ({NewWave}) no coincide con la del caché existente ({ExistingWave}).", waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat, existingCache.Schbat);
                 return BadRequest("La nueva Wave no coincide con los registros existentes en el cache.");
             }
 
@@ -569,6 +638,8 @@ namespace APIWaveRelease.controllers
                 {
                     if (string.IsNullOrWhiteSpace(shipSeg.prtfam))
                     {
+                        //
+                        _logger.LogWarning("Guardado en caché RECHAZADO. Se encontró una familia (prtfam) vacía para Orden: {Ordnum} y Producto: {Prtnum}", orden.ordnum, shipSeg.prtnum);
                         return BadRequest($"Error: Familia de producto (prtfam) vacía o nula en ordnum {orden.ordnum} y prtnum {shipSeg.prtnum}");
                     }
                 }
@@ -594,6 +665,8 @@ namespace APIWaveRelease.controllers
 
             if (familiasNoEncontradas.Any())
             {
+                //
+                _logger.LogWarning("Guardado en caché RECHAZADO. Las siguientes familias no existen en FamilyMaster: {Familias}", string.Join(", ", familiasNoEncontradas));
                 return BadRequest($"Las siguientes familias no existen en FamilyMaster: {string.Join(", ", familiasNoEncontradas)}");
             }
 
@@ -625,6 +698,8 @@ namespace APIWaveRelease.controllers
 
             if (tiendasNoEncontradas.Any())
             {
+                //
+                _logger.LogWarning("Guardado en caché RECHAZADO. Las siguientes tiendas no existen en FamilyMaster: {Tiendas}", string.Join(", ", tiendasNoEncontradas));
                 return BadRequest($"Las siguientes tiendas no existen en FamilyMaster: {string.Join(", ", tiendasNoEncontradas)}");
             }
 
@@ -694,19 +769,24 @@ namespace APIWaveRelease.controllers
             // Guardar nuevos registros
             _context.WaveReleaseCache.AddRange(groupedData.Values);
             await _context.SaveChangesAsync();
-
+            //
+            _logger.LogInformation("Datos para la Wave {WaveId} guardados correctamente en el caché. {NewCount} nuevos registros agregados.", waveReleaseKn.ORDER_TRANSMISSION.ORDER_TRANS_SEG.schbat, groupedData.Values.Count);
             return Ok("Datos guardados correctamente en el cache.");
         }
 
 
         private async Task<IActionResult> EnviarPostEndpoint()
         {
+            //
+            _logger.LogInformation("Iniciando proceso EnviarCache.");
             try
             {
                 var waveCache = await _context.WaveReleaseCache.ToListAsync();
 
                 if (!waveCache.Any())
                 {
+                    //
+                    _logger.LogInformation("No hay datos en cache para enviar. Proceso terminado.");
                     return BadRequest("No hay datos en cache para enviar.");
                 }
                 bool hayWaveActiva = await _context.WaveRelease.AnyAsync(wr => wr.estadoWave == true);
