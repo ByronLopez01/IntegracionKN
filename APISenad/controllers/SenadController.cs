@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace APISenad.controllers
 {
@@ -389,6 +390,42 @@ namespace APISenad.controllers
 
         }
 
+
+
+
+        private static Dictionary<int, int> conteoPorSalida = Enumerable.Range(1, 16)
+        .ToDictionary(i => i, i => 0);
+
+        private static int salidaActual = 1;
+
+        [HttpGet("PruebaSorter/{codItem}")]
+        public async Task<ActionResult> PruebaSorter(string codItem)
+        {
+            _logger.LogInformation("Inicio del Proceso APISenad....");
+            _logger.LogInformation("Código escaneado: {codigo}", codItem);
+
+            // Verificar si ya se asignaron 10 códigos a la salida actual
+            if (conteoPorSalida[salidaActual] >= 3)
+            {
+                salidaActual++;
+
+                // Reiniciar si se supera la salida 16
+                if (salidaActual > 16)
+                    salidaActual = 1;
+            }
+
+            // Asignar el código a la salida actual
+            conteoPorSalida[salidaActual]++;
+
+            var respuestaSorter = new RespuestaEscaneo
+            {
+                codigoIngresado = codItem,
+                numeroOrden = $"No se encontró ninguna orden activa para el código: {codItem}",
+                salida = salidaActual
+            };
+
+            return Ok(respuestaSorter);
+        }
     }
 
 }
