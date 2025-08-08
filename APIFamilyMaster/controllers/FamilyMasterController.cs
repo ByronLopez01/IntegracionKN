@@ -48,13 +48,24 @@ namespace APIFamilyMaster.controllers
         [HttpGet("obtener-total-salidas")]
         public async Task<IActionResult> ObtenerTotalSalidas()
         {
-            var totalSalidas = await _familyMasterService.ObtenerTotalSalidasAsync();
-            return Ok(new { TotalSalidas = totalSalidas });
+            _logger.LogInformation("Iniciando la obtención del total de salidas.");
+            try
+            {
+                var totalSalidas = await _familyMasterService.ObtenerTotalSalidasAsync();
+                _logger.LogInformation("Total de salidas obtenido: {TotalSalidas}", totalSalidas);
+                return Ok(new { TotalSalidas = totalSalidas });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener el total de salidas.");
+                return StatusCode(500, "Error interno del servidor al obtener el total de salidas.");
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> PostFamilyMaster([FromBody] List<FamilyMaster> familyMasters)
         {
+            //_logger.LogInformation("Iniciando POST /FamilyMaster con {Count} registros.", familyMasters?.Count ?? 0);
             if (familyMasters == null || familyMasters.Count == 0)
             {
                 _logger.LogError("La lista de FamilyMaster está vacía o es nula.");
@@ -113,6 +124,7 @@ namespace APIFamilyMaster.controllers
 
             try
             {
+                _logger.LogInformation("Eliminando datos existentes de FamilyMaster.");
                 var datosExistentes = _context.Familias.ToList();
                 if (datosExistentes.Any())
                 {
@@ -146,10 +158,12 @@ namespace APIFamilyMaster.controllers
                     familyMasterEntities.Add(familyMaster);
                 }
 
+                //_logger.LogInformation("Agregando {Count} nuevas entidades de FamilyMaster.", familyMasterEntities.Count);
                 _context.Familias.AddRange(familyMasterEntities);
                 await _context.SaveChangesAsync();
+                _logger.LogInformation("Datos de FamilyMaster guardados en la base de datos.");
 
-                
+
                 // ENVIO DE JSON A LUCA!!
                 var jsonContent = JsonSerializer.Serialize(familyMasters);
                 var httpClient = _httpClientFactory.CreateClient("apiLuca");
@@ -163,7 +177,7 @@ namespace APIFamilyMaster.controllers
                 _logger.LogInformation("Enviando JSON a Luca en la URL: {UrlLuca}", urlLuca);
                 _logger.LogInformation("JSON a enviar: {JsonContent}", jsonContent);
 
-                
+                /*
                 try
                 {
                     var response = await httpClient.PostAsync(urlLuca, httpContent);
@@ -187,22 +201,27 @@ namespace APIFamilyMaster.controllers
                 {
                     _logger.LogError("Ocurrió un error inesperado: {Message}", ex.Message);
                     return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
-                }               
-                
+                }
+                */
+
+                _logger.LogInformation("Proceso de PostFamilyMaster completado exitosamente.");
                 return Ok("Datos guardados correctamente.");
 
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Error al procesar la lista de FamilyMaster.");
                 return BadRequest("Error al procesar FamilyMaster");
             }
             
         }
 
         // GET: api/FamilyMaster
+        // GET: api/FamilyMaster
         [HttpGet]
         public async Task<IActionResult> GetFamilyMasters([FromQuery] string tienda, [FromQuery] string familia)
         {
+            _logger.LogInformation("Iniciando GET /FamilyMaster con Tienda: '{Tienda}' y Familia: '{Familia}'", tienda, familia);
             // Validar los parámetros de entrada
             if (string.IsNullOrEmpty(tienda) && string.IsNullOrEmpty(familia))
             {
@@ -210,50 +229,59 @@ namespace APIFamilyMaster.controllers
                 return BadRequest("Los parámetros de búsqueda 'tienda' y 'familia' no pueden ser nulos o vacíos.");
             }
 
-            // Realizar la consulta en base a los parámetros proporcionados
-            var query = _context.Familias.AsQueryable();
-
-            if (!string.IsNullOrEmpty(tienda))
+            try
             {
-                query = query.Where(f => f.Tienda1 == tienda ||
-                                         f.Tienda2 == tienda ||
-                                         f.Tienda3 == tienda ||
-                                         f.Tienda4 == tienda ||
-                                         f.Tienda5 == tienda ||
-                                         f.Tienda6 == tienda ||
-                                         f.Tienda7 == tienda ||
-                                         f.Tienda8 == tienda ||
-                                         f.Tienda9 == tienda ||
-                                         f.Tienda10 == tienda ||
-                                         f.Tienda11 == tienda ||
-                                         f.Tienda12 == tienda);
-            }
+                // Realizar la consulta en base a los parámetros proporcionados
+                var query = _context.Familias.AsQueryable();
 
-            if (!string.IsNullOrEmpty(familia))
-            {
-                query = query.Where(f => f.Familia == familia);
-            }
-
-            var familyMasters = await query
-                .Select(f => new
+                if (!string.IsNullOrEmpty(tienda))
                 {
-                    f.IdFamilyMaster,
-                    f.Familia,
-                    f.NumSalida,
-                    f.NumTanda,
-                    TiendaConsultada = tienda,
-                    FamiliaConsultada = familia
-                })
-                .ToListAsync();
+                    query = query.Where(f => f.Tienda1 == tienda ||
+                                             f.Tienda2 == tienda ||
+                                             f.Tienda3 == tienda ||
+                                             f.Tienda4 == tienda ||
+                                             f.Tienda5 == tienda ||
+                                             f.Tienda6 == tienda ||
+                                             f.Tienda7 == tienda ||
+                                             f.Tienda8 == tienda ||
+                                             f.Tienda9 == tienda ||
+                                             f.Tienda10 == tienda ||
+                                             f.Tienda11 == tienda ||
+                                             f.Tienda12 == tienda);
+                }
 
-            // Verificar si se encontraron resultados
-            if (familyMasters == null || !familyMasters.Any())
-            {
-                _logger.LogWarning("No se encontraron datos para la tienda y familia proporcionadas.");
-                return NotFound("No se encontraron datos para la tienda y familia proporcionadas.");
+                if (!string.IsNullOrEmpty(familia))
+                {
+                    query = query.Where(f => f.Familia == familia);
+                }
+
+                var familyMasters = await query
+                    .Select(f => new
+                    {
+                        f.IdFamilyMaster,
+                        f.Familia,
+                        f.NumSalida,
+                        f.NumTanda,
+                        TiendaConsultada = tienda,
+                        FamiliaConsultada = familia
+                    })
+                    .ToListAsync();
+
+                // Verificar si se encontraron resultados
+                if (familyMasters == null || !familyMasters.Any())
+                {
+                    _logger.LogWarning("No se encontraron datos para la tienda '{Tienda}' y familia '{Familia}'.", tienda, familia);
+                    return NotFound("No se encontraron datos para la tienda y familia proporcionadas.");
+                }
+
+                _logger.LogInformation("Se encontraron {Count} registros para la tienda '{Tienda}' y familia '{Familia}'.", familyMasters.Count, tienda, familia);
+                return Ok(familyMasters);
             }
-
-            return Ok(familyMasters);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al buscar en FamilyMaster con tienda '{Tienda}' y familia '{Familia}'.", tienda, familia);
+                return StatusCode(500, "Error interno del servidor al realizar la búsqueda.");
+            }
         }
 
 
@@ -261,38 +289,59 @@ namespace APIFamilyMaster.controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetFamilyMasterById(int id)
         {
-            var familyMaster = await _context.Familias.FindAsync(id);
-
-            if (familyMaster == null)
+            _logger.LogInformation("Iniciando GET /FamilyMaster/{Id}", id);
+            try
             {
-                return NotFound("No se encontró el dato con el id proporcionado.");
-            }
+                var familyMaster = await _context.Familias.FindAsync(id);
 
-            return Ok(familyMaster);
+                if (familyMaster == null)
+                {
+                    _logger.LogWarning("No se encontró FamilyMaster con Id: {Id}", id);
+                    return NotFound("No se encontró el dato con el id proporcionado.");
+                }
+
+                _logger.LogInformation("FamilyMaster con Id: {Id} encontrado.", id);
+                return Ok(familyMaster);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener FamilyMaster por Id: {Id}", id);
+                return StatusCode(500, "Error interno del servidor al obtener el registro.");
+            }
         }
 
         [HttpPost("activar-tandas")]
         public async Task<IActionResult> ActivarTandas([FromQuery] int salidasDisponibles)
         {
+            _logger.LogInformation("Iniciando POST /activar-tandas con salidasDisponibles: {SalidasDisponibles}", salidasDisponibles);
             if (salidasDisponibles <= 0)
             {
-                _logger.LogError("Error. El número de salidas disponibles debe ser mayor a cero.");
+                _logger.LogError("Error. El número de salidas disponibles debe ser mayor a cero. Valor recibido: {SalidasDisponibles}", salidasDisponibles);
                 return BadRequest("Error. El número de salidas disponibles debe ser mayor a cero.");
             }
 
-            // Llamamos al servicio para activar las tandas
-            var tandasActivadas = await _familyMasterService.ActivarTandasAsync(salidasDisponibles);
-
-            return Ok(new
+            try
             {
-                Message = $"{tandasActivadas.Count} tanda(s) activada(s).",
-                TandasActivadas = tandasActivadas
-            });
+                // Llamamos al servicio para activar las tandas
+                var tandasActivadas = await _familyMasterService.ActivarTandasAsync(salidasDisponibles);
+                _logger.LogInformation("Inicio con {Count} tandas activadas. Tandas: {Tandas}", tandasActivadas.Count, string.Join(",", tandasActivadas));
+                return Ok(new
+                {
+                    Message = $"{tandasActivadas.Count} tandas activadas.",
+                    TandasActivadas = tandasActivadas
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error en el proceso de activar tandas con salidas disponibles: {SalidasDisponibles}", salidasDisponibles);
+                return StatusCode(500, "Error interno del servidor al activar las tandas.");
+            }
         }
 
         [HttpPost("activarSiguienteTanda")]
         public async Task<IActionResult> ActivarSiguienteTanda([FromQuery] int numTandaActual)
         {
+            _logger.LogInformation("Iniciando POST /activarSiguienteTanda con numTandaActual: {NumTandaActual}", numTandaActual);
             try
             {
                 // Llama al método del servicio
@@ -300,20 +349,29 @@ namespace APIFamilyMaster.controllers
 
                 if (!tandaActivada.NumTanda.HasValue)
                 {
-                    _logger.LogWarning("No se encontró una tanda siguiente o ya fue activada: {NumTandaActual}", numTandaActual);
+                    _logger.LogWarning("No se encontró una tanda siguiente o ya fue activada para la tanda actual: {NumTandaActual}", numTandaActual);
                     return Ok(new { message = "No se encontró una tanda siguiente o ya fue activada: " + numTandaActual });
                 }
 
+                // Obtener la familia de la tanda anterior para un log más detallado
+                var familiaAnterior = await _context.Familias
+                    .Where(f => f.NumTanda == numTandaActual)
+                    .Select(f => f.Familia)
+                    .FirstOrDefaultAsync();
+
+                _logger.LogInformation("NORMAL. Tanda activada: {TandaActivada} (Familia: {FamiliaActivada}). Tanda anterior: {NumTandaAnterior} (Familia: {FamiliaAnterior}).",
+                    tandaActivada.NumTanda, tandaActivada.Familia, numTandaActual, familiaAnterior);
+
                 return Ok(new
                 {
-                    message = $"Tanda {tandaActivada} activada correctamente.",
+                    message = $"Tanda {tandaActivada.NumTanda} activada correctamente.",
                     tandaActivada = tandaActivada.NumTanda
                 });
             }
             catch (Exception ex)
             {
                 // Manejo de errores
-                _logger.LogError("Error al activar la siguiente tanda: {Message}", ex.Message);
+                _logger.LogError(ex, "Error al activar la siguiente tanda para la tanda actual: {NumTandaActual}", numTandaActual);
                 return StatusCode(500, new { message = "Error al activar siguiente tanda.", error = ex.Message });
             }
         }
@@ -322,37 +380,48 @@ namespace APIFamilyMaster.controllers
         [HttpPost("activarSiguienteTandaFamily")]
         public async Task<IActionResult> ActivarSiguienteTandaFamilyConfirm([FromQuery] int numTandaActual)
         {
+            _logger.LogInformation("Iniciando POST /activarSiguienteTandaFamily con numTandaActual: {NumTandaActual}", numTandaActual);
             try
             {
-                // Llama al método del servicio
-                var tandaActivada = await _familyMasterService.ActivarSiguienteTandaAsyncFamilyConfirm(numTandaActual);
+                // Llama al método del servicio, que ahora devuelve una tupla con el mensaje de estado.
+                var (tandaActivadaNum, familiaActivada, message) = await _familyMasterService.ActivarSiguienteTandaAsyncFamilyConfirm(numTandaActual);
 
-                if (!tandaActivada.NumTanda.HasValue)
+                // Si no se activó una nueva tanda, registra el mensaje específico del servicio y devuélvelo.
+                if (!tandaActivadaNum.HasValue)
                 {
-                    return Ok(new { message = "No se encontró una tanda siguiente o ya fue activada: " + numTandaActual });
+                    _logger.LogWarning("No se pudo activar la siguiente tanda para la Tanda actual {NumTandaActual}. Motivo: {Message}", numTandaActual, message);
+                    return Ok(new { message });
                 }
+
+                // Obtener la familia de la tanda anterior para un log más detallado
+                var familiaAnterior = await _context.Familias
+                    .Where(f => f.NumTanda == numTandaActual)
+                    .Select(f => f.Familia)
+                    .FirstOrDefaultAsync();
+
+                _logger.LogInformation("FAMILY. Tanda activada: {TandaActivada} (Familia: {FamiliaActivada}). Tanda anterior: {NumTandaAnterior} (Familia: {FamiliaAnterior}).",
+                    tandaActivadaNum, familiaActivada, numTandaActual, familiaAnterior);
 
                 return Ok(new
                 {
-                    message = $"Tanda {tandaActivada} activada correctamente.",
-                    tandaActivada = tandaActivada.NumTanda
+                    message = $"Tanda {tandaActivadaNum} activada correctamente.",
+                    tandaActivada = tandaActivadaNum
                 });
             }
             catch (Exception ex)
             {
                 // Manejo de errores
+                _logger.LogError(ex, "Error al activar la siguiente tanda (FamilyConfirm) para la tanda actual: {NumTandaActual}", numTandaActual);
                 return StatusCode(500, new { message = "Error interno del servidor.", error = ex.Message });
             }
         }
-
-
-
 
 
         // Nuevo endpoint GET para obtener todos los registros de FamilyMaster
         [HttpGet("all")]
         public async Task<IActionResult> GetAllFamilyMasters()
         {
+            _logger.LogInformation("Iniciando GET /all para obtener todos los registros de FamilyMaster.");
             try
             {
                 // Obtener todos los registros de la tabla FamilyMaster
@@ -361,18 +430,21 @@ namespace APIFamilyMaster.controllers
                 // Verificar si hay datos
                 if (familyMasters == null || familyMasters.Count == 0)
                 {
-                    _logger.LogError("Error. No se encontraron registros en la tabla FamilyMaster.");
+                    _logger.LogWarning("No se encontraron registros en la tabla FamilyMaster.");
                     return NotFound("Error. No se encontraron registros en la tabla FamilyMaster.");
                 }
 
+                _logger.LogInformation("Se obtuvieron {Count} registros de FamilyMaster.", familyMasters.Count);
                 // Devolver los datos en formato JSON
                 return Ok(familyMasters);
             }
             catch (Exception ex)
             {
                 // Manejo de errores
+                _logger.LogError(ex, "Error al obtener todos los registros de FamilyMaster.");
                 return StatusCode(500, new { message = "Error al obtener los registros de FamilyMaster.", error = ex.Message });
             }
         }
+
     }
 }
