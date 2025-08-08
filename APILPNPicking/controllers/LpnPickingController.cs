@@ -65,6 +65,7 @@ namespace APILPNPicking.controllers
 
             var lpn_rechazados = new List<LpnRechazado>();
 
+            _logger.LogInformation("Iniciando verificación de dtlnum duplicados...");
 
             // Verificar si existen dtlnum duplicados en los datos recibidos
             var allDtlNumbers = request.SORT_INDUCTION.LOAD_HDR_SEG
@@ -74,11 +75,16 @@ namespace APILPNPicking.controllers
                 .Where(dtlnum => !string.IsNullOrEmpty(dtlnum))
                 .ToList();
 
+            _logger.LogInformation("Total de dtlnum recibidos: {count}", allDtlNumbers.Count);
+
             var duplicateDtl = allDtlNumbers
                 .GroupBy(dtlnum => dtlnum)
                 .Where(g => g.Count() > 1)
                 .Select(g => g.Key)
                 .ToList();
+
+            _logger.LogInformation("Total de dtlnum duplicados encontrados: {count}", duplicateDtl.Count);
+
 
             if (duplicateDtl.Any())
             {
@@ -89,6 +95,7 @@ namespace APILPNPicking.controllers
 
 
 
+            _logger.LogInformation("Obteniendo Wave actual");
 
             // Obtener la Wave activa actual
             var activeWave = await _context.WaveRelease
@@ -97,6 +104,9 @@ namespace APILPNPicking.controllers
                 .Select(w => w.Wave)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
+
+            
+
 
             if (string.IsNullOrEmpty(activeWave))
             {
@@ -116,6 +126,8 @@ namespace APILPNPicking.controllers
                 .Distinct()
                 .ToList();
 
+            _logger.LogInformation("Total de dtlNumbers extraídos del request: {Count}", dtlNumbers.Count);
+
 
             // Obtener los dtlNumbers ya existentes en la Base de Datos.
             var existingNumbers = new HashSet<string>();
@@ -128,6 +140,9 @@ namespace APILPNPicking.controllers
                     .Distinct()
                     .ToHashSet();
             }
+
+            _logger.LogInformation("Total de dtlNumbers ya existentes en la base de datos para la wave activa: {Count}", existingNumbers.Count);
+
 
             _logger.LogInformation("Datos válidos. Procesando el encabezado de carga.");
 
@@ -168,6 +183,7 @@ namespace APILPNPicking.controllers
                     }
                     catch (JsonException jsonEx)
                     {
+                        _logger.LogDebug("Contenido que no se pudo deserializar: {Content}", waveReleaseResponse);
                         _logger.LogError("Error. Fallo al deserializar la WaveRelease: {ExceptionMessage}", jsonEx.Message);
                         return StatusCode(500, "Error. Fallo al deserializar la WaveRelease.");
                     }
