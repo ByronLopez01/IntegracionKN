@@ -37,7 +37,9 @@ namespace APIWaveRelease.Pages
             // Lógica para obtener la contraseña del administrador
             var usuariosPermitidos = _configuration.GetSection("UsuariosPermitidos").Get<List<UsuarioConfig>>();
             var adminUser = usuariosPermitidos?.FirstOrDefault(u => u.Usuario == "kn");
-            AdminPassword = adminUser?.Contrasena ?? string.Empty;
+            
+            // Contraseña Admin Wave
+            AdminPassword = _configuration["AdminSettings:Password"] ?? "DefaultAdminPassword";
         }
 
         // Page Handler para validar credenciales de login
